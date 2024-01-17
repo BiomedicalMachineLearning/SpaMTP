@@ -28,3 +28,5 @@ Imports:
     stringr,
     tidyr,
     utils
+URL: https://github.com/agc888/SpaMTP
+BugReports: https://github.com/agc888/SpaMTP/issues
