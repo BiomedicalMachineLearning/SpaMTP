@@ -1,5 +1,6 @@
 library(Cardinal)
 
+
 #### SpaMTP Cardinal Preprocessing Functions ############################################################################################################################################################################
 
 
@@ -36,9 +37,10 @@ calculate_coordinates <- function(index, ncol, padding) {
 #' @examples
 #' set_centroid_to_true(cardinalObj)
 set_centroid_to_true <- function(data){
-  centroided(data) <- TRUE
+  Cardinal::centroided(data) <- TRUE
   return(data)
 }
+
 
 
 #' Merges Cardinal Objects together
@@ -47,6 +49,7 @@ set_centroid_to_true <- function(data){
 #' @param data_list List of Cardinal Objects being merged together.
 #' @param ncol An integer defining the number of columns present when plotting the merged Cardinal Object (default = 2).
 #' @param padding An integer defining the pixel padding between plots (default = 200).
+#' @param shift.images Boolean value describing if to shift the image coordinates for plotting to prevent overlay (default = FALSE).
 #'
 #' @returns A Cardinal Object with values merged form each individual Cardinal Object givin.
 #' @export
@@ -54,7 +57,7 @@ set_centroid_to_true <- function(data){
 #' @examples
 #' cardinal_object_list <- list(cardinalObj1, cardinalObj2, cardinalObj3, cardinalObj4)
 #' merge.cardinalData(cardinal_object_list)
-merge.cardinalData <- function(data_list, ncols = 2, padding = 200){
+merge.cardinalData <- function(data_list, ncols = 2, padding = 200, shift.image = FALSE){
 
   ### NOTE: mass.range and resolution of each sample in the data list must be the same to merge
 
@@ -62,19 +65,21 @@ merge.cardinalData <- function(data_list, ncols = 2, padding = 200){
 
   data_list <- lapply(data_list, set_centroid_to_true)
 
-  ### Changes pixel coordinates so that they do not overlap on the same plot
-  message("Shifting Pixel Coordinates to Combining Samples ...... ")
+  if (shift.image){
+    ### Changes pixel coordinates so that they do not overlap on the same plot
+    message("Shifting Pixel Coordinates to Combining Samples ...... ")
 
-  n <- 1
-  while ( n <= length(data_list)){
+    n <- 1
+    while ( n <= length(data_list)){
 
-    data_copy <- data_list[[n]]
-    data_copy_pixel_data <- pixelData(data_copy)
-    coordnate_list <- calculate_coordinates(n,ncols, padding)
-    data_copy_pixel_data@coord$x <- data_copy_pixel_data@coord$x + as.numeric(coordnate_list$x) # Adds values to pixels so they dont overlap on the plots
-    data_copy_pixel_data@coord$x <- data_copy_pixel_data@coord$y + as.numeric(coordnate_list$y)
-    pixelData(data_list[[n]]) <- data_copy_pixel_data
-    n <- n+1
+      data_copy <- data_list[[n]]
+      data_copy_pixel_data <- Cardinal::pixelData(data_copy)
+      coordnate_list <- calculate_coordinates(n,ncols, padding)
+      data_copy_pixel_data@coord$x <- data_copy_pixel_data@coord$x + as.numeric(coordnate_list$x) # Adds values to pixels so they dont overlap on the plots
+      data_copy_pixel_data@coord$x <- data_copy_pixel_data@coord$y + as.numeric(coordnate_list$y)
+      Cardinal::pixelData(data_list[[n]]) <- data_copy_pixel_data
+      n <- n+1
+    }
   }
 
   return(Cardinal::combine(data_list))
