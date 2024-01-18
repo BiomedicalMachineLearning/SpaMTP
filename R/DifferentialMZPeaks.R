@@ -9,6 +9,7 @@ library(pheatmap)
 library(limma)
 library(utils)
 library(stats)
+library(grDevices)
 
 #### SpaMTP Differential Peaks Analysis Functions ########################################################################################################################################################################################
 
@@ -219,7 +220,7 @@ FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir
 #' @param n A numeric integer that defines the number of UP and DOWN regulated peaks to plot (default = 25).
 #' @param FDR_threshold An integer that defines the FDR_threshold to use for defining most significant results (default = 0.05).
 #' @param scale A character string indicating if the values should be centered and scaled in either the row direction or the column direction, or none. Corresponding values are "row", "column" and "none"
-#' @param color A vector of colors used in heatmap (default = ggplot2::colorRampPalette(c("navy", "white", "red"))(50)).
+#' @param color A vector of colors used in heatmap (default = grDevices::colorRampPalette(c("navy", "white", "red"))(50)).
 #' @param cluster_cols A boolean values determining if columns should be clustered or hclust object (default = F).
 #' @param cluster_rows A boolean values determining if rows should be clustered or hclust object (default = T).
 #' @param fontsize_row A numeric value defining the fontsize of rownames (default = 15).
@@ -235,7 +236,7 @@ FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir
 #' # DEPs <- FindAllDEPs(SeuratObj, "sample")
 #'
 #' # DEPsHeatmap(DEPs)
-DEPsHeatmap <- function(edgeR_output, n = 25, FDR_threshold = 0.05, scale="row", color= ggplot2::colorRampPalette(c("navy", "white", "red"))(50),cluster_cols = F,cluster_rows = T, fontsize_row = 15, fontsize_col = 15, cutree_cols = 9, silent = TRUE, plot_annotations = FALSE){
+DEPsHeatmap <- function(edgeR_output, n = 25, FDR_threshold = 0.05, scale="row", color= grDevices::colorRampPalette(c("navy", "white", "red"))(50),cluster_cols = F,cluster_rows = T, fontsize_row = 15, fontsize_col = 15, cutree_cols = 9, silent = TRUE, plot_annotations = FALSE){
 
   message("Generating Heatmap .......")
 

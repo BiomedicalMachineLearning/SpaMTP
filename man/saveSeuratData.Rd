@@ -35,5 +35,5 @@ Saves Seurat Spatial Metabolomic object to files.
 }
 }
 \examples{
-saveSeuratData(SeuratObject, "~/Documents/seuratobj_files/", annotations = TRUE)
+# saveSeuratData(SeuratObject, "~/Documents/seuratobj_files/", annotations = TRUE)
 }

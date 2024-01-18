@@ -1,4 +1,5 @@
 library(Seurat)
+library(SeuratObject)
 library(ggplot2)
 
 

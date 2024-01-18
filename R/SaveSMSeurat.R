@@ -16,7 +16,7 @@ library(data.table)
 #'
 #'
 #' @examples
-#' saveSeuratData(SeuratObject, "~/Documents/seuratobj_files/", annotations = TRUE)
+#' # saveSeuratData(SeuratObject, "~/Documents/seuratobj_files/", annotations = TRUE)
 saveSeuratData <- function(data, outdir, assay = "Spatial", slot = "counts", annotations = FALSE){
 
   message(paste0("Generating new directory to store output here: ", outdir))
