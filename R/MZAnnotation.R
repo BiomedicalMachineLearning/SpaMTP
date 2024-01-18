@@ -124,7 +124,7 @@ AnnotateSeuratMALDI <- function(data, db, feature.metadata.assay = "Spatial", fe
 #' Used to subset dataset to only include annotations that have n number of enteries
 #'    - (i.e. some peaks can have multiple annotations. Peaks which have above n number of annotations assigned will be removed from Seurat Object)
 #'
-#' @param obj Seurat object needing annotation refinement. This object must have annotations present in 'obj[[assay]]@meta.data'
+#' @param obj Seurat object needing annotation refinement. This object must have annotations present in 'obj`[[assay]]@meta.data`'
 #' @param assay Character string defining the Seurat object assay where the annotation data is stored (default = "Spatial").
 #' @param n Integer defining the number of enteries an annotation can have assigned. Any higher counts will be removed (default = 1).
 #'
