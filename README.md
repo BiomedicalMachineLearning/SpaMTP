@@ -20,7 +20,7 @@ addition, this package has the ability to use both Cardinal (Spatial
 Metabolomic based software) and Seurat (Spatial Transcriptomic based
 software) functions.
 
-<img src="inst/figures/SpaMTPSummaryFig.png" height="400" alt="" />
+<img src="inst/figures/SpaMTPSummaryFig.png" height="400" alt="" style="background-color: white;" />
 
 ## Installation
 
