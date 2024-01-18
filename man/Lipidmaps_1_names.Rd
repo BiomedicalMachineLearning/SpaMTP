@@ -5,7 +5,8 @@
 \alias{Lipidmaps_1_names}
 \title{Lipidmaps_1_names: A cleaned version of the lipid database from LIPID MAPS}
 \format{
-A data frame with 9493 rows and 37 variables:
+\subsection{A data frame with 9493 rows and 37 variables:}{
+
 \describe{
 \item{formula}{Chemical formula of the entity (character)}
 \item{exactmass}{Exact mass of the entity (numeric)}
@@ -44,6 +45,8 @@ A data frame with 9493 rows and 37 variables:
 \item{M+TFA-H}{Mass of the entity as a M+TFA-H ion (double)}
 \item{M-H}{Mass of the entity as a M-H ion (double)}
 \item{M-H2O-H}{Mass of the entity as a M-H2O-H ion (double)}
+...
+}
 }
 }
 \source{
@@ -54,15 +57,5 @@ Lipidmaps_1_names
 }
 \description{
 This object contains a collection of lipids from the LIPID MAPS Structure Database.
-}
-\examples{
-# Access the molecular formula of the first lipid
-Lipidmaps_1_names$formula[1]
-
-# Access the exact mass of the third lipid
-Lipidmaps_1_names$exactmass[3]
-
-# View all information for a specific lipid
-Lipidmaps_1_names[Lipidmaps_1_names$isomers == "LMSP0601GB03", ]
 }
 \keyword{datasets}

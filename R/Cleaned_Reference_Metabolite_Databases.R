@@ -5,7 +5,7 @@
 #'
 #' @description This object contains a collection of lipids from the LIPID MAPS Structure Database.
 #'
-#' @format A data frame with 9493 rows and 37 variables:
+#' @format ## A data frame with 9493 rows and 37 variables:
 #' \describe{
 #'   \item{formula}{Chemical formula of the entity (character)}
 #'   \item{exactmass}{Exact mass of the entity (numeric)}
@@ -44,17 +44,8 @@
 #'   \item{M+TFA-H}{Mass of the entity as a M+TFA-H ion (double)}
 #'   \item{M-H}{Mass of the entity as a M-H ion (double)}
 #'   \item{M-H2O-H}{Mass of the entity as a M-H2O-H ion (double)}
+#'   ...
 #' }
 #'
-#' @source \url{https://www.lipidmaps.org/}
-#'
-#' @examples
-#' # Access the molecular formula of the first lipid
-#' Lipidmaps_1_names$formula[1]
-#'
-#' # Access the exact mass of the third lipid
-#' Lipidmaps_1_names$exactmass[3]
-#'
-#' # View all information for a specific lipid
-#' Lipidmaps_1_names[Lipidmaps_1_names$isomers == "LMSP0601GB03", ]
+#' @source <https://www.lipidmaps.org/>
 Lipidmaps_1_names <- load("data/Lipidmaps_1_names.rda")
