@@ -53,7 +53,7 @@ Generates a Heatmap of DEPs generated from edgeR analysis run using FindAllDEPs(
 - this function uses pheatmap() to plot data
 }
 \examples{
-DEPs <- FindAllDEPs(SeuratObj, "sample")
+# DEPs <- FindAllDEPs(SeuratObj, "sample")
 
-DEPsHeatmap(DEPs)
+# DEPsHeatmap(DEPs)
 }

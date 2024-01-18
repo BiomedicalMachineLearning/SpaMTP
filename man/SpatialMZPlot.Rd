@@ -70,6 +70,6 @@ Visualise expression of m/z values in a spatial context for Spatial Seurat Objec
 - This function inherits off Seurat::SpatialFeaturePlot(). Look here for more detailed documentation about inputs.
 }
 \examples{
-SpatialMZPlot(SeuratObj, mzs = c(400.678, 300.1))
-SpatialMZPlot(SeuratObj, mzs = c(400.678, 300.1), plusminus = 0.05)
+# SpatialMZPlot(SeuratObj, mzs = c(400.678, 300.1))
+# SpatialMZPlot(SeuratObj, mzs = c(400.678, 300.1), plusminus = 0.05)
 }

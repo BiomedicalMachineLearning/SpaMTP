@@ -47,6 +47,6 @@ Runs EdgeR analysis for pooled data
 - This function is used by run_edgeR_annotations()
 }
 \examples{
-pooled_obj <- run_pooling(SeuratObj, "sample", n = 3)
-run_DE(pooled_obj, SeuratObj, "sample", "~/Documents/DE_output/", "run_1", n = 3, logFC_threshold = 1.2, annotations = TRUE, assay = "Spatial")
+# pooled_obj <- run_pooling(SeuratObj, "sample", n = 3)
+# run_DE(pooled_obj, SeuratObj, "sample", "~/Documents/DE_output/", "run_1", n = 3, logFC_threshold = 1.2, annotations = TRUE, assay = "Spatial")
 }

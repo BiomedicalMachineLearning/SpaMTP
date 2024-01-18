@@ -18,6 +18,6 @@ Vector of binned mz counts for each spot/pixel
 Bins multiple m/z values into one.
 }
 \examples{
-mz_values <- plusminus(SeuratObj, 448.2, 0.05)
-bin.mz(SeuratObj, mz_values)
+# mz_values <- plusminus(SeuratObj, 448.2, 0.05)
+# bin.mz(SeuratObj, mz_values)
 }

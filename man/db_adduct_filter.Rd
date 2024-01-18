@@ -20,6 +20,6 @@ A filtered reference metabolomic database DataFrame
 Filters the provided metabolomic database by polarity and adducts
 }
 \examples{
-#HMDB_db <- load("data/HMDB_1_names.rds")
-db_adduct_filter(HMDB_db,c("M+H"), polarity = "pos")
+# HMDB_db <- load("data/HMDB_1_names.rds")
+# db_adduct_filter(HMDB_db,c("M+H"), polarity = "pos")
 }

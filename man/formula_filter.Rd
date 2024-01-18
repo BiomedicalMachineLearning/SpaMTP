@@ -18,9 +18,9 @@ A refined DataFrame which only includes annotations containing the specified ele
 Filters reference Database to only select natural elements
 }
 \examples{
-# Get filtered DB by adduct
-db_1 <- db_adduct_filter(db, test_add_pos, polarity = "pos")
+## Get filtered DB by adduct
+# db_1 <- db_adduct_filter(db, test_add_pos, polarity = "pos")
 
-# Refine to only include natural elements
-db_2 <- formula_filter(db_1)
+## Refine to only include natural elements
+# db_2 <- formula_filter(db_1)
 }

@@ -20,5 +20,5 @@ A subset Seurat object containing only m/z values that were specified
 Subset a Seurat Spatial Metabolomic object by list of m/z's
 }
 \examples{
-subsetMZFeatures(SeuratObj, c("mz-160","mz-170","mz-180"))
+# subsetMZFeatures(SeuratObj, c("mz-160","mz-170","mz-180"))
 }

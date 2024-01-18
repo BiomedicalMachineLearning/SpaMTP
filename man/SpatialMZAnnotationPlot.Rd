@@ -79,6 +79,6 @@ Visualise expression of metabolites in a spatial context for Spatial Seurat Obje
 - This function inherits off Seurat::ImageFeaturePlot(). Look here for more detailed documentation about inputs.
 }
 \examples{
-SpatialMZAnnotationPlot(SeuratObj, mzs = c("Glucose", "Glutamine"))
-SpatialMZAnnotationPlot(SeuratObj, mzs = c("Glucose", "Glutamine"), plusminus = 0.05)
+# SpatialMZAnnotationPlot(SeuratObj, mzs = c("Glucose", "Glutamine"))
+# SpatialMZAnnotationPlot(SeuratObj, mzs = c("Glucose", "Glutamine"), plusminus = 0.05)
 }

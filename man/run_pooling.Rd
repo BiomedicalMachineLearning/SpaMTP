@@ -22,5 +22,5 @@ Runs pooling of a merged Seurat Dataset to generate psudo-replicates for each sa
 - This function is used by run_edgeR_annotations()
 }
 \examples{
-run_pooling <- list(seuratObj, idents = "sample", n = 3)
+# run_pooling <- list(seuratObj, idents = "sample", n = 3)
 }

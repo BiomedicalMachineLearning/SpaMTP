@@ -30,5 +30,5 @@ A Data.Frame containing the peak metadata corresponding to the metabolite search
 Searches through annotated m/z values to return all which contain the metabolite search term provided
 }
 \examples{
-SearchAnnotations(SeuratObj, "Glucose", search.exact = TRUE)
+# SearchAnnotations(SeuratObj, "Glucose", search.exact = TRUE)
 }

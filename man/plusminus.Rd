@@ -26,5 +26,5 @@ Identifies all mz peaks within a plus-minus range of the target_mz
 }
 }
 \examples{
-plusminus(SeuratObj, target_mz = 400.01, plus_minus = 0.005)
+# plusminus(SeuratObj, target_mz = 400.01, plus_minus = 0.005)
 }

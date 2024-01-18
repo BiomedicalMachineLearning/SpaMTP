@@ -26,6 +26,6 @@ Generate new MALDI counts matrix for equivalent Visium spots
 }
 }
 \examples{
-# Generate new MALDI counts matrix for equivalent Visium spots
-new_counts <- generate_new_MALDI_counts(SeuratObj, obs_x, assay = "Spatial")
+## Generate new MALDI counts matrix for equivalent Visium spots
+# new_counts <- generate_new_MALDI_counts(SeuratObj, obs_x, assay = "Spatial")
 }

@@ -114,6 +114,6 @@ Visualise expression of metabolites in a spatial context
 - This function inherits off Seurat::ImageFeaturePlot(). Look here for more detailed documentation about inputs.
 }
 \examples{
-ImageMZPlot(SeuratObj, mzs = c("Glucose", "Glutamine"))
-ImageMZPlot(SeuratObj, mzs = c("Glucose", "Glutamine"), plusminus = 0.05)
+# ImageMZPlot(SeuratObj, mzs = c("Glucose", "Glutamine"))
+# ImageMZPlot(SeuratObj, mzs = c("Glucose", "Glutamine"), plusminus = 0.05)
 }

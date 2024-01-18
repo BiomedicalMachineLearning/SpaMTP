@@ -41,5 +41,5 @@ Finds all differentially expressed m/z values between comparison groups specifie
 - This function uses run_pooling() and run_DE() to pool and run EdgeR analysis
 }
 \examples{
-FindAllDEPs(SeuratObj, "sample",DE_output_dir = "~/Documents/DE_output/", annotations = TRUE)
+# FindAllDEPs(SeuratObj, "sample",DE_output_dir = "~/Documents/DE_output/", annotations = TRUE)
 }

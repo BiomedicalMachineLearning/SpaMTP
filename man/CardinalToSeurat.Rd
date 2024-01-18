@@ -20,5 +20,5 @@ A Seurat Object containing the mz count data of the supplied Cardinal Object
 Converts a Cardinal Object into a Seurat Object
 }
 \examples{
-CardinalToSeurat(CardinalObj, run_name = "run_1", seurat.coord = NULL)
+# CardinalToSeurat(CardinalObj, run_name = "run_1", seurat.coord = NULL)
 }

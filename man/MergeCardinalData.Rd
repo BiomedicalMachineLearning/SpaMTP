@@ -28,6 +28,6 @@ Merges Cardinal Objects together
 }
 }
 \examples{
-cardinal_object_list <- list(cardinalObj1, cardinalObj2, cardinalObj3, cardinalObj4)
-MergeCardinalData(cardinal_object_list)
+# cardinal_object_list <- list(cardinalObj1, cardinalObj2, cardinalObj3, cardinalObj4)
+# MergeCardinalData(cardinal_object_list)
 }

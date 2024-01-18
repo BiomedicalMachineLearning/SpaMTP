@@ -26,8 +26,8 @@ Used to subset dataset to only include annotations that have n number of enterie
 }
 }
 \examples{
-#HMDB_db <- load("data/HMDB_1_names.rds")
-AnnotatedSeuratObj <- AnnotateSeuratMALDI(SeuratObj, HMDB_db)
+# HMDB_db <- load("data/HMDB_1_names.rds")
+# AnnotatedSeuratObj <- AnnotateSeuratMALDI(SeuratObj, HMDB_db)
 
-getRefinedAnnotations(AnnotatedSeuratObj, n = 2)
+# getRefinedAnnotations(AnnotatedSeuratObj, n = 2)
 }

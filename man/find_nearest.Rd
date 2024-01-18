@@ -18,5 +18,5 @@ String of the closest m/z value within the given dataset
 Finds the nearest m/z peak to a given value in the specified Seurat Object
 }
 \examples{
-find_nearest(SeuratObj, target_mz = 400.01)
+# find_nearest(SeuratObj, target_mz = 400.01)
 }

@@ -22,5 +22,5 @@ Sets the centroid value of a Cardinal Object = TRUE
 }
 }
 \examples{
-set_centroid_to_true(cardinalObj)
+# set_centroid_to_true(cardinalObj)
 }

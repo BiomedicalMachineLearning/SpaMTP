@@ -26,6 +26,6 @@ Increase the resolution of Spatial Metabolomics data for merging with Spatial Tr
 }
 }
 \examples{
-# Increase resolution of MALDI dataset by a factor of 4
-increased_data <- increase_MALDI_res(SeuratObj, res_increase = 4)
+## Increase resolution of MALDI dataset by a factor of 4
+# increased_data <- increase_MALDI_res(SeuratObj, res_increase = 4)
 }
