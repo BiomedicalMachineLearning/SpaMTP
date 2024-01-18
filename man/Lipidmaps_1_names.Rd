@@ -40,6 +40,10 @@ A data frame with 9493 rows and 37 variables:
 \item{M+IsoProp+Na+H}{Mass of the entity as a M+IsoProp+Na+H ion (double)}
 \item{M+K-2H}{Mass of the entity as a M+K-2H ion (double)}
 \item{M+K}{Mass of the entity as a M+K}
+\item{M+NH4}{Mass of the entity as a M+NH4 ion (double)}
+\item{M+Na}{Mass of the entity as a M+Na ion (double)}
+\item{M+Na-2H}{Mass of the entity as a M+Na-2H ion (double)}
+\item{M+TFA-H}{Mass of the entity as a M+TFA-H ion (double)}
 }
 }
 \source{

@@ -36,6 +36,15 @@
 #'   \item{M+DMSO+H}{Mass of the metabolite as a M+DMSO+H ion (double)}
 #'   \item{M+FA-H}{Mass of the metabolite as a M+FA-H ion (double)}
 #'   \item{M+H}{Mass of the metabolite as a M+H ion (double)}
+#'   \item{M+Hac-H}{Mass of the metabolite as a M+Hac-H ion (double)}
+#'   \item{M+IsoProp+H}{Mass of the metabolite as a M+IsoProp+Hion (double)}
+#'   \item{M+IsoProp+Na+H}{Mass of the metabolite as a M+H ion (double)}
+#'   \item{M+K}{Mass of the metabolite as a M+K ion (double)}
+#'   \item{M+K-2H}{Mass of the metabolite as a M+K-2H (double)}
+#'   \item{M+NH4}{Mass of the metabolite as a M+NH4 ion (double)}
+#'   \item{M+Na}{Mass of the metabolite as a M+Na ion (double)}
+#'   \item{M+Na-2H}{Mass of the metabolite as a M+Na-2H (double)}
+#'   \item{M+TFA-H}{Mass of the metabolite as a M+TFA-H ion (double)}
 #' }
 #'
 #' @source \url{https://hmdb.ca/}
@@ -142,6 +151,10 @@ Chebi_1_names <- load("data/Chebi_1_names.rda")
 #'   \item{M+IsoProp+Na+H}{Mass of the entity as a M+IsoProp+Na+H ion (double)}
 #'   \item{M+K-2H}{Mass of the entity as a M+K-2H ion (double)}
 #'   \item{M+K}{Mass of the entity as a M+K}
+#'   \item{M+NH4}{Mass of the entity as a M+NH4 ion (double)}
+#'   \item{M+Na}{Mass of the entity as a M+Na ion (double)}
+#'   \item{M+Na-2H}{Mass of the entity as a M+Na-2H ion (double)}
+#'   \item{M+TFA-H}{Mass of the entity as a M+TFA-H ion (double)}
 #' }
 #'
 #' @source \url{https://www.lipidmaps.org/}
@@ -198,6 +211,10 @@ Lipidmaps_1_names <- load("data/Lipidmaps_1_names.rda")
 #'   \item{M+IsoProp+Na+H}{Mass of the entity as a M+IsoProp+Na+H ion (double)}
 #'   \item{M+K-2H}{Mass of the entity as a M+K-2H ion (double)}
 #'   \item{M+K}{Mass of the entity as a M+K}
+#'   \item{M+NH4}{Mass of the entity as a M+NH4 ion (double)}
+#'   \item{M+Na}{Mass of the entity as a M+Na ion (double)}
+#'   \item{M+Na-2H}{Mass of the entity as a M+Na-2H ion (double)}
+#'   \item{M+TFA-H}{Mass of the entity as a M+TFA-H}
 #' }
 #'
 #' @source \url{https://gnps.ucsd.edu/: https://gnps.ucsd.edu/}
