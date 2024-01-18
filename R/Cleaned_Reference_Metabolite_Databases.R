@@ -50,8 +50,7 @@ HMDB_1_names <- load("data/HMDB_1_names.rda")
 
 #' @title Chebi_1_names: Cleaned ChEBI `(Chemical entities of biological interest)` reference dataset
 #'
-#' @description
-#' A dataset containing information on chemical entities, including their
+#' @description A dataset containing information on chemical entities, including their
 #' formulas, exact masses, isomers, InChIKeys, and names.
 #'
 #' @format A data frame with 6 rows and 37 variables:
