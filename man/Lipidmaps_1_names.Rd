@@ -54,10 +54,10 @@ This object contains a collection of lipids from the LIPID MAPS Structure Databa
 }
 \examples{
 # Access the molecular formula of the first lipid
-LIPIDMAPS_db$formula`[1]`
+Lipidmaps_1_names$formula[1]
 # Access the exact mass of the third lipid
-LIPIDMAPS_db$exactmass`[3]`
+Lipidmaps_1_names$exactmass[3]
 # View all information for a specific lipid
-LIPIDMAPS_db`[LIPIDMAPS_db$isomers == "LMSP0601GB03", ]`
+Lipidmaps_1_names[LIPIDMAPS_db$isomers == "LMSP0601GB03", ]
 }
 \keyword{datasets}

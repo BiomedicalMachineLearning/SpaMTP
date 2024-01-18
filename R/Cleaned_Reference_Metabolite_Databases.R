@@ -43,8 +43,8 @@
 #' @references Wishart DS, et al. (2018). HMDB 4.0: the human metabolome database for 2018. Nucleic Acids Res. 46(D1):D608-D617.
 #'
 #' @examples
-#' head(HMDB_data)
-#' dim(HMDB_data)
+#' head(HMDB_1_names)
+#' dim(HMDB_1_names)
 HMDB_1_names <- load("data/HMDB_1_names.rda")
 
 
@@ -152,13 +152,13 @@ Chebi_1_names <- load("data/Chebi_1_names.rda")
 #'
 #' @examples
 #' # Access the molecular formula of the first lipid
-#' LIPIDMAPS_db$formula`[1]`
+#' Lipidmaps_1_names$formula[1]
 
 #' # Access the exact mass of the third lipid
-#' LIPIDMAPS_db$exactmass`[3]`
+#' Lipidmaps_1_names$exactmass[3]
 
 #' # View all information for a specific lipid
-#' LIPIDMAPS_db`[LIPIDMAPS_db$isomers == "LMSP0601GB03", ]`
+#' Lipidmaps_1_names[LIPIDMAPS_db$isomers == "LMSP0601GB03", ]
 Lipidmaps_1_names <- load("data/Lipidmaps_1_names.rda")
 
 
@@ -210,13 +210,13 @@ Lipidmaps_1_names <- load("data/Lipidmaps_1_names.rda")
 #'
 #' @examples
 #' # Access the molecular formula of the first metabolite
-#' GNPS_db$formula`[1]`
+#' GNPS_1_names$formula[1]
 #'
 #' # Access the exact mass of the third metabolite
-#' GNPS_db$exactmass`[3]`
+#' GNPS_1_names$exactmass[3]
 #'
 #' # View all information for a specific metabolite
-#' GNPS_db`[GNPS_db$isomers == "CMP17912", ]`
+#' GNPS_1_names[GNPS_db$isomers == "CMP17912", ]
 GNPS_1_names <- load("data/GNPS_1_names.rda")
 
 

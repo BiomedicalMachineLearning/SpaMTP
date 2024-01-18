@@ -54,12 +54,12 @@ This object contains a collection of metabolites from the Global Natural Product
 }
 \examples{
 # Access the molecular formula of the first metabolite
-GNPS_db$formula`[1]`
+GNPS_1_names$formula[1]
 
 # Access the exact mass of the third metabolite
-GNPS_db$exactmass`[3]`
+GNPS_1_names$exactmass[3]
 
 # View all information for a specific metabolite
-GNPS_db`[GNPS_db$isomers == "CMP17912", ]`
+GNPS_1_names[GNPS_db$isomers == "CMP17912", ]
 }
 \keyword{datasets}

@@ -48,8 +48,8 @@ A dataset containing metabolite information from the HMDB,
 including chemical formulas, exact masses, isomers, InChIKeys, and names.
 }
 \examples{
-head(HMDB_data)
-dim(HMDB_data)
+head(HMDB_1_names)
+dim(HMDB_1_names)
 }
 \references{
 Wishart DS, et al. (2018). HMDB 4.0: the human metabolome database for 2018. Nucleic Acids Res. 46(D1):D608-D617.
