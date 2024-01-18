@@ -20,7 +20,7 @@ A DataFrame containing matched mz values between the observed and reference data
 Searches observed mz values against the data base list and returns matching annotations
 }
 \examples{
-HMDB_db <- load("data/HMDB_1_names.rds")
+#HMDB_db <- load("data/HMDB_1_names.rds")
 mz_df <- SeuratObject[["Spatial"]][["mz"]]
 mz_df$row_id <- seq(1, length(mz_df$mz))
 

@@ -18,6 +18,6 @@ Character string of the complete or truncated adduct
 Checks if the complete adduct is in the data base, else returns a truncated adduct
 }
 \examples{
-HMDB_db <- load("data/HMDB_1_names.rds")
+#HMDB_db <- load("data/HMDB_1_names.rds")
 check_and_truncate_adduct_vector(c("M+H"), HMDB_db)
 }

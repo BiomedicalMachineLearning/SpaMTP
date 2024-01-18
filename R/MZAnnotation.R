@@ -42,7 +42,7 @@ subsetMZFeatures <- function(data, features, assay = "Spatial"){
 #' @export
 #'
 #' @examples
-#' HMDB_db <- load("data/HMDB_1_names.rds")
+#' #HMDB_db <- load("data/HMDB_1_names.rds")
 #' Annotated_SeuratObj <- AnnotateSeuratMALDI(SeuratObj, HMDB_db)
 AnnotateSeuratMALDI <- function(data, db, feature.metadata.assay = "Spatial", feature.metadata.slot = "raw_mz", ppm_error = 5, test_add_pos = c("M+H"), polarity = "pos", filepath = NULL, return.only.annotated = TRUE){
 
@@ -132,7 +132,7 @@ AnnotateSeuratMALDI <- function(data, db, feature.metadata.assay = "Spatial", fe
 #' @export
 #'
 #' @examples
-#' HMDB_db <- load("data/HMDB_1_names.rds")
+#' #HMDB_db <- load("data/HMDB_1_names.rds")
 #' AnnotatedSeuratObj <- AnnotateSeuratMALDI(SeuratObj, HMDB_db)
 #'
 #' getRefinedAnnotations(AnnotatedSeuratObj, n = 2)
@@ -241,7 +241,7 @@ FindDuplicateAnnotations <- function (data, assay = "Spatial"){
 #' @export
 #'
 #' @examples
-#' HMDB_db <- load("data/HMDB_1_names.rds")
+#' #HMDB_db <- load("data/HMDB_1_names.rds")
 #' check_and_truncate_adduct_vector(c("M+H"), HMDB_db)
 check_and_truncate_adduct_vector <- function(adduct, db) {
   element_exists <- adduct %in% colnames(db)
@@ -274,7 +274,7 @@ check_and_truncate_adduct_vector <- function(adduct, db) {
 #' @export
 #'
 #' @examples
-#' HMDB_db <- load("data/HMDB_1_names.rds")
+#' #HMDB_db <- load("data/HMDB_1_names.rds")
 #' db_adduct_filter(HMDB_db,c("M+H"), polarity = "pos")
 db_adduct_filter <- function(db, adduct, polarity = "neg") {
   # only include adducts from either neg or pos polarity
@@ -493,7 +493,7 @@ ppm_range_match <- function(observed_mz, reference_mz, ppm) {
 #' @export
 #'
 #' @examples
-#' HMDB_db <- load("data/HMDB_1_names.rds")
+#' #HMDB_db <- load("data/HMDB_1_names.rds")
 #' mz_df <- SeuratObject[["Spatial"]][["mz"]]
 #' mz_df$row_id <- seq(1, length(mz_df$mz))
 #'
