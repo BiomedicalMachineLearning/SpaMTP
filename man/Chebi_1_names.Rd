@@ -3,7 +3,7 @@
 \docType{data}
 \name{Chebi_1_names}
 \alias{Chebi_1_names}
-\title{Cleaned ChEBI \verb{(Chemical entities of biological interest)} reference dataset}
+\title{Chebi_1_names: Cleaned ChEBI \verb{(Chemical entities of biological interest)} reference dataset}
 \format{
 A data frame with 6 rows and 37 variables:
 \describe{
