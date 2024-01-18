@@ -13,7 +13,7 @@ library(ggplot2)
 #' @export
 #'
 #' @examples
-#' find_nearest(SeuratObj, target_mz = 400.01)
+#' # find_nearest(SeuratObj, target_mz = 400.01)
 find_nearest <- function(data, target_mz){
 
   numbers <- as.numeric(gsub("mz-", "", Seurat::Features(data)))
@@ -33,7 +33,7 @@ find_nearest <- function(data, target_mz){
 #' @returns Vector of m/z values within plus-minus range of the target mz value
 #'
 #' @examples
-#' plusminus(SeuratObj, target_mz = 400.01, plus_minus = 0.005)
+#' # plusminus(SeuratObj, target_mz = 400.01, plus_minus = 0.005)
 plusminus <- function(data, target_mz, plus_minus){
   feature_list <- c()
   center <- find_nearest(data, target_mz)
@@ -70,8 +70,8 @@ plusminus <- function(data, target_mz, plus_minus){
 #' @export
 #'
 #' @examples
-#' mz_values <- plusminus(SeuratObj, 448.2, 0.05)
-#' bin.mz(SeuratObj, mz_values)
+#' # mz_values <- plusminus(SeuratObj, 448.2, 0.05)
+#' # bin.mz(SeuratObj, mz_values)
 bin.mz <- function(data, mz_list){
   data_copy <- data
   assay_counts <- data_copy@assays$Spatial$counts
@@ -123,8 +123,8 @@ bin.mz <- function(data, mz_list){
 #' @export
 #'
 #' @examples
-#' ImageMZPlot(SeuratObj, mzs = c(400.678, 300.1))
-#' ImageMZPlot(SeuratObj, mzs = c(400.678, 300.1), plusminus = 0.05)
+#' # ImageMZPlot(SeuratObj, mzs = c(400.678, 300.1))
+#' # ImageMZPlot(SeuratObj, mzs = c(400.678, 300.1), plusminus = 0.05)
 ImageMZPlot <- function(object,
                         mzs,
                         plusminus = NULL,
@@ -302,8 +302,8 @@ ImageMZPlot <- function(object,
 #' @export
 #'
 #' @examples
-#' ImageMZPlot(SeuratObj, mzs = c("Glucose", "Glutamine"))
-#' ImageMZPlot(SeuratObj, mzs = c("Glucose", "Glutamine"), plusminus = 0.05)
+#' # ImageMZPlot(SeuratObj, mzs = c("Glucose", "Glutamine"))
+#' # ImageMZPlot(SeuratObj, mzs = c("Glucose", "Glutamine"), plusminus = 0.05)
 ImageMZAnnotationPlot <- function(object,
                                   metabolites,
                                   plusminus = NULL,
@@ -437,8 +437,8 @@ ImageMZAnnotationPlot <- function(object,
 #' @export
 #'
 #' @examples
-#' SpatialMZPlot(SeuratObj, mzs = c(400.678, 300.1))
-#' SpatialMZPlot(SeuratObj, mzs = c(400.678, 300.1), plusminus = 0.05)
+#' # SpatialMZPlot(SeuratObj, mzs = c(400.678, 300.1))
+#' # SpatialMZPlot(SeuratObj, mzs = c(400.678, 300.1), plusminus = 0.05)
 SpatialMZPlot <- function(object,
                         mzs,
                         plusminus = NULL,
@@ -574,8 +574,8 @@ SpatialMZPlot <- function(object,
 #' @export
 #'
 #' @examples
-#' SpatialMZAnnotationPlot(SeuratObj, mzs = c("Glucose", "Glutamine"))
-#' SpatialMZAnnotationPlot(SeuratObj, mzs = c("Glucose", "Glutamine"), plusminus = 0.05)
+#' # SpatialMZAnnotationPlot(SeuratObj, mzs = c("Glucose", "Glutamine"))
+#' # SpatialMZAnnotationPlot(SeuratObj, mzs = c("Glucose", "Glutamine"), plusminus = 0.05)
 SpatialMZAnnotationPlot <- function(object,
                                     metabolites,
                                     plusminus = NULL,

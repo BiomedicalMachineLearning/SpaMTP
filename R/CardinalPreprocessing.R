@@ -35,7 +35,7 @@ calculate_coordinates <- function(index, ncol, padding) {
 #' @export
 #'
 #' @examples
-#' set_centroid_to_true(cardinalObj)
+#' # set_centroid_to_true(cardinalObj)
 set_centroid_to_true <- function(data){
   Cardinal::centroided(data) <- TRUE
   return(data)
@@ -55,8 +55,8 @@ set_centroid_to_true <- function(data){
 #' @export
 #'
 #' @examples
-#' cardinal_object_list <- list(cardinalObj1, cardinalObj2, cardinalObj3, cardinalObj4)
-#' MergeCardinalData(cardinal_object_list)
+#' # cardinal_object_list <- list(cardinalObj1, cardinalObj2, cardinalObj3, cardinalObj4)
+#' # MergeCardinalData(cardinal_object_list)
 MergeCardinalData <- function(data_list, ncols = 2, padding = 200, shift.image = FALSE){
 
   ### NOTE: mass.range and resolution of each sample in the data list must be the same to merge

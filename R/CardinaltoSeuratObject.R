@@ -14,7 +14,7 @@ library(Seurat)
 #' @export
 #'
 #' @examples
-#' CardinalToSeurat(CardinalObj, run_name = "run_1", seurat.coord = NULL)
+#' # CardinalToSeurat(CardinalObj, run_name = "run_1", seurat.coord = NULL)
 CardinalToSeurat <- function(data,run_name, seurat.coord = NULL){
 
   message("Convering Cardinal object to Seurat object .... ")

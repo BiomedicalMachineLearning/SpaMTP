@@ -24,7 +24,7 @@ library(stats)
 #' @export
 #'
 #' @examples
-#' run_pooling <- list(seuratObj, idents = "sample", n = 3)
+#' # run_pooling <- list(seuratObj, idents = "sample", n = 3)
 run_pooling <- function(data.filt, idents, n) {
 
   cell_metadata <- data.filt@meta.data
@@ -81,8 +81,8 @@ run_pooling <- function(data.filt, idents, n) {
 #' @export
 #'
 #' @examples
-#' pooled_obj <- run_pooling(SeuratObj, "sample", n = 3)
-#' run_DE(pooled_obj, SeuratObj, "sample", "~/Documents/DE_output/", "run_1", n = 3, logFC_threshold = 1.2, annotations = TRUE, assay = "Spatial")
+#' # pooled_obj <- run_pooling(SeuratObj, "sample", n = 3)
+#' # run_DE(pooled_obj, SeuratObj, "sample", "~/Documents/DE_output/", "run_1", n = 3, logFC_threshold = 1.2, annotations = TRUE, assay = "Spatial")
 run_DE <- function(pooled_data, seurat_data, ident, output_dir, run_name, n, logFC_threshold, annotations, assay, intercept = FALSE){
 
   message(paste("Running edgeR DE Analysis for ", run_name, " -> with samples [", paste(unique(unlist(seurat_data@meta.data$sample)), collapse = ", "), "]"))
@@ -186,7 +186,7 @@ run_DE <- function(pooled_data, seurat_data, ident, output_dir, run_name, n, log
 #' @export
 #'
 #' @examples
-#' FindAllDEPs(SeuratObj, "sample",DE_output_dir = "~/Documents/DE_output/", annotations = TRUE)
+#' # FindAllDEPs(SeuratObj, "sample",DE_output_dir = "~/Documents/DE_output/", annotations = TRUE)
 FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir = NULL, run_name = "FindAllDEPs", annotations = FALSE, assay = "Spatial"){
 
   if (!(is.null(DE_output_dir))){
@@ -232,9 +232,9 @@ FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir
 #' @export
 #'
 #' @examples
-#' DEPs <- FindAllDEPs(SeuratObj, "sample")
+#' # DEPs <- FindAllDEPs(SeuratObj, "sample")
 #'
-#' DEPsHeatmap(DEPs)
+#' # DEPsHeatmap(DEPs)
 DEPsHeatmap <- function(edgeR_output, n = 25, FDR_threshold = 0.05, scale="row", color= ggplot2::colorRampPalette(c("navy", "white", "red"))(50),cluster_cols = F,cluster_rows = T, fontsize_row = 15, fontsize_col = 15, cutree_cols = 9, silent = TRUE, plot_annotations = FALSE){
 
   message("Generating Heatmap .......")

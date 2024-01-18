@@ -16,7 +16,7 @@ library(stringr)
 #' @export
 #'
 #' @examples
-#' subsetMZFeatures(SeuratObj, c("mz-160","mz-170","mz-180"))
+#' # subsetMZFeatures(SeuratObj, c("mz-160","mz-170","mz-180"))
 subsetMZFeatures <- function(data, features, assay = "Spatial"){
   feature.metadata <- data[[assay]]@meta.data
   sub.data <- subset(data, features = features)
@@ -42,8 +42,8 @@ subsetMZFeatures <- function(data, features, assay = "Spatial"){
 #' @export
 #'
 #' @examples
-#' HMDB_db <- load("data/HMDB_2_names.rds")
-#' Annotated_SeuratObj <- AnnotateSeuratMALDI(SeuratObj, HMDB_db)
+#' # HMDB_db <- load("data/HMDB_1_names.rds")
+#' # Annotated_SeuratObj <- AnnotateSeuratMALDI(SeuratObj, HMDB_db)
 AnnotateSeuratMALDI <- function(data, db, feature.metadata.assay = "Spatial", feature.metadata.slot = "raw_mz", ppm_error = 5, test_add_pos = c("M+H"), polarity = "pos", filepath = NULL, return.only.annotated = TRUE){
 
   mz_df <- data[[feature.metadata.assay]][[feature.metadata.slot]]
@@ -132,10 +132,10 @@ AnnotateSeuratMALDI <- function(data, db, feature.metadata.assay = "Spatial", fe
 #' @export
 #'
 #' @examples
-#' #HMDB_db <- load("data/HMDB_1_names.rds")
-#' AnnotatedSeuratObj <- AnnotateSeuratMALDI(SeuratObj, HMDB_db)
+#' # HMDB_db <- load("data/HMDB_1_names.rds")
+#' # AnnotatedSeuratObj <- AnnotateSeuratMALDI(SeuratObj, HMDB_db)
 #'
-#' getRefinedAnnotations(AnnotatedSeuratObj, n = 2)
+#' # getRefinedAnnotations(AnnotatedSeuratObj, n = 2)
 getRefinedAnnotations <- function(obj, assay = "Spatial",n = 1){
   n <- n-1
   subset.metadata <- obj[[assay]]@meta.data %>% dplyr::filter(stringr::str_count(all_IsomerNames, ";") %in% c(0:n))
@@ -181,7 +181,7 @@ add_backslashes_to_specialfeatures <- function(input_string) {
 #' @export
 #'
 #' @examples
-#' SearchAnnotations(SeuratObj, "Glucose", search.exact = TRUE)
+#' # SearchAnnotations(SeuratObj, "Glucose", search.exact = TRUE)
 SearchAnnotations <- function (data, metabolite, assay = "Spatial",search.exact = FALSE, column.name = "all_IsomerNames"){
 
   ## Takes into account '( )' in the string name
@@ -217,7 +217,7 @@ SearchAnnotations <- function (data, metabolite, assay = "Spatial",search.exact 
 #' @export
 #'
 #' @examples
-#' FindDuplicateAnnotations(SeuratObj)
+#' # FindDuplicateAnnotations(SeuratObj)
 FindDuplicateAnnotations <- function (data, assay = "Spatial"){
   all_annotations <- data[[assay]]@meta.data$all_IsomerNames
   all_terms <- unlist(strsplit(all_annotations, ";"))
@@ -241,8 +241,8 @@ FindDuplicateAnnotations <- function (data, assay = "Spatial"){
 #' @export
 #'
 #' @examples
-#' #HMDB_db <- load("data/HMDB_1_names.rds")
-#' check_and_truncate_adduct_vector(c("M+H"), HMDB_db)
+#' # HMDB_db <- load("data/HMDB_1_names.rds")
+#' # check_and_truncate_adduct_vector(c("M+H"), HMDB_db)
 check_and_truncate_adduct_vector <- function(adduct, db) {
   element_exists <- adduct %in% colnames(db)
   missing_elements <- adduct[!element_exists]
@@ -274,8 +274,8 @@ check_and_truncate_adduct_vector <- function(adduct, db) {
 #' @export
 #'
 #' @examples
-#' #HMDB_db <- load("data/HMDB_1_names.rds")
-#' db_adduct_filter(HMDB_db,c("M+H"), polarity = "pos")
+#' # HMDB_db <- load("data/HMDB_1_names.rds")
+#' # db_adduct_filter(HMDB_db,c("M+H"), polarity = "pos")
 db_adduct_filter <- function(db, adduct, polarity = "neg") {
   # only include adducts from either neg or pos polarity
   if (polarity == "neg") {
@@ -381,11 +381,11 @@ is_formula_valid <- function(formula,allowed_elements) {
 #' @export
 #'
 #' @examples
-#' # Get filtered DB by adduct
-#' db_1 <- db_adduct_filter(db, test_add_pos, polarity = "pos")
+#' ## Get filtered DB by adduct
+#' # db_1 <- db_adduct_filter(db, test_add_pos, polarity = "pos")
 #'
-#' # Refine to only include natural elements
-#' db_2 <- formula_filter(db_1)
+#' ## Refine to only include natural elements
+#' # db_2 <- formula_filter(db_1)
 formula_filter <- function(df, elements = NULL) {
   if (is.null(elements)) {
     elements <- c("H", "C", "N", "O", "S", "Cl", "Br",
@@ -414,12 +414,12 @@ formula_filter <- function(df, elements = NULL) {
 #' @export
 #'
 #' @examples
-#'  mz_df <- SeuratObject[["Spatial"]][["mz"]]
-#'  mz_df$row_id <- seq(1, length(mz_df$mz))
+#' # mz_df <- SeuratObject`[["Spatial"]][["mz"]]`
+#' # mz_df$row_id <- seq(1, length(mz_df$mz))
 #'
-#' mass_range <- calculate_bounds(mz_df)
-#' lower_bound <- mass_range$lower_bound
-#' upper_bound <- mass_range$upper_bound
+#' # mass_range <- calculate_bounds(mz_df)
+#' # lower_bound <- mass_range$lower_bound
+#' # upper_bound <- mass_range$upper_bound
 calculate_bounds <- function(input_df) {
 
   lower_bound <- min(input_df$mz, na.rm = TRUE)
@@ -493,18 +493,18 @@ ppm_range_match <- function(observed_mz, reference_mz, ppm) {
 #' @export
 #'
 #' @examples
-#' #HMDB_db <- load("data/HMDB_1_names.rds")
-#' mz_df <- SeuratObject[["Spatial"]][["mz"]]
-#' mz_df$row_id <- seq(1, length(mz_df$mz))
+#' # HMDB_db <- load("data/HMDB_1_names.rds")
+#' # mz_df <- SeuratObject[["Spatial"]][["mz"]]
+#' # mz_df$row_id <- seq(1, length(mz_df$mz))
 #'
-#' # 1) Filter DB by adduct.
-#' db_1 <- db_adduct_filter(HMDB_db, c("M+H"), polarity = "pos")
+#' ## 1) Filter DB by adduct.
+#' # db_1 <- db_adduct_filter(HMDB_db, c("M+H"), polarity = "pos")
 #'
-#' # 2) only select natural elements
-#' db_2 <- formula_filter(db_1)
+#' ## 2) only select natural elements
+#' # db_2 <- formula_filter(db_1)
 #'
-#' # 3) search db against mz df return results
-#' db_3 <- proc_db(mz_df, db_2, ppm_threshold = 5)
+#' ## 3) search db against mz df return results
+#' # db_3 <- proc_db(mz_df, db_2, ppm_threshold = 5)
 proc_db <- function(observed_df,
                     reference_df,
                     ppm_threshold = 10) {

@@ -107,8 +107,8 @@ split_pixel <- function(center_point, pixel_radius, pseudo_n = 4, pixel_shape = 
 #' @export
 #'
 #' @examples
-#' # Increase resolution of MALDI dataset by a factor of 4
-#' increased_data <- increase_MALDI_res(SeuratObj, res_increase = 4)
+#' ## Increase resolution of MALDI dataset by a factor of 4
+#' # increased_data <- increase_MALDI_res(SeuratObj, res_increase = 4)
 increase_MALDI_res <- function(MALDI_adata, res_increase = 4) {
   message("Increasing the resolution of MALDI Pixel Data ...\n")
 
@@ -177,8 +177,8 @@ increase_MALDI_res <- function(MALDI_adata, res_increase = 4) {
 #' @export
 #'
 #' @examples
-#' # Generate new MALDI counts matrix for equivalent Visium spots
-#' new_counts <- generate_new_MALDI_counts(SeuratObj, obs_x, assay = "Spatial")
+#' ## Generate new MALDI counts matrix for equivalent Visium spots
+#' # new_counts <- generate_new_MALDI_counts(SeuratObj, obs_x, assay = "Spatial")
 generate_new_MALDI_counts <- function(original_MALDI, obs_x, assay) {
 
   message("Merging MALDI counts ... ")
@@ -231,8 +231,8 @@ generate_new_MALDI_counts <- function(original_MALDI, obs_x, assay) {
 #' @export
 #'
 #' @examples
-#' # Convert MALDI data to equivalent Visium spots
-#' convert_MALDI_to_visium_like_adata(VisiumObj, SeuratObj, img_res = "hires", new_library_id = "MALDI", res_increase = NULL)
+#' ## Convert MALDI data to equivalent Visium spots
+#' # convert_MALDI_to_visium_like_adata(VisiumObj, SeuratObj, img_res = "hires", new_library_id = "MALDI", res_increase = NULL)
 convert_MALDI_to_visium_like_adata <- function(visium_adata, MALDI_adata, img_res = "hires", new_library_id = "MALDI", res_increase = NULL, annotations = FALSE, assay = "Spatial", slice = "slice1") {
 
   new_MALDI_obs <- MALDI_adata@meta.data
