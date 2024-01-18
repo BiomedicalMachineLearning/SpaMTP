@@ -13,7 +13,37 @@
 #'   \item{isomers_inchikey}{InChIKeys for isomers (character)}
 #'   \item{isomers_names}{Names of isomers (character)}
 #'   \item{2M-H}{Mass of the entity as a 2M-H ion (double)}
-#'   ... (other variables related to mass as different ions)
+#'   \item{2M+ACN+H}{Mass of the entity as a 2M+ACN+H ion (double)}
+#'   \item{2M+ACN+Na}{Mass of the entity as a 2M+ACN+Na ion (double)}
+#'   \item{2M+FA-H}{Mass of the entity as a 2M+FA-H ion (double)}
+#'   \item{2M+H}{Mass of the entity as a 2M+H ion (double)}
+#'   \item{2M+Hac-H}{Mass of the entity as a 2M+Hac-H ion (double)}
+#'   \item{2M+K}{Mass of the entity as a 2M+K ion (double)}
+#'   \item{2M+NH4}{Mass of the entity as a 2M+NH4 ion (double)}
+#'   \item{2M+Na}{Mass of the entity as a 2M+Na ion (double)}
+#'   \item{3M-H}{Mass of the entity as a 3M-H ion (double)}
+#'   \item{M+2ACN+H}{Mass of the entity as a M+2ACN+H ion (double)}
+#'   \item{M+2K+H}{Mass of the entity as a M+2K+H ion (double)}
+#'   \item{M+2Na-H}{Mass of the entity as a M+2Na-H ion (double)}
+#'   \item{M+ACN+H}{Mass of the entity as a M+ACN+H ion (double)}
+#'   \item{M+ACN+Na}{Mass of the entity as a M+ACN+Na ion (double)}
+#'   \item{M+Br}{Mass of the entity as a M+Br ion (double)}
+#'   \item{M+CH3OH+H}{Mass of the entity as a M+CH3OH+H ion (double)}
+#'   \item{M+Cl}{Mass of the entity as a M+Cl ion (double)}
+#'   \item{M+DMSO+H}{Mass of the entity as a M+DMSO+H ion (double)}
+#'   \item{M+FA-H}{Mass of the entity as a M+FA-H ion (double)}
+#'   \item{M+H}{Mass of the entity as a M+H ion (double)}
+#'   \item{M+Hac-H}{Mass of the entity as a M+Hac-H ion (double)}
+#'   \item{M+IsoProp+H}{Mass of the entity as a M+IsoProp+H ion (double)}
+#'   \item{M+IsoProp+Na+H}{Mass of the entity as a M+IsoProp+Na+H ion (double)}
+#'   \item{M+K}{Mass of the entity as a M+K ion (double)}
+#'   \item{M+K-2H}{Mass of the entity as a M+K-2H ion (double)}
+#'   \item{M+NH4}{Mass of the entity as a M+NH4 ion (double)}
+#'   \item{M+Na}{Mass of the entity as a M+Na ion (double)}
+#'   \item{M+Na-2H}{Mass of the entity as a M+Na-2H ion (double)}
+#'   \item{M+TFA-H}{Mass of the entity as a M+TFA-H ion (double)}
+#'   \item{M-H}{Mass of the entity as a M-H ion (double)}
+#'   \item{M-H2O-H}{Mass of the entity as a M-H2O-H ion (double)}
 #' }
 #'
 #' @source \url{https://www.lipidmaps.org/}
