@@ -14,8 +14,8 @@ library(Cardinal)
 #' @export
 #'
 #' @examples
-#' ssc_data <- spatialShrunkenCentroids(CardinalObj, ...)
-#' new_CardinalObj <- add_ssc_annotation(CardinalObj, ssc_data, resolution =25)
+#' # ssc_data <- spatialShrunkenCentroids(CardinalObj, ...)
+#' # new_CardinalObj <- add_ssc_annotation(CardinalObj, ssc_data, resolution =25)
 add_ssc_annotation <- function(data, data_ssc, resolution = 25){
 
   message(paste0("Getting cluster segments for resolution (s) = ", resolution))

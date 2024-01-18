@@ -6,7 +6,7 @@
 #' @description A dataset containing metabolite information from the HMDB,
 #' including chemical formulas, exact masses, isomers, InChIKeys, and names.
 #'
-#' @format A data frame with 26190 rows and 37 variables:
+#' @format ## A data frame with 26190 rows and 37 variables:
 #' \describe{
 #'   \item{formula}{Chemical formula of the entity (character)}
 #'   \item{exactmass}{Exact mass of the entity (numeric)}
@@ -47,6 +47,7 @@
 #'   \item{M-H2O-H}{Mass of the entity as a M-H2O-H ion (double)}
 #'   ...
 #' }
+#'
 #' @source <https://hmdb.ca/>
 #'
 #' @references Wishart DS, et al. (2018). HMDB 4.0: the human metabolome database for 2018. Nucleic Acids Res. 46(D1):D608-D617.

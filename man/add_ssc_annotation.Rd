@@ -26,6 +26,6 @@ Adds Cardinal ssc segmentation annotation to m/z count data object
 }
 }
 \examples{
-ssc_data <- spatialShrunkenCentroids(CardinalObj, ...)
-new_CardinalObj <- add_ssc_annotation(CardinalObj, ssc_data, resolution =25)
+# ssc_data <- spatialShrunkenCentroids(CardinalObj, ...)
+# new_CardinalObj <- add_ssc_annotation(CardinalObj, ssc_data, resolution =25)
 }

@@ -5,7 +5,8 @@
 \alias{HMDB_1_names}
 \title{HMDB_1_names: A cleaned version of the reference metabolomics dataset from the Human Metabolome Database (HMDB)}
 \format{
-A data frame with 26190 rows and 37 variables:
+\subsection{A data frame with 26190 rows and 37 variables:}{
+
 \describe{
 \item{formula}{Chemical formula of the entity (character)}
 \item{exactmass}{Exact mass of the entity (numeric)}
@@ -45,6 +46,7 @@ A data frame with 26190 rows and 37 variables:
 \item{M-H}{Mass of the entity as a M-H ion (double)}
 \item{M-H2O-H}{Mass of the entity as a M-H2O-H ion (double)}
 ...
+}
 }
 }
 \source{
