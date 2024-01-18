@@ -32,6 +32,8 @@ SpatialMZAnnotationPlot(
 \arguments{
 \item{object}{Seurat Spatial Metabolomic Object to Visualise.}
 
+\item{metabolites}{Vector of metabolite names to plot (e.g. c("Glucose", "Glutamine")). The Seurat Object provided must contain annotations in the respective assay metadata.}
+
 \item{plusminus}{Numeric value defining the range/threshold either side of the target peak/peaks to be binned together for plotting (default = NULL).}
 
 \item{images}{Character string of the name of the image to plot (default = NULL).}
@@ -56,6 +58,8 @@ SpatialMZAnnotationPlot(
 
 \item{alpha}{Numeric value between 0 and 1 defining the spot alpha (default = 1).}
 
+\item{image.alpha}{Numeric value between 0 and 1 defining the image alpha (default = 1).}
+
 \item{stroke}{Numeric value describing the width of the border around the spot (default. =0.25).}
 
 \item{interactive}{Boolean value of if to launch an interactive SpatialDimPlot or SpatialFeaturePlot session, see Seurat::ISpatialDimPlot() or Seurat::ISpatialFeaturePlot() for more details (default = FALSE).}
@@ -65,10 +69,6 @@ SpatialMZAnnotationPlot(
 \item{column.name}{Character string defining the column name where the annotations are stored in the slot meta.data (default = "all_IsomerNames").}
 
 \item{plot.exact}{Boolean value describing if to only plot exact matches to the metabolite search terms, else will plot all metabolites which contain serach word in name (default = TRUE).}
-
-\item{mzs}{Vector of numeric m/z values to plot (e.g. c(400.1578, 300.1)). The function find_nearest() is used to automatically find the nearest m/z value to the ones given.}
-
-\item{image.aplha}{Numeric value between 0 and 1 defining the image alpha (default = 1).}
 }
 \value{
 A ggplot showing the Spatial representation of expression data of specified m/z values for Spatial data with H&E Image

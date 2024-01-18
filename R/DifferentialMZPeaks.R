@@ -215,7 +215,7 @@ FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir
 #' Generates a Heatmap of DEPs generated from edgeR analysis run using FindAllDEPs().
 #'       - this function uses pheatmap() to plot data
 #'
-#' @param edgeR_ouput A list containing outputs from edgeR analysis (from FindAllDEPs()). This includes pseudo-bulked counts and DEPs.
+#' @param edgeR_output A list containing outputs from edgeR analysis (from FindAllDEPs()). This includes pseudo-bulked counts and DEPs.
 #' @param n A numeric integer that defines the number of UP and DOWN regulated peaks to plot (default = 25).
 #' @param FDR_threshold An integer that defines the FDR_threshold to use for defining most significant results (default = 0.05).
 #' @param scale A character string indicating if the values should be centered and scaled in either the row direction or the column direction, or none. Corresponding values are "row", "column" and "none"
@@ -223,7 +223,7 @@ FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir
 #' @param cluster_cols A boolean values determining if columns should be clustered or hclust object (default = F).
 #' @param cluster_rows A boolean values determining if rows should be clustered or hclust object (default = T).
 #' @param fontsize_row A numeric value defining the fontsize of rownames (default = 15).
-#' @param fontsize_row A numeric value defining the fontsize of colnames (default = 15).
+#' @param fontsize_col A numeric value defining the fontsize of colnames (default = 15).
 #' @param cutree_cols A numeric value defining the number of clusters the columns are divided into, based on the hierarchical clustering(using cutree), if cols are not clustered, the argument is ignored (default = 9).
 #' @param silent A boolean value indicating if the plot should not be draw (default = TRUE).
 #' @param plot_annotations A boolean value indicating if metabolite annotation names should be plot rather then m/z values. Annotations = TRUE must be used in FindAllDEPs() for edgeR output to include annotations (default = FALSE).

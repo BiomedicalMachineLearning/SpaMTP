@@ -428,7 +428,7 @@ ImageMZAnnotationPlot <- function(object,
 #' @param combine Boolean value stating if to combine plots into a single patchworked ggplot object (default = TRUE).
 #' @param pt.size.factor Numeric value defining the point size for spots when plotting (default = 1.6).
 #' @param alpha Numeric value between 0 and 1 defining the spot alpha (default = 1).
-#' @param image.aplha Numeric value between 0 and 1 defining the image alpha (default = 1).
+#' @param image.alpha Numeric value between 0 and 1 defining the image alpha (default = 1).
 #' @param stroke Numeric value describing the width of the border around the spot (default. =0.25).
 #' @param interactive Boolean value of if to launch an interactive SpatialDimPlot or SpatialFeaturePlot session, see Seurat::ISpatialDimPlot() or Seurat::ISpatialFeaturePlot() for more details (default = FALSE).
 #' @param information An optional dataframe or matrix of extra infomation to be displayed on hover (default = NULL).
@@ -550,7 +550,7 @@ SpatialMZPlot <- function(object,
 #'      - This function inherits off Seurat::ImageFeaturePlot(). Look here for more detailed documentation about inputs.
 #'
 #' @param object Seurat Spatial Metabolomic Object to Visualise.
-#' @param mzs Vector of numeric m/z values to plot (e.g. c(400.1578, 300.1)). The function find_nearest() is used to automatically find the nearest m/z value to the ones given.
+#' @param metabolites Vector of metabolite names to plot (e.g. c("Glucose", "Glutamine")). The Seurat Object provided must contain annotations in the respective assay metadata.
 #' @param plusminus Numeric value defining the range/threshold either side of the target peak/peaks to be binned together for plotting (default = NULL).
 #' @param images Character string of the name of the image to plot (default = NULL).
 #' @param assay Character string indicating which Seurat object assay to pull data form (default = "Spatial").
@@ -563,7 +563,7 @@ SpatialMZPlot <- function(object,
 #' @param combine Boolean value stating if to combine plots into a single patchworked ggplot object (default = TRUE).
 #' @param pt.size.factor Numeric value defining the point size for spots when plotting (default = 1.6).
 #' @param alpha Numeric value between 0 and 1 defining the spot alpha (default = 1).
-#' @param image.aplha Numeric value between 0 and 1 defining the image alpha (default = 1).
+#' @param image.alpha Numeric value between 0 and 1 defining the image alpha (default = 1).
 #' @param stroke Numeric value describing the width of the border around the spot (default. =0.25).
 #' @param interactive Boolean value of if to launch an interactive SpatialDimPlot or SpatialFeaturePlot session, see Seurat::ISpatialDimPlot() or Seurat::ISpatialFeaturePlot() for more details (default = FALSE).
 #' @param information An optional dataframe or matrix of extra infomation to be displayed on hover (default = NULL).

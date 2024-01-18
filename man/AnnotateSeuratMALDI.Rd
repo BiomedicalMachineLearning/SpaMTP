@@ -42,6 +42,6 @@ A Seurat Object with m/z values annotated. These annotations are stored in the r
 Annotates m/z values based on reference metabolite dataset
 }
 \examples{
-HMDB_db <- readRDS("../../SpatialMetabolomics/db_files/HMDB_1_names.rds")
+HMDB_db <- load("data/HMDB_1_names.rds")
 Annotated_SeuratObj <- AnnotateSeuratMALDI(SeuratObj, HMDB_db)
 }

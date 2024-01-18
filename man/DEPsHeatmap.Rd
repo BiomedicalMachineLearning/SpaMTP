@@ -21,6 +21,8 @@ DEPsHeatmap(
 )
 }
 \arguments{
+\item{edgeR_output}{A list containing outputs from edgeR analysis (from FindAllDEPs()). This includes pseudo-bulked counts and DEPs.}
+
 \item{n}{A numeric integer that defines the number of UP and DOWN regulated peaks to plot (default = 25).}
 
 \item{FDR_threshold}{An integer that defines the FDR_threshold to use for defining most significant results (default = 0.05).}
@@ -33,15 +35,15 @@ DEPsHeatmap(
 
 \item{cluster_rows}{A boolean values determining if rows should be clustered or hclust object (default = T).}
 
-\item{fontsize_row}{A numeric value defining the fontsize of colnames (default = 15).}
+\item{fontsize_row}{A numeric value defining the fontsize of rownames (default = 15).}
+
+\item{fontsize_col}{A numeric value defining the fontsize of colnames (default = 15).}
 
 \item{cutree_cols}{A numeric value defining the number of clusters the columns are divided into, based on the hierarchical clustering(using cutree), if cols are not clustered, the argument is ignored (default = 9).}
 
 \item{silent}{A boolean value indicating if the plot should not be draw (default = TRUE).}
 
 \item{plot_annotations}{A boolean value indicating if metabolite annotation names should be plot rather then m/z values. Annotations = TRUE must be used in FindAllDEPs() for edgeR output to include annotations (default = FALSE).}
-
-\item{edgeR_ouput}{A list containing outputs from edgeR analysis (from FindAllDEPs()). This includes pseudo-bulked counts and DEPs.}
 }
 \value{
 A heatmap plot of significantly differentially expressed peaks defined in the edgeR ouput object.

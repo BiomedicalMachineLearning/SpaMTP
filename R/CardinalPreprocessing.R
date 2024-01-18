@@ -47,9 +47,9 @@ set_centroid_to_true <- function(data){
 #'    - This is required for combined analysis and plotting
 #'
 #' @param data_list List of Cardinal Objects being merged together.
-#' @param ncol An integer defining the number of columns present when plotting the merged Cardinal Object (default = 2).
+#' @param ncols An integer defining the number of columns present when plotting the merged Cardinal Object (default = 2).
 #' @param padding An integer defining the pixel padding between plots (default = 200).
-#' @param shift.images Boolean value describing if to shift the image coordinates for plotting to prevent overlay (default = FALSE).
+#' @param shift.image Boolean value describing if to shift the image coordinates for plotting to prevent overlay (default = FALSE).
 #'
 #' @returns A Cardinal Object with values merged form each individual Cardinal Object givin.
 #' @export
