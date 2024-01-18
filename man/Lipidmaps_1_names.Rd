@@ -38,7 +38,7 @@ A data frame with 9493 rows and 37 variables:
 \item{M+Hac-H}{Mass of the entity as a M+Hac-H ion (double)}
 \item{M+IsoProp+H}{Mass of the entity as a M+IsoProp+H ion (double)}
 \item{M+IsoProp+Na+H}{Mass of the entity as a M+IsoProp+Na+H ion (double)}
-\item{M+K-2H}{Mass of the entity as a M+K-2H ion (double)
+\item{M+K-2H}{Mass of the entity as a M+K-2H ion (double)}
 \item{M+K}{Mass of the entity as a M+K}
 }
 }
@@ -54,8 +54,10 @@ This object contains a collection of lipids from the LIPID MAPS Structure Databa
 \examples{
 # Access the molecular formula of the first lipid
 Lipidmaps_1_names$formula[1]
+
 # Access the exact mass of the third lipid
 Lipidmaps_1_names$exactmass[3]
+
 # View all information for a specific lipid
 Lipidmaps_1_names[LIPIDMAPS_db$isomers == "LMSP0601GB03", ]
 }

@@ -50,10 +50,9 @@ HMDB_1_names <- load("data/HMDB_1_names.rda")
 
 #' @title Chebi_1_names: Cleaned ChEBI `(Chemical entities of biological interest)` reference dataset
 #'
-#' @description A dataset containing information on chemical entities, including their
-#' formulas, exact masses, isomers, InChIKeys, and names.
+#' @description A dataset containing information on chemical entities, including their formulas, exact masses, isomers, InChIKeys, and names.
 #'
-#' @format A data frame with 6 rows and 37 variables:
+#' @format A data frame with 46297 rows and 37 variables:
 #' \describe{
 #'   \item{formula}{Chemical formula of the entity (character)}
 #'   \item{exactmass}{Exact mass of the entity (numeric)}
@@ -86,11 +85,11 @@ HMDB_1_names <- load("data/HMDB_1_names.rda")
 #'   \item{M+Hac-H}{Mass of the entity as a M+Hac-H ion (double)}
 #'   \item{M+IsoProp+H}{Mass of the entity as a M+IsoProp+H ion (double)}
 #'   \item{M+IsoProp+Na+H}{Mass of the entity as a M+IsoProp+Na+H ion (double)}
-#'   \item{M+K-2H}{Mass of the entity as a M+K-2H ion (double)
+#'   \item{M+K-2H}{Mass of the entity as a M+K-2H ion (double)}
 #'   \item{M+K}{Mass of the entity as a M+K}
 #' }
 #'
-#' @source ChEBI database (https://www.ebi.ac.uk/chebi/)
+#' @source \url{https://www.ebi.ac.uk/chebi/}
 #'
 #' @usage data(Chebi_1_names)
 #'
@@ -141,7 +140,7 @@ Chebi_1_names <- load("data/Chebi_1_names.rda")
 #'   \item{M+Hac-H}{Mass of the entity as a M+Hac-H ion (double)}
 #'   \item{M+IsoProp+H}{Mass of the entity as a M+IsoProp+H ion (double)}
 #'   \item{M+IsoProp+Na+H}{Mass of the entity as a M+IsoProp+Na+H ion (double)}
-#'   \item{M+K-2H}{Mass of the entity as a M+K-2H ion (double)
+#'   \item{M+K-2H}{Mass of the entity as a M+K-2H ion (double)}
 #'   \item{M+K}{Mass of the entity as a M+K}
 #' }
 #'
@@ -150,10 +149,10 @@ Chebi_1_names <- load("data/Chebi_1_names.rda")
 #' @examples
 #' # Access the molecular formula of the first lipid
 #' Lipidmaps_1_names$formula[1]
-
+#'
 #' # Access the exact mass of the third lipid
 #' Lipidmaps_1_names$exactmass[3]
-
+#'
 #' # View all information for a specific lipid
 #' Lipidmaps_1_names[LIPIDMAPS_db$isomers == "LMSP0601GB03", ]
 Lipidmaps_1_names <- load("data/Lipidmaps_1_names.rda")
@@ -162,8 +161,7 @@ Lipidmaps_1_names <- load("data/Lipidmaps_1_names.rda")
 
 #' @title GNPS_db: A cleaned database of metabolites from GNPS
 #'
-#' @description
-#' This object contains a collection of metabolites from the Global Natural Products Social Molecular Networking (GNPS) platform.
+#' @description This object contains a collection of metabolites from the Global Natural Products Social Molecular Networking (GNPS) platform.
 #'
 #' @format A data frame with 489 rows and 37 variables:
 #' \describe{
@@ -198,7 +196,7 @@ Lipidmaps_1_names <- load("data/Lipidmaps_1_names.rda")
 #'   \item{M+Hac-H}{Mass of the entity as a M+Hac-H ion (double)}
 #'   \item{M+IsoProp+H}{Mass of the entity as a M+IsoProp+H ion (double)}
 #'   \item{M+IsoProp+Na+H}{Mass of the entity as a M+IsoProp+Na+H ion (double)}
-#'   \item{M+K-2H}{Mass of the entity as a M+K-2H ion (double)
+#'   \item{M+K-2H}{Mass of the entity as a M+K-2H ion (double)}
 #'   \item{M+K}{Mass of the entity as a M+K}
 #' }
 #'

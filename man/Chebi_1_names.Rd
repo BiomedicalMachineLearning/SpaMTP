@@ -5,7 +5,7 @@
 \alias{Chebi_1_names}
 \title{Chebi_1_names: Cleaned ChEBI \verb{(Chemical entities of biological interest)} reference dataset}
 \format{
-A data frame with 6 rows and 37 variables:
+A data frame with 46297 rows and 37 variables:
 \describe{
 \item{formula}{Chemical formula of the entity (character)}
 \item{exactmass}{Exact mass of the entity (numeric)}
@@ -38,19 +38,18 @@ A data frame with 6 rows and 37 variables:
 \item{M+Hac-H}{Mass of the entity as a M+Hac-H ion (double)}
 \item{M+IsoProp+H}{Mass of the entity as a M+IsoProp+H ion (double)}
 \item{M+IsoProp+Na+H}{Mass of the entity as a M+IsoProp+Na+H ion (double)}
-\item{M+K-2H}{Mass of the entity as a M+K-2H ion (double)
+\item{M+K-2H}{Mass of the entity as a M+K-2H ion (double)}
 \item{M+K}{Mass of the entity as a M+K}
 }
 }
 \source{
-ChEBI database (https://www.ebi.ac.uk/chebi/)
+\url{https://www.ebi.ac.uk/chebi/}
 }
 \usage{
 data(Chebi_1_names)
 }
 \description{
-A dataset containing information on chemical entities, including their
-formulas, exact masses, isomers, InChIKeys, and names.
+A dataset containing information on chemical entities, including their formulas, exact masses, isomers, InChIKeys, and names.
 }
 \examples{
 head(Chebi_1_names)
