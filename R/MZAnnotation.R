@@ -43,10 +43,10 @@ subsetMZFeatures <- function(data, features, assay = "Spatial"){
 #'
 #' @examples
 #' HMDB_db <- readRDS("../../SpatialMetabolomics/db_files/HMDB_1_names.rds")
-#' Annotated_SeuratObj <- annotate.SeuratMALDI(SeuratObj, HMDB_db)
-annotate.SeuratMALDI <- function(data, db, feature.metadata.assay = "Spatial", feature.metadata.slot = "raw_mz", ppm_error = 5, test_add_pos = c("M+H"), polarity = "pos", filepath = NULL, return.only.annotated = TRUE){
+#' Annotated_SeuratObj <- AnnotateSeuratMALDI(SeuratObj, HMDB_db)
+AnnotateSeuratMALDI <- function(data, db, feature.metadata.assay = "Spatial", feature.metadata.slot = "raw_mz", ppm_error = 5, test_add_pos = c("M+H"), polarity = "pos", filepath = NULL, return.only.annotated = TRUE){
 
-  mz_df <- T1_seurat[[feature.metadata.assay]][[feature.metadata.slot]]
+  mz_df <- data[[feature.metadata.assay]][[feature.metadata.slot]]
   mz_df$mz <- mz_df[[feature.metadata.slot]]
   mz_df$row_id <- seq(1, length(mz_df[[feature.metadata.slot]]))
   mz_df <- mz_df[c("row_id", "mz")]
@@ -87,8 +87,8 @@ annotate.SeuratMALDI <- function(data, db, feature.metadata.assay = "Spatial", f
   message("Adding annotations to Seurat Object .... ")
 
   result_df <- db_3 %>%
-    group_by(observed_mz) %>%
-    summarise(
+    dplyr::group_by(observed_mz) %>%
+    dplyr::summarise(
       all_IsomerNames = paste(IsomerNames, collapse = "; "),
       all_Isomers = paste(Isomers, collapse = "; ")
     )
@@ -99,16 +99,16 @@ annotate.SeuratMALDI <- function(data, db, feature.metadata.assay = "Spatial", f
   data[[feature.metadata.assay]][["mz_names"]] <- rownames(data[[feature.metadata.assay]][[]])
 
 
-  result_df <- result_df %>% mutate(present = TRUE)
+  result_df <- result_df %>% dplyr::mutate(present = TRUE)
 
 
   # Perform left join and replace NAs with "No Annotation"
   feature_metadata <- data[[feature.metadata.assay]][[]] %>%
     dplyr::left_join(result_df, by = "mz_names") %>%
-    dplyr::mutate(across(everything(), ~ifelse(is.na(.), "No Annotation", .)))
+    dplyr::mutate(dplyr::across(dplyr::everything(), ~ifelse(is.na(.), "No Annotation", .)))
 
   # If you want to remove the "present" column, you can do:
-  feature_metadata <- select(feature_metadata, -present)
+  feature_metadata <- dplyr::select(feature_metadata, -present)
 
   data[[feature.metadata.assay]][[]] <- feature_metadata
   if (return.only.annotated == TRUE){
@@ -120,12 +120,26 @@ annotate.SeuratMALDI <- function(data, db, feature.metadata.assay = "Spatial", f
 }
 
 
-## Used to subset dataset to only include annotations that have n number of enteries
-## (i.e. some peaks can have multiple annotations. Peaks which have above n annotations assigned will be removed from Seurat Object)
-##
+
+
+#' Used to subset dataset to only include annotations that have n number of enteries
+#'    - (i.e. some peaks can have multiple annotations. Peaks which have above n number of annotations assigned will be removed from Seurat Object)
+#'
+#' @param obj Seurat object needing annotation refinement. This object must have annotations present in 'obj[[assay]]@meta.data'
+#' @param assay Character string defining the Seurat object assay where the annotation data is stored (default = "Spatial").
+#' @param n Integer defining the number of enteries an annotation can have assigned. Any higher counts will be removed (default = 1).
+#'
+#' @return Refined Seurat object that only contains annotated mz values that have n number of annotations assigned (per mz value)
+#' @export
+#'
+#' @examples
+#' HMDB_db <- readRDS("../../SpatialMetabolomics/db_files/HMDB_1_names.rds")
+#' AnnotatedSeuratObj <- AnnotateSeuratMALDI(SeuratObj, HMDB_db)
+#'
+#' getRefinedAnnotations(AnnotatedSeuratObj, n = 2)
 getRefinedAnnotations <- function(obj, assay = "Spatial",n = 1){
   n <- n-1
-  subset.metadata <- obj[[assay]]@meta.data %>% dplyr::filter(str_count(all_IsomerNames, ";") %in% c(0:n))
+  subset.metadata <- obj[[assay]]@meta.data %>% dplyr::filter(stringr::str_count(all_IsomerNames, ";") %in% c(0:n))
   subset.obj <- subsetMZFeatures(data = obj, features = subset.metadata$mz_names,assay = assay)
   return(subset.obj)
 
@@ -218,7 +232,51 @@ FindDuplicateAnnotations <- function (data, assay = "Spatial"){
 
 #!! ALL CODE BELOW WAS WRITEN BY Christopher Fitzgerald github https://github.com/ChemCharles !!#
 
-#### Filter DB by polarity and adducts ####
+
+#' Checks if the complete adduct is in the data base, else returns a truncated adduct
+#'
+#' @param adduct Character string defining the adduct to be checked
+#' @param db DataFrame of the current reference database
+#'
+#' @return Character string of the complete or truncated adduct
+#' @export
+#'
+#' @examples
+#' HMDB_db  <- readRDS("../../SpatialMetabolomics/db_files/HMDB_1_names.rds")
+#' check_and_truncate_adduct_vector(c("M+H"), HMDB_db)
+check_and_truncate_adduct_vector <- function(adduct, db) {
+  element_exists <- adduct %in% colnames(db)
+  missing_elements <- adduct[!element_exists]
+  if (length(missing_elements) > 0) {
+    for (missing_element in missing_elements) {
+      cat(
+        "Adduct",
+        missing_element,
+        "is not in the DB, it has been removed from the search.\n"
+      )
+    }
+    truncated_adduct <- adduct[element_exists]
+    return(truncated_adduct)
+  } else {
+    return(adduct)
+  }
+}
+
+
+
+
+#' Filters the provided metabolomic database by polarity and adducts
+#'
+#' @param adduct Character string defining the adduct to be checked.
+#' @param db DataFrame of the current reference database.
+#' @param polarity Character string defining the polarity of the adducts (default = "neg").
+#'
+#' @return A filtered reference metabolomic database DataFrame
+#' @export
+#'
+#' @examples
+#' HMDB_db  <- readRDS("../../SpatialMetabolomics/db_files/HMDB_1_names.rds")
+#' db_adduct_filter(HMDB_db,c("M+H"), polarity = "pos")
 db_adduct_filter <- function(db, adduct, polarity = "neg") {
   # only include adducts from either neg or pos polarity
   if (polarity == "neg") {
@@ -271,32 +329,14 @@ db_adduct_filter <- function(db, adduct, polarity = "neg") {
   # get rid of spaces in the adduct names
   # in col names
   db <- db %>%
-    rename_all( ~ gsub(" ", "", .))
+    dplyr::rename_all( ~ gsub(" ", "", .))
 
   # Filter the db by polarity
   db <- db %>%
-    select(formula, exactmass, isomers, isomers_inchikey, isomers_names, pol)
+    dplyr::select(formula, exactmass, isomers, isomers_inchikey, isomers_names, pol)
 
   # in adduct entry
   adduct <- gsub(" ", "", adduct)
-
-  check_and_truncate_adduct_vector <- function(adduct, db) {
-    element_exists <- adduct %in% colnames(db)
-    missing_elements <- adduct[!element_exists]
-    if (length(missing_elements) > 0) {
-      for (missing_element in missing_elements) {
-        cat(
-          "Adduct",
-          missing_element,
-          "is not in the DB, it has been removed from the search.\n"
-        )
-      }
-      truncated_adduct <- adduct[element_exists]
-      return(truncated_adduct)
-    } else {
-      return(adduct)
-    }
-  }
 
   adduct <- check_and_truncate_adduct_vector(adduct, db)
 
@@ -306,29 +346,55 @@ db_adduct_filter <- function(db, adduct, polarity = "neg") {
            isomers,
            isomers_inchikey,
            isomers_names,
-           any_of(adduct)) %>%
+           tidyr::any_of(adduct)) %>%
     as.data.frame()
   return(db_filtered)
 }
 
 
 
+
+#' Checks if a formula contains only the allowed elements
+#'
+#' @param formula Character string defining t
+#' @param allowed_elements Vector of character strings defining allowed elements
+#'
+#' @export
+#'
+#' @examples
+#' ### Helper function ###
+is_formula_valid <- function(formula,allowed_elements) {
+  elements <-
+    stringr::str_extract_all(formula, "[A-Z][a-z]*")[[1]] # defines an element as a Uppercase immediately followed by none or more lowercase letters.
+
+  all(elements %in% allowed_elements) # Then checks if they are in the vector of allowed elements.
+}
+
+
+
+
+#' Filters reference Database to only select natural elements
+#'
+#' @param df DataFrame of the reference database.
+#' @param elements Vector of character strings of elements to include (default = c("H", "C", "N", "O", "S", "Cl", "Br", "F", "Na", "P", "I")).
+#'
+#' @return A refined DataFrame which only includes annotations containing the specified elements
+#' @export
+#'
+#' @examples
+#' # Get filtered DB by adduct
+#' db_1 <- db_adduct_filter(db, test_add_pos, polarity = "pos")
+#'
+#' # Refine to only include natural elements
+#' db_2 <- formula_filter(db_1)
 formula_filter <- function(df, elements = NULL) {
   if (is.null(elements)) {
     elements <- c("H", "C", "N", "O", "S", "Cl", "Br",
                   "F", "Na", "P", "I")
   }
 
-
   # Elements to allow
   allowed_elements <- elements
-
-  # Function to check if a formula contains only allowed elements
-  is_formula_valid <- function(formula) {
-    elements <-
-      stringr::str_extract_all(formula, "[A-Z][a-z]*")[[1]] # defines an element as a Uppercase immediately followed by none or more lowercase letters.
-    all(elements %in% allowed_elements) # Then checks if they are in the vector of allowed elements.
-  }
 
   # Filter rows based on allowed elements
   filtered_df <- df %>%
@@ -341,7 +407,105 @@ formula_filter <- function(df, elements = NULL) {
 
 
 
-#### Search an mz list against a data base ####
+#' Calculates the mz range of the observed_df
+#'
+#' @param input_df DataFrame of the observed dataframe being annotated
+#'
+#' @return A list containing the lower and upper mz range for the provided sample
+#' @export
+#'
+#' @examples
+#'  mz_df <- SeuratObject[["Spatial"]][["mz"]]
+#'  mz_df$row_id <- seq(1, length(mz_df$mz))
+#'
+#' mass_range <- calculate_bounds(mz_df)
+#' lower_bound <- mass_range$lower_bound
+#' upper_bound <- mass_range$upper_bound
+calculate_bounds <- function(input_df) {
+
+  lower_bound <- min(input_df$mz, na.rm = TRUE)
+  upper_bound <- max(input_df$mz, na.rm = TRUE)
+
+  bounds <-
+    list(lower_bound = lower_bound, upper_bound = upper_bound)
+
+  return(bounds)
+}
+
+
+
+
+
+#' Calculates the ppm error as a valve
+#'
+#' @param observed_mz Numeric value defining the observed mz value.
+#' @param reference_mz Numeric value defining the reference mz value.
+#' @param ppm Numeric value defining the maximum acceptable ppm_error/threshold for searching.
+#'
+#' @return Numeric value defining the ppm_error between the observed and reference mz value
+#' @export
+#'
+#' @examples
+#' ### Helper Function ###
+ppm_error <- function(observed_mz, reference_mz, ppm) {
+  abs_diff_ppm <-
+    abs(observed_mz - reference_mz) / abs(reference_mz) * 1e6
+  if (abs_diff_ppm <= ppm) {
+    return(abs_diff_ppm)
+  }
+  else{
+    return("Out")
+  }
+}
+
+
+
+
+#' Calculates the ppm range and check if mz values are within the range
+#'    -  Returns TRUE if match is found and false if no match.
+#'
+#' @param observed_mz Numeric value defining the observed mz value.
+#' @param reference_mz Numeric value defining the reference mz value.
+#' @param ppm Numeric value defining the maximum acceptable ppm_error/threshold for searching.
+#'
+#' @return Boolean value indicating if a match is found (TRUE) or not (FALSE)
+#' @export
+#'
+#' @examples
+#' ### Helper Function ###
+ppm_range_match <- function(observed_mz, reference_mz, ppm) {
+  abs_diff_ppm <-
+    abs(observed_mz - reference_mz) / abs(reference_mz) * 1e6
+  abs_diff_ppm <= ppm
+}
+
+
+
+
+
+
+#' Searches observed mz values against the data base list and returns matching annotations
+#'
+#' @param observed_df DataFrame containing the observed mz values
+#' @param reference_df DataFrame contating the reference mz values and relative annotations.
+#' @param ppm_threshold Numeric value defining the maximum acceptable ppm_error/threshold allowed between observed and reference mz values
+#'
+#' @return A DataFrame containing matched mz values between the observed and reference dataframes
+#' @export
+#'
+#' @examples
+#' HMDB_db <- readRDS("../../SpatialMetabolomics/db_files/HMDB_1_names.rds")
+#' mz_df <- SeuratObject[["Spatial"]][["mz"]]
+#' mz_df$row_id <- seq(1, length(mz_df$mz))
+#'
+#' # 1) Filter DB by adduct.
+#' db_1 <- db_adduct_filter(HMDB_db, c("M+H"), polarity = "pos")
+#'
+#' # 2) only select natural elements
+#' db_2 <- formula_filter(db_1)
+#'
+#' # 3) search db against mz df return results
+#' db_3 <- proc_db(mz_df, db_2, ppm_threshold = 5)
 proc_db <- function(observed_df,
                     reference_df,
                     ppm_threshold = 10) {
@@ -364,37 +528,9 @@ proc_db <- function(observed_df,
     return(NULL)
   }
 
-  # Calculate mz range of observed_df
-  calculate_bounds <- function(input_df) {
-    lower_bound <- min(input_df$mz, na.rm = TRUE)
-    upper_bound <- max(input_df$mz, na.rm = TRUE)
-    bounds <-
-      list(lower_bound = lower_bound, upper_bound = upper_bound)
-    return(bounds)
-  }
   # extract out bounds
   lower_bound <- calculate_bounds(observed_df)$lower_bound
   upper_bound <- calculate_bounds(observed_df)$upper_bound
-
-  # Function to calculate ppm error as a valve
-  ppm_error <- function(observed_mz, reference_mz, ppm) {
-    abs_diff_ppm <-
-      abs(observed_mz - reference_mz) / abs(reference_mz) * 1e6
-    if (abs_diff_ppm <= ppm) {
-      return(abs_diff_ppm)
-    }
-    else{
-      return("Out")
-    }
-  }
-
-  # Function to calculate ppm range and check if mz values are within the range
-  # Returns TRUE if match is found and false if no match.
-  ppm_range_match <- function(observed_mz, reference_mz, ppm) {
-    abs_diff_ppm <-
-      abs(observed_mz - reference_mz) / abs(reference_mz) * 1e6
-    abs_diff_ppm <= ppm
-  }
 
   #  For loop to go through each column of the reference_df that is provided.
   #  probably a good idea to filter reference_df to only adducts that you want before putting it into this function.

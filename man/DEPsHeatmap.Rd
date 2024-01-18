@@ -10,7 +10,7 @@ DEPsHeatmap(
   n = 25,
   FDR_threshold = 0.05,
   scale = "row",
-  color = colorRampPalette(c("navy", "white", "red"))(50),
+  color = (ggplot2::colorRampPalette(c("navy", "white", "red")))(50),
   cluster_cols = F,
   cluster_rows = T,
   fontsize_row = 15,
@@ -27,7 +27,7 @@ DEPsHeatmap(
 
 \item{scale}{A character string indicating if the values should be centered and scaled in either the row direction or the column direction, or none. Corresponding values are "row", "column" and "none"}
 
-\item{color}{A vector of colors used in heatmap (default = colorRampPalette(c("navy", "white", "red"))(50)).}
+\item{color}{A vector of colors used in heatmap (default = ggplot2::colorRampPalette(c("navy", "white", "red"))(50)).}
 
 \item{cluster_cols}{A boolean values determining if columns should be clustered or hclust object (default = F).}
 

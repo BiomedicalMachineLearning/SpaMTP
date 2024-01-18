@@ -14,8 +14,8 @@ library(Seurat)
 #' @export
 #'
 #' @examples
-#' cardinal_to_seurat(CardinalObj, run_name = "run_1", seurat.coord = NULL)
-cardinal_to_seurat <- function(data,run_name, seurat.coord = NULL){
+#' CardinalToSeurat(CardinalObj, run_name = "run_1", seurat.coord = NULL)
+CardinalToSeurat <- function(data,run_name, seurat.coord = NULL){
 
   message("Convering Cardinal object to Seurat object .... ")
   run_data <- Cardinal::subsetPixels(data, Cardinal::run(data) == paste0(run_name))
@@ -61,7 +61,7 @@ cardinal_to_seurat <- function(data,run_name, seurat.coord = NULL){
   seuratobj <- Seurat::CreateSeuratObject(mat, assay = "Spatial")
 
   message("Adding Pixel Metadata ....")
-  seuratobj <- Seurat::AddMetaData(seuratobj,col.name = "sample", metadata = run(run_data))
+  seuratobj <- Seurat::AddMetaData(seuratobj,col.name = "sample", metadata = Cardinal::run(run_data))
 
   for (name in names(Cardinal::pixelData(run_data))){
     seuratobj <- Seurat::AddMetaData(seuratobj,col.name = name, metadata = Cardinal::pixelData(run_data)[[name,]])

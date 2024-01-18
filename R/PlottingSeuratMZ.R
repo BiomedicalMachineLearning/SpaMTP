@@ -16,7 +16,7 @@ library(ggplot2)
 #' find_nearest(SeuratObj, target_mz = 400.01)
 find_nearest <- function(data, target_mz){
 
-  numbers <- as.numeric(gsub("mz-", "", Features(data)))
+  numbers <- as.numeric(gsub("mz-", "", Seurat::Features(data)))
   closest_number <- numbers[which.min(abs(numbers - target_mz))]
   return(paste0("mz-",closest_number))
 }
@@ -181,7 +181,7 @@ ImageMZPlot <- function(object,
       meta_col <- bin.mz(data_copy, plusminus(data_copy, mz_integer, plusminus))
 
       col_name <- paste0(target_mz,"_plusminus_", plusminus)
-      plot_name <- paste0("mz: ", round(mz_integer, 3)," ± ", plusminus)
+      plot_name <- paste0("mz: ", round(mz_integer, 3)," \\u00b1 ", plusminus)
 
       col_names_to_plot <- c(col_names_to_plot,col_name)
       plot_titles <- c(plot_titles,plot_name)
@@ -396,7 +396,7 @@ ImageMZAnnotationPlot <- function(object,
     plusmin_str <- ""
 
     if (!(is.null(plusminus))){
-      plusmin_str <- paste0(" ± ", plusminus)
+      plusmin_str <- paste0(" \\u00b1 ", plusminus)
     }
 
     plot[[i]] <- plot[[i]] +
@@ -409,149 +409,6 @@ ImageMZAnnotationPlot <- function(object,
 
 }
 
-
-
-#' Visualise expression of m/z values in a spatial context
-#'      - This is for plotting Seurat Spatial Metabolomic data without an image(i.e. H&E image)
-#'      - This function inherits off Seurat::ImageFeaturePlot(). Look here for more detailed documentation about inputs.
-#'
-#' @param object Seurat Spatial Metabolomic Object to Visualise.
-#' @param mzs Vector of numeric m/z values to plot (e.g. c(400.1578, 300.1)). The function find_nearest() is used to automatically find the nearest m/z value to the ones given.
-#' @param plusminus Numeric value defining the range/threshold either side of the target peak/peaks to be binned together for plotting (default = NULL).
-#' @param fov Character string of name of FOV to plot (default = NULL).
-#' @param boundaries A vector of segmentation boundaries per image to plot (default = NULL).
-#' @param cols Vector of character strings defining colours used for plotting (default = c("lightgrey", "firebrick1")).
-#' @param size Numeric value defining the point size for cells/spots when plotting (default = 0.5).
-#' @param min.cutoff Vector of numeric value describing the minimum cutoff values for each m/z feature (default = NA).
-#' @param max.cutoff Vector of numeric value describing the maximum cutoff values for each m/z feature (default = NA).
-#' @param split.by Character string defining a factor in the Seurat Object metadata to split the feature plot by (default = NULL).
-#' @param molecules Vector of character strings describing molecules to plot (default = NULL).
-#' @param mols.size Numeric value for the point size of molecules to plot (default = 0.1).
-#' @param mols.cols A vector of colours for the molecules to plot (default = NULL).
-#' @param nmols Integer of the max number of each molecule specified in 'molecules' to be plot (default = 1000).
-#' @param alpha Numeric value between 0 and 1 defining the spot alpha (default = 1).
-#' @param border.color Character string specifying the colour of each spot/cell border (default = white).
-#' @param border.size Numeric value for the thickness of the cell segmentation border (default = NULL).
-#' @param dark.background Boolean value indicating if the plot background is coloured black (default = FALSE).
-#' @param blend Boolean value indicating whether to scale and blend expression values to visualize coexpression of two features (default = FALSE).
-#' @param blend.threshold Numeric value defining the color cutoff from weak signal to strong signal; ranges from 0 to 1 (default = 0.5).
-#' @param crop Boolean value of whether to crop the plots to area with cells only (default = FALSE).
-#' @param cells Vector of character strings defining a group of cells to plot (default = NUll; plots all cells).
-#' @param scale Set color scaling across multiple plots; c("features", "all", "none").
-#' @param overlap Overlay boundaries from a single image to create a single plot (default = FALSE).
-#' @param axes Boolean defining if to keep axes and panel background (default = FALSE).
-#' @param combine Boolean value stating if to combine plots into a single patchworked ggplot object (default = TRUE).
-#' @param coord.fixed Boolean value of it to plot cartesian coordinates with fixed aspect ratio (default = TURE).
-#'
-#' @returns A ggplot showing the Spatial representation of expression data of specified m/z values
-#' @export
-#'
-#' @examples
-#' ImageMZPlot(SeuratObj, mzs = c(400.678, 300.1))
-#' ImageMZPlot(SeuratObj, mzs = c(400.678, 300.1), plusminus = 0.05)
-SpatialMZPlot <- function(object,
-                        mzs,
-                        plusminus = NULL,
-                        images = NULL,
-                        crop = TRUE,
-                        slot = "counts",
-                        keep.scale = "feature",
-                        min.cutoff = NA,
-                        max.cutoff = NA,
-                        ncol = NULL,
-                        combine = TRUE,
-                        pt.size.factor = 1.6,
-                        alpha = c(1, 1),
-                        image.alpha = 1,
-                        stroke = 0.25,
-                        interactive = FALSE,
-                        information = NULL
-                      ){
-
-  if (is.null(mzs)){
-    stop("No mz values have been supplied")
-  } else{
-
-    mz_list <- c()
-    for (target_mz in mzs){
-      mz_string <- find_nearest(object, target_mz)
-      mz_list <- c(mz_list, mz_string)
-    }
-  }
-
-  if (!(is.null(plusminus))){
-
-    data_copy <- object
-    col_names_to_plot <- c()
-    plot_titles <- c()
-
-    for (target_mz in mz_list){
-      mz_integer <- as.numeric(strsplit(target_mz, "-")[[1]][2])
-
-      meta_col <- bin.mz(data_copy, plusminus(data_copy, mz_integer, plusminus))
-
-      col_name <- paste0(target_mz,"_plusminus_", plusminus)
-      plot_name <- paste0("mz: ", round(mz_integer, 3)," ± ", plusminus)
-
-      col_names_to_plot <- c(col_names_to_plot,col_name)
-      plot_titles <- c(plot_titles,plot_name)
-      data_copy[[col_name]] = meta_col
-    }
-
-    plot <- Seurat::SpatialFeaturePlot(object = data_copy,
-                             features = col_names_to_plot,
-                             images = images,
-                             crop = crop,
-                             slot = slot,
-                             keep.scale = keep.scale,
-                            min.cutoff = min.cutoff,
-                            max.cutoff = max.cutoff,
-                            ncol = ncol,
-                            combine = combine,
-                            pt.size.factor = pt.size.factor,
-                            alpha = alpha,
-                            image.alpha = image.alpha,
-                            stroke = stroke,
-                            interactive = interactive,
-                            information = information
-    )
-
-    for (plot_idx in seq(1, length(plot_titles))){
-      plot[[plot_idx]] <- plot[[plot_idx]] +
-        ggplot2::labs(fill = plot_titles[[plot_idx]])
-    }
-
-  } else {
-
-    plot <- Seurat::SpatialFeaturePlot(object = object,
-                             features = mz_list,
-                             images = images,
-                             crop = crop,
-                             slot = slot,
-                             keep.scale = keep.scale,
-                            min.cutoff = min.cutoff,
-                            max.cutoff = max.cutoff,
-                            ncol = ncol,
-                            combine = combine,
-                            pt.size.factor = pt.size.factor,
-                            alpha = alpha,
-                            image.alpha = image.alpha,
-                            stroke = stroke,
-                            interactive = interactive,
-                            information = information
-    )
-
-    for (plot_idx in seq(1, length(mz_list))){
-      mz_integer <- as.numeric(strsplit(mz_list[plot_idx], "-")[[1]][2])
-      plot[[plot_idx]] <- plot[[plot_idx]] +
-        ggplot2::labs(fill = paste0("mz: ",round(mz_integer,3)))
-    }
-  }
-
-
-  return(plot)
-
-}
 
 
 #' Visualise expression of m/z values in a spatial context for Spatial Seurat Objects with H&E images.
@@ -624,7 +481,7 @@ SpatialMZPlot <- function(object,
       meta_col <- bin.mz(data_copy, plusminus(data_copy, mz_integer, plusminus))
 
       col_name <- paste0(target_mz,"_plusminus_", plusminus)
-      plot_name <- paste0("mz: ", round(mz_integer, 3)," ± ", plusminus)
+      plot_name <- paste0("mz: ", round(mz_integer, 3)," \\u00b1 ", plusminus)
 
       col_names_to_plot <- c(col_names_to_plot,col_name)
       plot_titles <- c(plot_titles,plot_name)
@@ -743,7 +600,7 @@ SpatialMZAnnotationPlot <- function(object,
 ){
   mzs <- c()
   for (metabolite in metabolites){
-    met.row <- SearchAnnotations(object,metabolite, assay = assay, column.name = column.namem,search.exact = plot.exact)
+    met.row <- SearchAnnotations(object,metabolite, assay = assay, column.name = column.name,search.exact = plot.exact)
 
     if (dim(met.row)[1] != 1){
       warning(paste("There are either none or multiple entries for the metabolite: ", metabolite,
@@ -787,7 +644,7 @@ SpatialMZAnnotationPlot <- function(object,
     plusmin_str <- ""
 
     if (!(is.null(plusminus))){
-      plusmin_str <- paste0(" ± ", plusminus)
+      plusmin_str <- paste0(" \\u00b1 ", plusminus)
     }
 
     plot[[i]] <- plot[[i]]+

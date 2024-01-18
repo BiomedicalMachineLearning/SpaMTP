@@ -1,6 +1,8 @@
 library(Seurat)
 library(RANN)
+library(stats)
 library(utils)
+library(graphics)
 
 
 #### SpaMTP MALDI to Visium Spot Merging Functions  ####################################################################################################################################################################
@@ -72,22 +74,22 @@ split_pixel <- function(center_point, pixel_radius, pseudo_n = 4, pixel_shape = 
     if (show_split_diagram) {
       if (pixel_shape == "circle") {
         plot(c(x - pixel_radius * 2, x + pixel_radius * 2), c(y - pixel_radius * 2, y + pixel_radius * 2), type = "n", xlab = "X-axis", ylab = "Y-axis")
-        symbols(centers[, 1], centers[, 2], circles = rep(r, pseudo_n), add = TRUE, inches = 1, col = "red", bg = "white")
-        points(x, y, pch = 19, col = "blue")
-        title(main = "Four Circles Inside a Larger Circle")
+        graphics::symbols(centers[, 1], centers[, 2], circles = rep(r, pseudo_n), add = TRUE, inches = 1, col = "red", bg = "white")
+        graphics::points(x, y, pch = 19, col = "blue")
+        graphics::title(main = "Four Circles Inside a Larger Circle")
 
       } else {
-        plot(c(x - pixel_radius * 2, x + pixel_radius * 2), c(y - pixel_radius * 2, y + pixel_radius * 2), type = "n", xlab = "X-axis", ylab = "Y-axis")
-        rect(x - pixel_radius, y - pixel_radius, x + pixel_radius, y + pixel_radius, border = "blue", lty = 1, col = NA)
-        symbols(centers[, 1], centers[, 2], circles = rep(r, pseudo_n), add = TRUE, inches = 1, col = "red", bg = "white")
-        title(main = "Four Circles Inside a Square")
+        graphics::plot(c(x - pixel_radius * 2, x + pixel_radius * 2), c(y - pixel_radius * 2, y + pixel_radius * 2), type = "n", xlab = "X-axis", ylab = "Y-axis")
+        graphics::rect(x - pixel_radius, y - pixel_radius, x + pixel_radius, y + pixel_radius, border = "blue", lty = 1, col = NA)
+        graphics::symbols(centers[, 1], centers[, 2], circles = rep(r, pseudo_n), add = TRUE, inches = 1, col = "red", bg = "white")
+        graphics::title(main = "Four Circles Inside a Square")
       }
     }
 
     return(centers)
 
   } else {
-    waringing("ERROR: pseudo_n must be either 4 or 9 for square pixels and 4 for circle")
+    warning("ERROR: pseudo_n must be either 4 or 9 for square pixels and 4 for circle")
     stop("n invalid integer")
   }
 }
@@ -126,7 +128,7 @@ increase_MALDI_res <- function(MALDI_adata, res_increase = 4) {
   }
 
   # Find the median distance
-  median_distance <- median(distances)
+  median_distance <- stats::median(distances)
 
   message("Median Distance Between MALDI Spots: ", median_distance, "\n")
 
@@ -230,7 +232,7 @@ generate_new_MALDI_counts <- function(original_MALDI, obs_x, assay) {
 #'
 #' @examples
 #' # Convert MALDI data to equivalent Visium spots
-#' convert_MALDI_to_visium_like_adata(VisiumObj, SeuratObj, img_res = "hires", new_library_id = "MALDI", res_increase = NULL, assay = "Spatial", slice = "slice1")
+#' convert_MALDI_to_visium_like_adata(VisiumObj, SeuratObj, img_res = "hires", new_library_id = "MALDI", res_increase = NULL)
 convert_MALDI_to_visium_like_adata <- function(visium_adata, MALDI_adata, img_res = "hires", new_library_id = "MALDI", res_increase = NULL, annotations = FALSE, assay = "Spatial", slice = "slice1") {
 
   new_MALDI_obs <- MALDI_adata@meta.data
@@ -252,7 +254,7 @@ convert_MALDI_to_visium_like_adata <- function(visium_adata, MALDI_adata, img_re
   image_data$imagerow_sf <- image_data$imagerow * visium_adata@images[[slice]]@scale.factors[[img_res]]
   image_data$imagecol_sf <- image_data$imagecol * visium_adata@images[[slice]]@scale.factors[[img_res]]
 
-  dis <- abs((lm(image_data$imagerow_sf ~image_data$col))$coefficients[[2]])
+  dis <- abs((stats::lm(image_data$imagerow_sf ~image_data$col))$coefficients[[2]])
   radius <- 2 * dis / 100 * 55 / 2
 
   new_coords <- as.matrix(new_MALDI_obs[, c("new_y_coord", "new_x_coord")])
@@ -280,7 +282,7 @@ convert_MALDI_to_visium_like_adata <- function(visium_adata, MALDI_adata, img_re
 
   message("Generating new MALDI Anndata Object ... ")
 
-  seuratobj <- CreateSeuratObject(counts = t(counts_x), assay = "Spatial")
+  seuratobj <- Seurat::CreateSeuratObject(counts = t(counts_x), assay = "Spatial")
 
   rownames(obs_x) <- rownames(seuratobj@assays$Spatial@cells)
   seuratobj@meta.data <- obs_x

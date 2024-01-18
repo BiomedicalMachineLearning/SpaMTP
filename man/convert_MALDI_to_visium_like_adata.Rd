@@ -46,5 +46,5 @@ Converts and aggregates Spatial Metabolomic (MALDI) data to corresponding Spatia
 }
 \examples{
 # Convert MALDI data to equivalent Visium spots
-convert_MALDI_to_visium_like_adata(VisiumObj, SeuratObj, img_res = "hires", new_library_id = "MALDI", res_increase = NULL, assay = "Spatial", slice = "slice1")
+convert_MALDI_to_visium_like_adata(VisiumObj, SeuratObj, img_res = "hires", new_library_id = "MALDI", res_increase = NULL)
 }

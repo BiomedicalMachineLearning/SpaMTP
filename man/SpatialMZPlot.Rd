@@ -2,30 +2,10 @@
 % Please edit documentation in R/PlottingSeuratMZ.R
 \name{SpatialMZPlot}
 \alias{SpatialMZPlot}
-\title{Visualise expression of m/z values in a spatial context
+\title{Visualise expression of m/z values in a spatial context for Spatial Seurat Objects with H&E images.
 - This is for plotting Seurat Spatial Metabolomic data without an image(i.e. H&E image)
-- This function inherits off Seurat::ImageFeaturePlot(). Look here for more detailed documentation about inputs.}
+- This function inherits off Seurat::SpatialFeaturePlot(). Look here for more detailed documentation about inputs.}
 \usage{
-SpatialMZPlot(
-  object,
-  mzs,
-  plusminus = NULL,
-  images = NULL,
-  crop = TRUE,
-  slot = "counts",
-  keep.scale = "feature",
-  min.cutoff = NA,
-  max.cutoff = NA,
-  ncol = NULL,
-  combine = TRUE,
-  pt.size.factor = 1.6,
-  alpha = c(1, 1),
-  image.alpha = 1,
-  stroke = 0.25,
-  interactive = FALSE,
-  information = NULL
-)
-
 SpatialMZPlot(
   object,
   mzs,
@@ -79,63 +59,17 @@ SpatialMZPlot(
 
 \item{information}{An optional dataframe or matrix of extra infomation to be displayed on hover (default = NULL).}
 
-\item{fov}{Character string of name of FOV to plot (default = NULL).}
-
-\item{boundaries}{A vector of segmentation boundaries per image to plot (default = NULL).}
-
-\item{cols}{Vector of character strings defining colours used for plotting (default = c("lightgrey", "firebrick1")).}
-
-\item{size}{Numeric value defining the point size for cells/spots when plotting (default = 0.5).}
-
-\item{split.by}{Character string defining a factor in the Seurat Object metadata to split the feature plot by (default = NULL).}
-
-\item{molecules}{Vector of character strings describing molecules to plot (default = NULL).}
-
-\item{mols.size}{Numeric value for the point size of molecules to plot (default = 0.1).}
-
-\item{mols.cols}{A vector of colours for the molecules to plot (default = NULL).}
-
-\item{nmols}{Integer of the max number of each molecule specified in 'molecules' to be plot (default = 1000).}
-
-\item{border.color}{Character string specifying the colour of each spot/cell border (default = white).}
-
-\item{border.size}{Numeric value for the thickness of the cell segmentation border (default = NULL).}
-
-\item{dark.background}{Boolean value indicating if the plot background is coloured black (default = FALSE).}
-
-\item{blend}{Boolean value indicating whether to scale and blend expression values to visualize coexpression of two features (default = FALSE).}
-
-\item{blend.threshold}{Numeric value defining the color cutoff from weak signal to strong signal; ranges from 0 to 1 (default = 0.5).}
-
-\item{cells}{Vector of character strings defining a group of cells to plot (default = NUll; plots all cells).}
-
-\item{scale}{Set color scaling across multiple plots; c("features", "all", "none").}
-
-\item{overlap}{Overlay boundaries from a single image to create a single plot (default = FALSE).}
-
-\item{axes}{Boolean defining if to keep axes and panel background (default = FALSE).}
-
-\item{coord.fixed}{Boolean value of it to plot cartesian coordinates with fixed aspect ratio (default = TURE).}
-
 \item{image.aplha}{Numeric value between 0 and 1 defining the image alpha (default = 1).}
 }
 \value{
-A ggplot showing the Spatial representation of expression data of specified m/z values
-
 A ggplot showing the Spatial representation of expression data of specified m/z values for Spatial data with H&E Image
 }
 \description{
-Visualise expression of m/z values in a spatial context
-- This is for plotting Seurat Spatial Metabolomic data without an image(i.e. H&E image)
-- This function inherits off Seurat::ImageFeaturePlot(). Look here for more detailed documentation about inputs.
-
 Visualise expression of m/z values in a spatial context for Spatial Seurat Objects with H&E images.
 - This is for plotting Seurat Spatial Metabolomic data without an image(i.e. H&E image)
 - This function inherits off Seurat::SpatialFeaturePlot(). Look here for more detailed documentation about inputs.
 }
 \examples{
-ImageMZPlot(SeuratObj, mzs = c(400.678, 300.1))
-ImageMZPlot(SeuratObj, mzs = c(400.678, 300.1), plusminus = 0.05)
 SpatialMZPlot(SeuratObj, mzs = c(400.678, 300.1))
 SpatialMZPlot(SeuratObj, mzs = c(400.678, 300.1), plusminus = 0.05)
 }

@@ -8,6 +8,7 @@ library(edgeR)
 library(pheatmap)
 library(limma)
 library(utils)
+library(stats)
 
 #### SpaMTP Differential Peaks Analysis Functions ########################################################################################################################################################################################
 
@@ -101,9 +102,9 @@ run_DE <- function(pooled_data, seurat_data, ident, output_dir, run_name, n, log
     y$samples$condition <- groups
     y$samples$ident <- sub("_(.*)", "", y$samples$samples)
 
-    keep <- filterByExpr(y, group = groups, min.count = 2, min.total.count = 10)
+    keep <- edgeR::filterByExpr(y, group = groups, min.count = 2, min.total.count = 10)
     y <- y[keep,]
-    y <- calcNormFactors(y)
+    y <- edgeR::calcNormFactors(y)
 
     intercept_category <- as.character(SingleCellExperiment::colData(pooled_data)[[ident]])
 
@@ -112,7 +113,7 @@ run_DE <- function(pooled_data, seurat_data, ident, output_dir, run_name, n, log
       message("This code has not been fixed .... DO NOT RUN INTERCEPT = TRUE")
       sample_idx <- which(as.character(unique(SingleCellExperiment::colData(pooled_data)[[ident]])) == condition)
       #print(sample_idx)
-      design <- model.matrix(~groups+intercept_category)
+      design <- stats::model.matrix(~groups+intercept_category)
 
       #print(design)
       to_remove <- -(1 + as.numeric(sample_idx))
@@ -127,7 +128,7 @@ run_DE <- function(pooled_data, seurat_data, ident, output_dir, run_name, n, log
     }
 
     if(intercept==FALSE) {
-      design <- model.matrix(~groups)
+      design <- stats::model.matrix(~groups)
     }
 
 
@@ -135,7 +136,7 @@ run_DE <- function(pooled_data, seurat_data, ident, output_dir, run_name, n, log
     fit <- edgeR::glmQLFit(y, design, robust=TRUE)
     res <- edgeR::glmTreat(fit, coef=ncol(fit$design), lfc=log2(logFC_threshold))
     summary(limma::decideTests(res))
-    res$table$regulate <- recode(as.character(limma::decideTests(res)),"0"="Normal","1"="Up","-1"="Down")
+    res$table$regulate <- dplyr::recode(as.character(limma::decideTests(res)),"0"="Normal","1"="Up","-1"="Down")
     de_group_edgeR <- res$table[order(res$table$PValue),]
     table(limma::decideTests(res))
     res <- edgeR::topTags(res,n = nrow(y))
@@ -185,7 +186,7 @@ run_DE <- function(pooled_data, seurat_data, ident, output_dir, run_name, n, log
 #' @export
 #'
 #' @examples
-#' FindAllDEPs(SeuratObj, "sample", n = 3, logFC_threshold = 1.2, DE_output_dir = "~/Documents/DE_output/", run_name = "FindAllDEPs", annotations = True, assay = "Spatial")
+#' FindAllDEPs(SeuratObj, "sample",DE_output_dir = "~/Documents/DE_output/", annotations = TRUE)
 FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir = NULL, run_name = "FindAllDEPs", annotations = FALSE, assay = "Spatial"){
 
   if (!(is.null(DE_output_dir))){
@@ -218,7 +219,7 @@ FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir
 #' @param n A numeric integer that defines the number of UP and DOWN regulated peaks to plot (default = 25).
 #' @param FDR_threshold An integer that defines the FDR_threshold to use for defining most significant results (default = 0.05).
 #' @param scale A character string indicating if the values should be centered and scaled in either the row direction or the column direction, or none. Corresponding values are "row", "column" and "none"
-#' @param color A vector of colors used in heatmap (default = colorRampPalette(c("navy", "white", "red"))(50)).
+#' @param color A vector of colors used in heatmap (default = ggplot2::colorRampPalette(c("navy", "white", "red"))(50)).
 #' @param cluster_cols A boolean values determining if columns should be clustered or hclust object (default = F).
 #' @param cluster_rows A boolean values determining if rows should be clustered or hclust object (default = T).
 #' @param fontsize_row A numeric value defining the fontsize of rownames (default = 15).
@@ -234,7 +235,7 @@ FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir
 #' DEPs <- FindAllDEPs(SeuratObj, "sample")
 #'
 #' DEPsHeatmap(DEPs)
-DEPsHeatmap <- function(edgeR_output, n = 25, FDR_threshold = 0.05, scale="row", color=colorRampPalette(c("navy", "white", "red"))(50),cluster_cols = F,cluster_rows = T, fontsize_row = 15, fontsize_col = 15, cutree_cols = 9, silent = TRUE, plot_annotations = FALSE){
+DEPsHeatmap <- function(edgeR_output, n = 25, FDR_threshold = 0.05, scale="row", color= ggplot2::colorRampPalette(c("navy", "white", "red"))(50),cluster_cols = F,cluster_rows = T, fontsize_row = 15, fontsize_col = 15, cutree_cols = 9, silent = TRUE, plot_annotations = FALSE){
 
   message("Generating Heatmap .......")
 
@@ -242,8 +243,8 @@ DEPsHeatmap <- function(edgeR_output, n = 25, FDR_threshold = 0.05, scale="row",
   degs$gene <- rownames(degs)
   degs <- subset(degs, FDR < FDR_threshold)
   degs <- degs[order(degs$logFC),]
-  top <- head(degs, n=n)
-  bot <- tail(degs, n=n)
+  top <- utils::head(degs, n=n)
+  bot <- utils::tail(degs, n=n)
   degs <- merge(x = top, y = bot, all = TRUE)
   degs <- subset(degs, FDR < FDR_threshold)
   rownames(degs) <- degs$gene

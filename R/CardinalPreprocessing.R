@@ -56,8 +56,8 @@ set_centroid_to_true <- function(data){
 #'
 #' @examples
 #' cardinal_object_list <- list(cardinalObj1, cardinalObj2, cardinalObj3, cardinalObj4)
-#' merge.cardinalData(cardinal_object_list)
-merge.cardinalData <- function(data_list, ncols = 2, padding = 200, shift.image = FALSE){
+#' MergeCardinalData(cardinal_object_list)
+MergeCardinalData <- function(data_list, ncols = 2, padding = 200, shift.image = FALSE){
 
   ### NOTE: mass.range and resolution of each sample in the data list must be the same to merge
 
