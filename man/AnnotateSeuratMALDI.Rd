@@ -36,12 +36,12 @@ AnnotateSeuratMALDI(
 \item{return.only.annotated}{Boolean value indicating if the annotated Seurat Object should only include m/z values that were successfully annotated (default = TRUE).}
 }
 \value{
-A Seurat Object with m/z values annotated. These annotations are stored in the relative assay's meta.data (e.g. SeuratObj[\link{"Spatial"}][[]])
+A Seurat Object with m/z values annotated. These annotations are stored in the relative assay's meta.data (e.g. SeuratObj\verb{[["Spatial"]][[]]})
 }
 \description{
 Annotates m/z values based on reference metabolite dataset
 }
 \examples{
-#HMDB_db <- load("data/HMDB_1_names.rds")
+HMDB_db <- load("data/HMDB_2_names.rds")
 Annotated_SeuratObj <- AnnotateSeuratMALDI(SeuratObj, HMDB_db)
 }

@@ -38,11 +38,11 @@ subsetMZFeatures <- function(data, features, assay = "Spatial"){
 #' @param filepath Character string of the directory to store the _annotated_mz_peaks.csv. Else, set to NULL as default.
 #' @param return.only.annotated Boolean value indicating if the annotated Seurat Object should only include m/z values that were successfully annotated (default = TRUE).
 #'
-#' @returns A Seurat Object with m/z values annotated. These annotations are stored in the relative assay's meta.data (e.g. SeuratObj[["Spatial"]][[]])
+#' @returns A Seurat Object with m/z values annotated. These annotations are stored in the relative assay's meta.data (e.g. SeuratObj`[["Spatial"]][[]]`)
 #' @export
 #'
 #' @examples
-#' #HMDB_db <- load("data/HMDB_1_names.rds")
+#' HMDB_db <- load("data/HMDB_2_names.rds")
 #' Annotated_SeuratObj <- AnnotateSeuratMALDI(SeuratObj, HMDB_db)
 AnnotateSeuratMALDI <- function(data, db, feature.metadata.assay = "Spatial", feature.metadata.slot = "raw_mz", ppm_error = 5, test_add_pos = c("M+H"), polarity = "pos", filepath = NULL, return.only.annotated = TRUE){
 
