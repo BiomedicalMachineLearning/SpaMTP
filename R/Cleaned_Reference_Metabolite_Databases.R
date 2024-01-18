@@ -23,4 +23,4 @@
 #'
 #' # Get information on a specific entity
 #' filter(Chebi_1_names, formula == "C34H38Cl2N2O5")
-#' @name Chebi_1_names
+Chebi_1_names <- load("data/Chebi_1_names.rda")
