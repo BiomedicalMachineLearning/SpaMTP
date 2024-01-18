@@ -69,7 +69,7 @@ CardinalToSeurat <- function(data,run_name, seurat.coord = NULL){
 
   message("Creating Centroids for Spatial Seurat Object ....")
   ## Add spatial data
-  cents <- Seurat::CreateCentroids(data.frame(x = c(Cardinal::pixelData(run_data)[["x_coord",]]), y = c(Cardinal::pixelData(run_data)[["y_coord",]]), cell = c(spot_name)))
+  cents <- SeuratObject::CreateCentroids(data.frame(x = c(Cardinal::pixelData(run_data)[["x_coord",]]), y = c(Cardinal::pixelData(run_data)[["y_coord",]]), cell = c(spot_name)))
 
 
   segmentations.data <- list(
@@ -77,7 +77,7 @@ CardinalToSeurat <- function(data,run_name, seurat.coord = NULL){
     "segmentation" = NULL
   )
 
-  coords <- Seurat::CreateFOV(
+  coords <- SeuratObject::CreateFOV(
     coords = segmentations.data,
     type = c("segmentation", "centroids"),
     molecules = NULL,

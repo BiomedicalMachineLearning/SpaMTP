@@ -16,7 +16,7 @@ library(ggplot2)
 #' # find_nearest(SeuratObj, target_mz = 400.01)
 find_nearest <- function(data, target_mz){
 
-  numbers <- as.numeric(gsub("mz-", "", Seurat::Features(data)))
+  numbers <- as.numeric(gsub("mz-", "", SeuratObject::Features(data)))
   closest_number <- numbers[which.min(abs(numbers - target_mz))]
   return(paste0("mz-",closest_number))
 }

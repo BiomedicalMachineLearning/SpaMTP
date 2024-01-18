@@ -160,7 +160,7 @@ increase_MALDI_res <- function(MALDI_adata, res_increase = 4) {
     }
     utils::setTxtProgressBar(pb, spot_idx)
   }
-  utils::close(pb)
+  close(pb)
   return(new_meta_data)
 }
 
@@ -209,7 +209,7 @@ generate_new_MALDI_counts <- function(original_MALDI, obs_x, assay) {
     }
     utils::setTxtProgressBar(pb, spot_idx)
   }
-  utils::close(pb)
+  close(pb)
 
   return(new_count_data)
 }
