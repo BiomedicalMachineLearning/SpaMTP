@@ -39,7 +39,7 @@ A data frame with 6 rows and 37 variables:
 \item{M+IsoProp+H}{Mass of the entity as a M+IsoProp+H ion (double)}
 \item{M+IsoProp+Na+H}{Mass of the entity as a M+IsoProp+Na+H ion (double)}
 \item{M+K-2H}{Mass of the entity as a M+K-2H ion (double)
-\item{M+K}{Mass of the entity as a M+K
+\item{M+K}{Mass of the entity as a M+K}
 }
 }
 \source{

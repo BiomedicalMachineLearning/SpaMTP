@@ -7,7 +7,6 @@
 \format{
 A data frame with 9493 rows and 37 variables:
 \describe{
-\describe{
 \item{formula}{Chemical formula of the entity (character)}
 \item{exactmass}{Exact mass of the entity (numeric)}
 \item{isomers}{Presence of isomers (character)}
@@ -40,7 +39,7 @@ A data frame with 9493 rows and 37 variables:
 \item{M+IsoProp+H}{Mass of the entity as a M+IsoProp+H ion (double)}
 \item{M+IsoProp+Na+H}{Mass of the entity as a M+IsoProp+Na+H ion (double)}
 \item{M+K-2H}{Mass of the entity as a M+K-2H ion (double)
-\item{M+K}{Mass of the entity as a M+K
+\item{M+K}{Mass of the entity as a M+K}
 }
 }
 \source{

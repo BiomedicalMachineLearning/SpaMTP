@@ -87,7 +87,7 @@ HMDB_1_names <- load("data/HMDB_1_names.rda")
 #'   \item{M+IsoProp+H}{Mass of the entity as a M+IsoProp+H ion (double)}
 #'   \item{M+IsoProp+Na+H}{Mass of the entity as a M+IsoProp+Na+H ion (double)}
 #'   \item{M+K-2H}{Mass of the entity as a M+K-2H ion (double)
-#'   \item{M+K}{Mass of the entity as a M+K
+#'   \item{M+K}{Mass of the entity as a M+K}
 #' }
 #'
 #' @source ChEBI database (https://www.ebi.ac.uk/chebi/)
@@ -106,11 +106,9 @@ Chebi_1_names <- load("data/Chebi_1_names.rda")
 
 #' @title Lipidmaps_1_names: A cleaned version of the lipid database from LIPID MAPS
 #'
-#' @description
-#' This object contains a collection of lipids from the LIPID MAPS Structure Database.
+#' @description This object contains a collection of lipids from the LIPID MAPS Structure Database.
 #'
 #' @format A data frame with 9493 rows and 37 variables:
-#' \describe{
 #' \describe{
 #'   \item{formula}{Chemical formula of the entity (character)}
 #'   \item{exactmass}{Exact mass of the entity (numeric)}
@@ -144,7 +142,7 @@ Chebi_1_names <- load("data/Chebi_1_names.rda")
 #'   \item{M+IsoProp+H}{Mass of the entity as a M+IsoProp+H ion (double)}
 #'   \item{M+IsoProp+Na+H}{Mass of the entity as a M+IsoProp+Na+H ion (double)}
 #'   \item{M+K-2H}{Mass of the entity as a M+K-2H ion (double)
-#'   \item{M+K}{Mass of the entity as a M+K
+#'   \item{M+K}{Mass of the entity as a M+K}
 #' }
 #'
 #' @source \url{https://www.lipidmaps.org/}
@@ -169,7 +167,6 @@ Lipidmaps_1_names <- load("data/Lipidmaps_1_names.rda")
 #'
 #' @format A data frame with 489 rows and 37 variables:
 #' \describe{
-#' \describe{
 #'   \item{formula}{Chemical formula of the entity (character)}
 #'   \item{exactmass}{Exact mass of the entity (numeric)}
 #'   \item{isomers}{Presence of isomers (character)}
@@ -202,7 +199,7 @@ Lipidmaps_1_names <- load("data/Lipidmaps_1_names.rda")
 #'   \item{M+IsoProp+H}{Mass of the entity as a M+IsoProp+H ion (double)}
 #'   \item{M+IsoProp+Na+H}{Mass of the entity as a M+IsoProp+Na+H ion (double)}
 #'   \item{M+K-2H}{Mass of the entity as a M+K-2H ion (double)
-#'   \item{M+K}{Mass of the entity as a M+K
+#'   \item{M+K}{Mass of the entity as a M+K}
 #' }
 #'
 #' @source \url{https://gnps.ucsd.edu/: https://gnps.ucsd.edu/}
