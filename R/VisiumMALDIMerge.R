@@ -22,13 +22,13 @@ library(graphics)
 #'
 #' @examples
 #' # Split a square pixel into 4 spots
-#' split_pixel(center_point = c(0, 0), pixel_radius = 1, pseudo_n = 4)
+#' split_pixel(center_point = c(0, 0), pixel_radius = 1, pseudo_n = 4, pixel_shape = "circle", show_split_diagram = TRUE)
 #'
 #' # Split a circular pixel into 9 spots and display the split diagram
-#' split_pixel(center_point = c(0, 0), pixel_radius = 1, pseudo_n = 9, pixel_shape = "circle", show_split_diagram = TRUE)
+#' split_pixel(center_point = c(0, 0), pixel_radius = 1, pseudo_n = 9, pixel_shape = "square", show_split_diagram = TRUE)
 #'
 #' # Split a square pixel into 16 spots and display the split diagram
-#' split_pixel(center_point = c(0, 0), pixel_radius = 1, pseudo_n = 16, show_split_diagram = TRUE)
+#' split_pixel(center_point = c(0, 0), pixel_radius = 1, pseudo_n = 16, pixel_shape = "square", show_split_diagram = TRUE)
 split_pixel <- function(center_point, pixel_radius, pseudo_n = 4, pixel_shape = "square", show_split_diagram = FALSE) {
 
   if (pseudo_n == 4 || ((pseudo_n == 9 || pseudo_n == 16) && pixel_shape == "square")) {

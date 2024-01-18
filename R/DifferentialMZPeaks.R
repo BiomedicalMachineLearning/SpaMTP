@@ -41,7 +41,7 @@ run_pooling <- function(data.filt, idents, n) {
   gene_data <- row.names(data.filt)
   filtered.sce <- SingleCellExperiment::SingleCellExperiment(assays = list(counts = data.filt@assays$Spatial$counts),
                                        colData = cell_metadata)
-  #dim(filtered.sce)
+
 
   tempf=strsplit(filtered.sce@colData[["orig.ident2"]],'_')
   pid=NULL
@@ -113,10 +113,10 @@ run_DE <- function(pooled_data, seurat_data, ident, output_dir, run_name, n, log
     if (intercept==TRUE){
       message("This code has not been fixed .... DO NOT RUN INTERCEPT = TRUE")
       sample_idx <- which(as.character(unique(SingleCellExperiment::colData(pooled_data)[[ident]])) == condition)
-      #print(sample_idx)
+
       design <- stats::model.matrix(~groups+intercept_category)
 
-      #print(design)
+
       to_remove <- -(1 + as.numeric(sample_idx))
 
 
