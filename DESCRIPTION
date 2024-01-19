@@ -21,6 +21,7 @@ Imports:
     ggplot2,
     grDevices,
     limma,
+    Matrix,
     pheatmap,
     RANN,
     scater,

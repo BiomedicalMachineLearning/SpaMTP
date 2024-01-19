@@ -1,6 +1,7 @@
 library(Cardinal)
 library(Seurat)
 library(SeuratObject)
+library(Matrix)
 
 
 #### SpaMTP Cardinal to Seurat Functions ###############################################################################################################################################################################
@@ -56,7 +57,8 @@ CardinalToSeurat <- function(data,run_name, seurat.coord = NULL){
   rownames(sparse_matrix)<- paste("mz-", Cardinal::featureData(run_data)@mz, sep = "")
 
   message("Constructing Seurat Object ....")
-  mat <- as.matrix(sparse_matrix)
+
+  mat <- Matrix::as.matrix(sparse_matrix)
 
 
   seuratobj <- Seurat::CreateSeuratObject(mat, assay = "Spatial")
