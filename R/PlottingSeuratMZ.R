@@ -23,6 +23,42 @@ find_nearest <- function(data, target_mz){
 }
 
 
+#' Bins multiple m/z values into one.
+#'
+#' @param data Seurat Spatial Metabolomic object containing mz values
+#' @param mz_list Vector of m/z names to be binned into one value
+#' @param assay Character string indicating which Seurat object assay to pull data form (default = "Spatial").
+#' @param slot Character string indicating the assay slot to use to pull expression values form (default = "counts").
+#' @param stored.in.metadata Boolean value indicating if the mz_list should be searched in the metadata DataFrame. If FALSE searches in Seurat object assay slot, if TRUE searches in metadata slot (default = FALSE).
+#'
+#' @returns Vector of binned mz counts for each spot/pixel
+#' @export
+#'
+#' @examples
+#' # mz_values <- plusminus(SeuratObj, 448.2, 0.05)
+#' # bin.mz(SeuratObj, mz_values)
+bin.mz <- function(data, mz_list, assay = "Spatial", slot = "counts", stored.in.metadata = FALSE){
+  data_copy <- data
+
+  if (stored.in.metadata){
+    metadata_counts <- data_copy@meta.data[mz_list]
+    if (length(colnames(metadata_counts)) < 2) {
+      stop("One or more genes not found in the assay counts.")
+    }
+    binned.data <- rowSums(metadata_counts)
+
+  } else{
+    assay_counts <- data_copy[[assay]][slot]
+    selected_genes <- assay_counts[mz_list, , drop = FALSE]
+    if (is.null(selected_genes)) {
+      stop("One or more genes not found in the assay counts.")
+    }
+    binned.data <- colSums(selected_genes)
+  }
+
+  return(binned.data)
+}
+
 
 #' Identifies all mz peaks within a plus-minus range of the target_mz
 #'    - This function uses find_nearest()
@@ -62,28 +98,40 @@ plusminus <- function(data, target_mz, plus_minus){
 
 
 
-#' Bins multiple m/z values into one.
+#' Helper Function to generate merged counts within the plus minus range provided
 #'
-#' @param data Seurat Spatial Metabolomic object containing mz values
-#' @param mz_list Vector of m/z names to be binned into one value
+#' @param object Seurat Spatial Metabolomic object containing mz values.
+#' @param mz_list Vector of numeric m/z values to plot (e.g. c(mz-400.1578, mz-300.1)).
+#' @param plusminus Numeric value defining the range/threshold either side of each mz peak provided.
 #'
-#' @returns Vector of binned mz counts for each spot/pixel
+#' @return List contatining a Seurat data object which contains the binned counts in the `@metadata` slot, the column name under where the data is stored and the title of this binned which will be plotted.
 #' @export
 #'
 #' @examples
-#' # mz_values <- plusminus(SeuratObj, 448.2, 0.05)
-#' # bin.mz(SeuratObj, mz_values)
-bin.mz <- function(data, mz_list){
-  data_copy <- data
-  assay_counts <- data_copy@assays$Spatial$counts
-  selected_genes <- assay_counts[mz_list, , drop = FALSE]
+#' ### HELPER FUNCTION ###
+plot_plus_minus <-function(object, mz_list, plusminus){
 
-  if (is.null(selected_genes)) {
-    stop("One or more genes not found in the assay counts.")
+  data_copy <- object
+  col_names_to_plot <- c()
+  plot_titles <- c()
+
+  for (target_mz in mz_list){
+    mz_integer <- as.numeric(strsplit(target_mz, "-")[[1]][2])
+
+    meta_col <- bin.mz(data_copy, plusminus(data_copy, mz_integer, plusminus))
+
+    col_name <- paste0(target_mz,"_plusminus_", plusminus)
+    plot_name <- paste0("mz: ", round(mz_integer, 3)," \\u00b1 ", plusminus)
+
+    col_names_to_plot <- c(col_names_to_plot,col_name)
+    plot_titles <- c(plot_titles,plot_name)
+    data_copy[[col_name]] = meta_col
   }
 
+  return(list( "data_copy" = data_copy,
+               "col_names_to_plot" = col_names_to_plot,
+               "plot_titles" = plot_titles))
 
-  return(colSums(selected_genes))
 }
 
 
@@ -172,22 +220,11 @@ ImageMZPlot <- function(object,
 
   if (!(is.null(plusminus))){
 
-    data_copy <- object
-    col_names_to_plot <- c()
-    plot_titles <- c()
+    pl.plustmin.data <- plot_plus_minus(object, mz_list, plusminus)
 
-    for (target_mz in mz_list){
-      mz_integer <- as.numeric(strsplit(target_mz, "-")[[1]][2])
-
-      meta_col <- bin.mz(data_copy, plusminus(data_copy, mz_integer, plusminus))
-
-      col_name <- paste0(target_mz,"_plusminus_", plusminus)
-      plot_name <- paste0("mz: ", round(mz_integer, 3)," \\u00b1 ", plusminus)
-
-      col_names_to_plot <- c(col_names_to_plot,col_name)
-      plot_titles <- c(plot_titles,plot_name)
-      data_copy[[col_name]] = meta_col
-    }
+    data_copy <- pl.plustmin.data$data_copy
+    col_names_to_plot <- pl.plustmin.data$col_names_to_plot
+    plot_titles <- pl.plustmin.data$plot_titles
 
     plot <- Seurat::ImageFeaturePlot(object = data_copy,
                              features = col_names_to_plot,
@@ -341,60 +378,146 @@ ImageMZAnnotationPlot <- function(object,
                                   plot.exact = TRUE
 
 ){
+  multi_annotation <- FALSE
+  multi_plusminus <- NULL
   mzs <- c()
   for (metabolite in metabolites){
-    met.row <- SearchAnnotations(object,metabolite, assay = assay, column.name = column.name,search.exact = plot.exact)
+    met.row <- SearchAnnotations(object,metabolite, assay = assay, column.name = column.name, search.exact = plot.exact)
 
-    if (dim(met.row)[1] != 1){
-      warning(paste("There are either none or multiple entries for the metabolite: ", metabolite,
-                    "\n please check using SearchAnnotations() and FindDuplicateAnnotations"))
-      stop("n entries != 1")
+    if (dim(met.row)[1] == 0){
+      warning(paste("There are no entries for the metabolite: ", metabolite, " in the current annotation metadata ...",
+                    "\n please refine your search term. You can check for annotations using SearchAnnotations()"))
+      stop("n entries must be > 1")
+
+    } else if (dim(met.row)[1] > 1){
+      warning(paste("There are multiple m/z values assigned to the metabolite: ", metabolite,
+                    "\n NOTE: Data from all m/z values will be merged ... "))
+      multi_annotation <- TRUE
+      mz_values <- c()
+
+      for (row in 1:dim(met.row)[1]){
+
+        all_annots <- unlist(strsplit(met.row[[column.name]][row], "; "))
+
+        if (length(all_annots) != 1){
+          warning(paste("There are another ", (length(all_annots)-1),
+                        "annotations assocated with this metabolite ( ",metabolite,
+                        " )... These being: ",
+                        "\n", paste(list(all_annots)), "\n Use SearchAnnotations() to see ..."))
+        }
+
+        mz <- met.row$mz_names[row]
+        mz_values <- c(mz_values, mz)
+      }
+
+
+      data_copy <- object
+      col_names_to_plot <- mz_values
+
+      stored.in.metadata <- FALSE #this is used to pull from metadata for multi-plusminus plots
+
+
+      if (!(is.null(plusminus))){
+        pl.plustmin.data <- plot_plus_minus(object, mz_values, plusminus)
+
+        data_copy <- pl.plustmin.data$data_copy
+        col_names_to_plot <- pl.plustmin.data$col_names_to_plot
+        plot_titles <- pl.plustmin.data$plot_titles
+        stored.in.metadata <- TRUE
+      }
+
+      binned.data <- bin.mz( data_copy, col_names_to_plot, stored.in.metadata = stored.in.metadata)
+
+      col_name <- paste0(metabolite,"_binned")
+
+      mzs <- c(mzs,col_name)
+
+      data_copy[[col_name]] = binned.data
+      multi_plusminus <- plusminus
+      plusminus <- NULL
+
+
+
+    } else {
+      all_annots <- unlist(strsplit(met.row[[column.name]], "; "))
+
+      if (length(all_annots) != 1){
+        warning(paste("There are another ", (length(all_annots)-1),
+                      "annotations assocated with this metabolite ( ",metabolite,
+                      " )... These being: ",
+                      "\n", paste(list(all_annots)), "\n Use SearchAnnotations() to see ..."))
+      }
+
+      mz <- met.row$raw_mz
+      mzs <- c(mzs,mz)
+      data_copy <- object
     }
-
-    all_annots <- unlist(strsplit(met.row[[column.name]], "; "))
-
-    if (length(all_annots) != 1){
-      warning(paste("There are another ", (length(all_annots)-1),
-                    "annotations assocated with this metabolite ( ",metabolite," )... These being: ",
-                    "\n", paste(list(all_annots)), "\n Use SearchAnnotations() to see ..."))
-    }
-
-    mz <- met.row$raw_mz
-    mzs <- c(mzs,mz)
   }
 
-  plot <- ImageMZPlot(object,
-                      mzs,
-                      plusminus = plusminus,
-                      fov = fov,
-                      boundaries = boundaries,
-                      cols = cols,
-                      size = size,
-                      min.cutoff = min.cutoff,
-                      max.cutoff = max.cutoff,
-                      split.by = split.by,
-                      molecules = molecules,
-                      mols.size = mols.size,
-                      mols.cols = mols.cols,
-                      nmols = nmols,
-                      alpha = alpha,
-                      border.color = border.color,
-                      border.size = border.size,
-                      dark.background = dark.background,
-                      blend = blend,
-                      blend.threshold = blend.threshold,
-                      crop = crop,
-                      cells = cells,
-                      scale = scale,
-                      overlap = overlap,
-                      axes = axes,
-                      combine = combine,
-                      coord.fixed = coord.fixed
-  )
 
+  if (multi_annotation){
+    plot <- Seurat::ImageFeaturePlot(data_copy,
+                             features =  mzs,
+                             fov = fov,
+                             boundaries = boundaries,
+                             cols = cols,
+                             size = size,
+                             min.cutoff = min.cutoff,
+                             max.cutoff = max.cutoff,
+                             split.by = split.by,
+                             molecules = molecules,
+                             mols.size = mols.size,
+                             mols.cols = mols.cols,
+                             nmols = nmols,
+                             alpha = alpha,
+                             border.color = border.color,
+                             border.size = border.size,
+                             dark.background = dark.background,
+                             blend = blend,
+                             blend.threshold = blend.threshold,
+                             crop = crop,
+                             cells = cells,
+                             scale = scale,
+                             overlap = overlap,
+                             axes = axes,
+                             combine = combine,
+                             coord.fixed = coord.fixed)
+  } else {
+    plot <- ImageMZPlot(data_copy,
+                        mzs,
+                        plusminus = plusminus,
+                        fov = fov,
+                        boundaries = boundaries,
+                        cols = cols,
+                        size = size,
+                        min.cutoff = min.cutoff,
+                        max.cutoff = max.cutoff,
+                        split.by = split.by,
+                        molecules = molecules,
+                        mols.size = mols.size,
+                        mols.cols = mols.cols,
+                        nmols = nmols,
+                        alpha = alpha,
+                        border.color = border.color,
+                        border.size = border.size,
+                        dark.background = dark.background,
+                        blend = blend,
+                        blend.threshold = blend.threshold,
+                        crop = crop,
+                        cells = cells,
+                        scale = scale,
+                        overlap = overlap,
+                        axes = axes,
+                        combine = combine,
+                        coord.fixed = coord.fixed)
+  }
   for (i in 1:length(plot)){
 
     plusmin_str <- ""
+
+    if (!(is.null(multi_plusminus))){
+      plusmin_str <- paste0(" \\u00b1 ", multi_plusminus)
+    }
 
     if (!(is.null(plusminus))){
       plusmin_str <- paste0(" \\u00b1 ", plusminus)

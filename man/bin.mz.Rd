@@ -4,12 +4,24 @@
 \alias{bin.mz}
 \title{Bins multiple m/z values into one.}
 \usage{
-bin.mz(data, mz_list)
+bin.mz(
+  data,
+  mz_list,
+  assay = "Spatial",
+  slot = "counts",
+  stored.in.metadata = FALSE
+)
 }
 \arguments{
 \item{data}{Seurat Spatial Metabolomic object containing mz values}
 
 \item{mz_list}{Vector of m/z names to be binned into one value}
+
+\item{assay}{Character string indicating which Seurat object assay to pull data form (default = "Spatial").}
+
+\item{slot}{Character string indicating the assay slot to use to pull expression values form (default = "counts").}
+
+\item{stored.in.metadata}{Boolean value indicating if the mz_list should be searched in the metadata DataFrame. If FALSE searches in Seurat object assay slot, if TRUE searches in metadata slot (default = FALSE).}
 }
 \value{
 Vector of binned mz counts for each spot/pixel
