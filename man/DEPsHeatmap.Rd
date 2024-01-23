@@ -17,8 +17,7 @@ DEPsHeatmap(
   fontsize_col = 15,
   cutree_cols = 9,
   silent = TRUE,
-  plot_annotations = FALSE,
-  order.by = "FDR"
+  plot_annotations = FALSE
 )
 }
 \arguments{
