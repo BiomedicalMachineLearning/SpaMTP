@@ -12,7 +12,7 @@ FindAllDEPs(
   logFC_threshold = 1.2,
   DE_output_dir = NULL,
   run_name = "FindAllDEPs",
-  annotations = FALSE,
+  annotation.column = NULL,
   assay = "Spatial"
 )
 }
@@ -29,7 +29,7 @@ FindAllDEPs(
 
 \item{run_name}{A character string defining the title of this DE analysis that will be used when saving DEPs to .csv file (default = 'FindAllDEPs').}
 
-\item{annotations}{A Boolean value indicating if the Seurat Object contains annotations. This requires annotate.SeuratMALDI() to be run (default = FALSE).}
+\item{annotation.column}{Character string defining the column where annotation information is stored in the assay metadata. This requires AnnotateSeuratMALDI() to be run where the default column to store annotations is "all_IsomerNames" (default = "None").}
 
 \item{assay}{A character string defining the assay where the mz count data and annotations are stored (default = "Spatial").}
 }

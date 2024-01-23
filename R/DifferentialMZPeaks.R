@@ -74,17 +74,16 @@ run_pooling <- function(data.filt, idents, n) {
 #' @param run_name A character string defining the title of this DE analysis (will be used when saving DEPs to .csv file).
 #' @param n An integer that defines the number of pseudo-replicates per sample (default = 3).
 #' @param logFC_threshold A numeric value indicating the logFC threshold to use for defining significant genes (default = 1.2).
-#' @param annotations A Boolean value indicating if the Seurat Object contains annotations. This requires annotate.SeuratMALDI() to be run (default = FALSE).
+#' @param annotation.column Character string defining the column where annotation information is stored in the assay metadata. This requires AnnotateSeuratMALDI() to be run where the default column to store annotations is "all_IsomerNames" (default = "None").
 #' @param assay A character string defining the assay where the mz count data and annotations are stored (default = "Spatial").
-#' @param intercept A Boolean value indicating whether to control for difference between samples in the alternative group (default = FALSE).
 #'
 #' @returns A list which contains the relative output requested by the "to_return" variable
 #' @export
 #'
 #' @examples
 #' # pooled_obj <- run_pooling(SeuratObj, "sample", n = 3)
-#' # run_DE(pooled_obj, SeuratObj, "sample", "~/Documents/DE_output/", "run_1", n = 3, logFC_threshold = 1.2, annotations = TRUE, assay = "Spatial")
-run_DE <- function(pooled_data, seurat_data, ident, output_dir, run_name, n, logFC_threshold, annotations, assay, intercept = FALSE){
+#' # run_DE(pooled_obj, SeuratObj, "sample", "~/Documents/DE_output/", "run_1", n = 3, logFC_threshold = 1.2, annotation.column = "all_IsomerNames", assay = "Spatial")
+run_DE <- function(pooled_data, seurat_data, ident, output_dir, run_name, n, logFC_threshold, annotation.column, assay){
 
   message(paste("Running edgeR DE Analysis for ", run_name, " -> with samples [", paste(unique(unlist(seurat_data@meta.data$sample)), collapse = ", "), "]"))
 
@@ -107,31 +106,9 @@ run_DE <- function(pooled_data, seurat_data, ident, output_dir, run_name, n, log
     y <- y[keep,]
     y <- edgeR::calcNormFactors(y)
 
-    intercept_category <- as.character(SingleCellExperiment::colData(pooled_data)[[ident]])
+    design <- stats::model.matrix(~groups)
 
-
-    if (intercept==TRUE){
-      message("This code has not been fixed .... DO NOT RUN INTERCEPT = TRUE")
-      sample_idx <- which(as.character(unique(SingleCellExperiment::colData(pooled_data)[[ident]])) == condition)
-
-      design <- stats::model.matrix(~groups+intercept_category)
-
-
-      to_remove <- -(1 + as.numeric(sample_idx))
-
-
-      if (sample_idx == 1){
-        design <- design
-      } else{
-        design <- design[,to_remove]
-      }
-
-    }
-
-    if(intercept==FALSE) {
-      design <- stats::model.matrix(~groups)
-    }
-
+    design[,2] <- 1-design[,2]
 
     y <- edgeR::estimateDisp(y, design, robust=TRUE)
     fit <- edgeR::glmQLFit(y, design, robust=TRUE)
@@ -147,15 +124,15 @@ run_DE <- function(pooled_data, seurat_data, ident, output_dir, run_name, n, log
     de_group_edgeR <- res$table[order(res$table$FDR),]
     table(de_group_edgeR$regulate)
 
-    if (annotations){
+    if (!(is.null(annotation.column))){
 
       annotation.data <- seurat_data[[assay]]@meta.data
-      if (!("mz_names" %in% colnames(annotation.data))){
-        stop("Warning: There is no annotations in seurat_data[[assay]]@meta.data")
+      if (!(annotation.column %in% colnames(annotation.data))){
+        stop("Warning: The annotation column provided does not exist in seurat_data[[assay]]@meta.data")
       } else {
         rownames(annotation.data) <- annotation.data$mz_names
         annotation.data_subset <- annotation.data[rownames(de_group_edgeR),]
-        de_group_edgeR$all_IsomerNames <- annotation.data_subset$all_IsomerNames
+        de_group_edgeR$annotations <- annotation.data_subset[[annotation.column]]
       }
     }
 
@@ -180,7 +157,7 @@ run_DE <- function(pooled_data, seurat_data, ident, output_dir, run_name, n, log
 #' @param logFC_threshold A numeric value indicating the logFC threshold to use for defining significant genes (default = 1.2).
 #' @param DE_output_dir A character string defining the directory path for all output files to be stored. This path must a new directory. Else, set to NULL as default.
 #' @param run_name A character string defining the title of this DE analysis that will be used when saving DEPs to .csv file (default = 'FindAllDEPs').
-#' @param annotations A Boolean value indicating if the Seurat Object contains annotations. This requires annotate.SeuratMALDI() to be run (default = FALSE).
+#' @param annotation.column Character string defining the column where annotation information is stored in the assay metadata. This requires AnnotateSeuratMALDI() to be run where the default column to store annotations is "all_IsomerNames" (default = "None").
 #' @param assay A character string defining the assay where the mz count data and annotations are stored (default = "Spatial").
 #'
 #' @returns Returns an list() contains the EdgeR DE results. Pseudo-bulk counts are stored in $counts and DEPs are in $DEPs.
@@ -188,7 +165,7 @@ run_DE <- function(pooled_data, seurat_data, ident, output_dir, run_name, n, log
 #'
 #' @examples
 #' # FindAllDEPs(SeuratObj, "sample",DE_output_dir = "~/Documents/DE_output/", annotations = TRUE)
-FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir = NULL, run_name = "FindAllDEPs", annotations = FALSE, assay = "Spatial"){
+FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir = NULL, run_name = "FindAllDEPs", annotation.column = NULL, assay = "Spatial"){
 
   if (!(is.null(DE_output_dir))){
     if (dir.exists(DE_output_dir)){
@@ -203,7 +180,7 @@ FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir
   pooled_data <- run_pooling(data,ident, n = n)
 
   #Step 2: Run EdgeR to calculate differentially expressed m/z peaks
-  DEP_results <- run_DE(pooled_data, data, ident = ident, output_dir = DE_output_dir, run_name = run_name, n=n, logFC_threshold=logFC_threshold, annotations = annotations, assay = assay)
+  DEP_results <- run_DE(pooled_data, data, ident = ident, output_dir = DE_output_dir, run_name = run_name, n=n, logFC_threshold=logFC_threshold, annotation.column = annotation.column, assay = assay)
 
   # Returns an EDGEr object which contains the pseudo-bulk counts in $counts and DEPs in $DEPs
   return(DEP_results)
@@ -228,7 +205,6 @@ FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir
 #' @param cutree_cols A numeric value defining the number of clusters the columns are divided into, based on the hierarchical clustering(using cutree), if cols are not clustered, the argument is ignored (default = 9).
 #' @param silent A boolean value indicating if the plot should not be draw (default = TRUE).
 #' @param plot_annotations A boolean value indicating if metabolite annotation names should be plot rather then m/z values. Annotations = TRUE must be used in FindAllDEPs() for edgeR output to include annotations (default = FALSE).
-#' @param order.by Character string defining what to rank the mz peaks by. Options are "logFC", "logCPM", "Pvalue" or "FDR" (default = "FDR").
 #'
 #' @returns A heatmap plot of significantly differentially expressed peaks defined in the edgeR ouput object.
 #' @export
@@ -256,11 +232,10 @@ DEPsHeatmap <- function(edgeR_output, n = 25, FDR_threshold = 0.05, scale="row",
 
   mtx <- as.matrix(as.data.frame(edgeR::cpm(edgeR_output,log=TRUE))[rownames(degs),])
   if (plot_annotations){
-    if (is.null(edgeR_output$DEPs)){
+    if (is.null(edgeR_output$DEPs$annotations)){
       warning("There are no annotations present in the edgeR_output object. Run 'annotate.SeuratMALDI()' prior to 'FindAllDEPs' and set annotations = TRUE .....\n Heatmap will plot default m/z values ... ")
     } else{
-      DEPs.subset <- edgeR_output$DEPs[rownames(edgeR_output$DEPs) %in% rownames(mtx),]
-      rownames(mtx) <- DEPs.subset$all_IsomerNames
+      rownames(mtx) <- degs$annotations
     }
   }
 

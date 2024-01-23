@@ -45,8 +45,6 @@ DEPsHeatmap(
 \item{silent}{A boolean value indicating if the plot should not be draw (default = TRUE).}
 
 \item{plot_annotations}{A boolean value indicating if metabolite annotation names should be plot rather then m/z values. Annotations = TRUE must be used in FindAllDEPs() for edgeR output to include annotations (default = FALSE).}
-
-\item{order.by}{Character string defining what to rank the mz peaks by. Options are "logFC", "logCPM", "Pvalue" or "FDR" (default = "FDR").}
 }
 \value{
 A heatmap plot of significantly differentially expressed peaks defined in the edgeR ouput object.

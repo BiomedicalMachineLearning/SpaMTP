@@ -13,9 +13,8 @@ run_DE(
   run_name,
   n,
   logFC_threshold,
-  annotations,
-  assay,
-  intercept = FALSE
+  annotation.column,
+  assay
 )
 }
 \arguments{
@@ -33,11 +32,9 @@ run_DE(
 
 \item{logFC_threshold}{A numeric value indicating the logFC threshold to use for defining significant genes (default = 1.2).}
 
-\item{annotations}{A Boolean value indicating if the Seurat Object contains annotations. This requires annotate.SeuratMALDI() to be run (default = FALSE).}
+\item{annotation.column}{Character string defining the column where annotation information is stored in the assay metadata. This requires AnnotateSeuratMALDI() to be run where the default column to store annotations is "all_IsomerNames" (default = "None").}
 
 \item{assay}{A character string defining the assay where the mz count data and annotations are stored (default = "Spatial").}
-
-\item{intercept}{A Boolean value indicating whether to control for difference between samples in the alternative group (default = FALSE).}
 }
 \value{
 A list which contains the relative output requested by the "to_return" variable
@@ -48,5 +45,5 @@ Runs EdgeR analysis for pooled data
 }
 \examples{
 # pooled_obj <- run_pooling(SeuratObj, "sample", n = 3)
-# run_DE(pooled_obj, SeuratObj, "sample", "~/Documents/DE_output/", "run_1", n = 3, logFC_threshold = 1.2, annotations = TRUE, assay = "Spatial")
+# run_DE(pooled_obj, SeuratObj, "sample", "~/Documents/DE_output/", "run_1", n = 3, logFC_threshold = 1.2, annotation.column = "all_IsomerNames", assay = "Spatial")
 }
