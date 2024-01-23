@@ -228,6 +228,7 @@ FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir
 #' @param cutree_cols A numeric value defining the number of clusters the columns are divided into, based on the hierarchical clustering(using cutree), if cols are not clustered, the argument is ignored (default = 9).
 #' @param silent A boolean value indicating if the plot should not be draw (default = TRUE).
 #' @param plot_annotations A boolean value indicating if metabolite annotation names should be plot rather then m/z values. Annotations = TRUE must be used in FindAllDEPs() for edgeR output to include annotations (default = FALSE).
+#' @param order.by Character string defining what to rank the mz peaks by. Options are "logFC", "logCPM", "Pvalue" or "FDR" (default = "FDR").
 #'
 #' @returns A heatmap plot of significantly differentially expressed peaks defined in the edgeR ouput object.
 #' @export
@@ -236,7 +237,7 @@ FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir
 #' # DEPs <- FindAllDEPs(SeuratObj, "sample")
 #'
 #' # DEPsHeatmap(DEPs)
-DEPsHeatmap <- function(edgeR_output, n = 25, FDR_threshold = 0.05, scale="row", color= grDevices::colorRampPalette(c("navy", "white", "red"))(50),cluster_cols = F,cluster_rows = T, fontsize_row = 15, fontsize_col = 15, cutree_cols = 9, silent = TRUE, plot_annotations = FALSE){
+DEPsHeatmap <- function(edgeR_output, n = 25, FDR_threshold = 0.05, scale="row", color= grDevices::colorRampPalette(c("navy", "white", "red"))(50),cluster_cols = F,cluster_rows = T, fontsize_row = 15, fontsize_col = 15, cutree_cols = 9, silent = TRUE, plot_annotations = FALSE, order.by = "FDR"){
 
   message("Generating Heatmap .......")
 

@@ -14,6 +14,7 @@ library(data.table)
 #' @param slot Character string defining the Seurat assay slot that contains the m/z values directly (default = "counts").
 #' @param annotations Boolean values defining if the Seurat Object contains annotations to be saved (default = FALSE).
 #'
+#' @export
 #'
 #' @examples
 #' # saveSeuratData(SeuratObject, "~/Documents/seuratobj_files/", annotations = TRUE)

@@ -1,6 +1,7 @@
 library(Seurat)
 library(SeuratObject)
 library(ggplot2)
+library(Matrix)
 
 
 #### SpaMTP Seurat Plotting Functions #################################################################################################################################################################################
@@ -45,7 +46,7 @@ bin.mz <- function(data, mz_list, assay = "Spatial", slot = "counts", stored.in.
     if (length(colnames(metadata_counts)) < 2) {
       stop("One or more genes not found in the assay counts.")
     }
-    binned.data <- rowSums(metadata_counts)
+    binned.data <- Matrix::rowSums(metadata_counts)
 
   } else{
     assay_counts <- data_copy[[assay]][slot]
@@ -53,7 +54,7 @@ bin.mz <- function(data, mz_list, assay = "Spatial", slot = "counts", stored.in.
     if (is.null(selected_genes)) {
       stop("One or more genes not found in the assay counts.")
     }
-    binned.data <- colSums(selected_genes)
+    binned.data <- Matrix::colSums(selected_genes)
   }
 
   return(binned.data)
