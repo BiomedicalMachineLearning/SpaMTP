@@ -1,7 +1,7 @@
 #### THIS FILE ONLY CONTAINS DOCUMENTATION FOR THE ATTACHED CLEANED METABOLITE DATASETS ####
 
 
-#' @title HMDB_1_names: A cleaned version of the reference metabolomics dataset from the Human Metabolome Database (HMDB)
+#' @title HMDB_db: A cleaned version of the reference metabolomics dataset from the Human Metabolome Database (HMDB)
 #'
 #' @description A dataset containing metabolite information from the HMDB,
 #' including chemical formulas, exact masses, isomers, InChIKeys, and names.
@@ -51,11 +51,11 @@
 #' @source <https://hmdb.ca/>
 #'
 #' @references Wishart DS, et al. (2018). HMDB 4.0: the human metabolome database for 2018. Nucleic Acids Res. 46(D1):D608-D617.
-HMDB_1_names <- load("data/HMDB_1_names.rda")
+HMDB_db <- load("data/HMDB_db.rda")
 
 
 
-#' @title Lipidmaps_1_names: A cleaned version of the lipid database from LIPID MAPS
+#' @title Lipidmaps_db: A cleaned version of the lipid database from LIPID MAPS
 #'
 #' @description This object contains a collection of lipids from the LIPID MAPS Structure Database.
 #'
@@ -102,12 +102,12 @@ HMDB_1_names <- load("data/HMDB_1_names.rda")
 #' }
 #'
 #' @source <https://www.lipidmaps.org/>
-Lipidmaps_1_names <- load("data/Lipidmaps_1_names.rda")
+Lipidmaps_db <- load("data/Lipidmaps_db.rda")
 
 
 
 
-#' @title Chebi_1_names: Cleaned ChEBI `(Chemical entities of biological interest)` reference dataset
+#' @title Chebi_db: Cleaned ChEBI `(Chemical entities of biological interest)` reference dataset
 #'
 #' @description A dataset containing information on chemical entities, including their formulas, exact masses, isomers, InChIKeys, and names.
 #'
@@ -154,7 +154,7 @@ Lipidmaps_1_names <- load("data/Lipidmaps_1_names.rda")
 #' }
 #'
 #' @source <https://www.ebi.ac.uk/chebi/>
-Chebi_1_names <- load("data/Chebi_1_names.rda")
+Chebi_db <- load("data/Chebi_db.rda")
 
 
 #' @title GNPS_db: A cleaned database of metabolites from GNPS
@@ -204,5 +204,5 @@ Chebi_1_names <- load("data/Chebi_1_names.rda")
 #' }
 #'
 #' @source \url{https://gnps.ucsd.edu/: https://gnps.ucsd.edu/}
-GNPS_1_names <- load("data/GNPS_1_names.rda")
+GNPS_db <- load("data/GNPS_db.rda")
 
