@@ -205,6 +205,9 @@ FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir
 #' @param cutree_cols A numeric value defining the number of clusters the columns are divided into, based on the hierarchical clustering(using cutree), if cols are not clustered, the argument is ignored (default = 9).
 #' @param silent A boolean value indicating if the plot should not be draw (default = TRUE).
 #' @param plot_annotations A boolean value indicating if metabolite annotation names should be plot rather then m/z values. Annotations = TRUE must be used in FindAllDEPs() for edgeR output to include annotations (default = FALSE).
+#' @param save_to_path Character string defining the full filepath and name of the plot to be saved as.
+#' @param plot.save.width Integer value representing the width of the saved pdf plot (default = 20).
+#' @param plot.save.height Integer value representing the height of the saved pdf plot (default = 20).
 #'
 #' @returns A heatmap plot of significantly differentially expressed peaks defined in the edgeR ouput object.
 #' @export
@@ -213,7 +216,21 @@ FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir
 #' # DEPs <- FindAllDEPs(SeuratObj, "sample")
 #'
 #' # DEPsHeatmap(DEPs)
-DEPsHeatmap <- function(edgeR_output, n = 25, FDR_threshold = 0.05, scale="row", color= grDevices::colorRampPalette(c("navy", "white", "red"))(50),cluster_cols = F,cluster_rows = T, fontsize_row = 15, fontsize_col = 15, cutree_cols = 9, silent = TRUE, plot_annotations = FALSE){
+DEPsHeatmap <- function(edgeR_output,
+                        n = 25,
+                        FDR_threshold = 0.05,
+                        scale ="row",
+                        color = grDevices::colorRampPalette(c("navy", "white", "red"))(50),
+                        cluster_cols = F,
+                        cluster_rows = T,
+                        fontsize_row = 15,
+                        fontsize_col = 15,
+                        cutree_cols = 9,
+                        silent = TRUE,
+                        plot_annotations = FALSE,
+                        save_to_path = NULL,
+                        plot.save.width = 20,
+                        plot.save.height = 20){
 
   message("Generating Heatmap .......")
 
@@ -241,8 +258,39 @@ DEPsHeatmap <- function(edgeR_output, n = 25, FDR_threshold = 0.05, scale="row",
 
   p <- pheatmap::pheatmap(mtx,scale=scale,color=color,cluster_cols = cluster_cols, annotation_col=col_annot, cluster_rows = cluster_rows,
                 fontsize_row = fontsize_row, fontsize_col = fontsize_col, cutree_cols = cutree_cols, silent = silent)
+
+  if (!(is.null(save_to_path))){
+    save_pheatmap_as_pdf(pheatmap = p, filename = save_to_path, width = plot.save.width, height = plot.save.height)
+  }
+
   return(p)
 }
+
+
+#' Saves the DEPs generated pheatmap as a PDF
+#'
+#' @param pheatmap A pheatmap plot object that is being saved.
+#' @param filename Character string defining the full filepath and name of the plot to be saved as.
+#' @param width Integer value representing the width of the saved pdf plot (default = 20).
+#' @param height Integer value representing the height of the saved pdf plot (default = 20).
+#'
+#' @export
+#'
+#' @examples
+#' # save_pheatmap_as_pdf(pheatmap, filename = "/Documents/plots/pheatmap1")
+save_pheatmap_as_pdf <- function(pheatmap, filename, width=20, height=20){
+
+  pdf(paste0(name,".pdf"), width=width, height=height)
+  grid::grid.newpage()
+  grid::grid.draw(pheatmap$gtable)
+  dev.off()
+}
+
+
+
+
+
+
 
 
 ########################################################################################################################################################################################################################

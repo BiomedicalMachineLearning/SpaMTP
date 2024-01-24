@@ -397,7 +397,7 @@ formula_filter <- function(df, elements = NULL) {
 
   # Filter rows based on allowed elements
   filtered_df <- df %>%
-    dplyr::filter(sapply(formula, is_formula_valid))
+    dplyr::filter(sapply(formula, allowed_elements = allowed_elements,is_formula_valid))
 
   return(filtered_df)
 

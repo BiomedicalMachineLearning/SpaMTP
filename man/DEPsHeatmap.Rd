@@ -17,7 +17,10 @@ DEPsHeatmap(
   fontsize_col = 15,
   cutree_cols = 9,
   silent = TRUE,
-  plot_annotations = FALSE
+  plot_annotations = FALSE,
+  save_to_path = NULL,
+  plot.save.width = 20,
+  plot.save.height = 20
 )
 }
 \arguments{
@@ -44,6 +47,12 @@ DEPsHeatmap(
 \item{silent}{A boolean value indicating if the plot should not be draw (default = TRUE).}
 
 \item{plot_annotations}{A boolean value indicating if metabolite annotation names should be plot rather then m/z values. Annotations = TRUE must be used in FindAllDEPs() for edgeR output to include annotations (default = FALSE).}
+
+\item{save_to_path}{Character string defining the full filepath and name of the plot to be saved as.}
+
+\item{plot.save.width}{Integer value representing the width of the saved pdf plot (default = 20).}
+
+\item{plot.save.height}{Integer value representing the height of the saved pdf plot (default = 20).}
 }
 \value{
 A heatmap plot of significantly differentially expressed peaks defined in the edgeR ouput object.

@@ -67,6 +67,9 @@ if (!require("remotes", quietly = TRUE))
     install.packages("remotes")
     
 remotes::install_github("satijalab/seurat", "seurat5", quiet = TRUE)
+
+# install.packages("devtools")
+devtools::install_github("agc888/SpaMTP")
 ```
 
 ### Possible Installiation Errors
