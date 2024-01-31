@@ -55,7 +55,7 @@ SpatialMZPlot(
 
 \item{image.alpha}{Numeric value between 0 and 1 defining the image alpha (default = 1).}
 
-\item{stroke}{Numeric value describing the width of the border around the spot (default. =0.25).}
+\item{stroke}{Numeric value describing the width of the border around the spot (default = 0.25).}
 
 \item{interactive}{Boolean value of if to launch an interactive SpatialDimPlot or SpatialFeaturePlot session, see Seurat::ISpatialDimPlot() or Seurat::ISpatialFeaturePlot() for more details (default = FALSE).}
 

@@ -280,7 +280,7 @@ DEPsHeatmap <- function(edgeR_output,
 #' # save_pheatmap_as_pdf(pheatmap, filename = "/Documents/plots/pheatmap1")
 save_pheatmap_as_pdf <- function(pheatmap, filename, width=20, height=20){
 
-  pdf(paste0(name,".pdf"), width=width, height=height)
+  pdf(paste0(filename,".pdf"), width=width, height=height)
   grid::grid.newpage()
   grid::grid.draw(pheatmap$gtable)
   dev.off()
