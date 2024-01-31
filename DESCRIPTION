@@ -26,6 +26,7 @@ Imports:
     matter,
     pheatmap,
     RANN,
+    RColorBrewer,
     scater,
     Seurat,
     SeuratObject,

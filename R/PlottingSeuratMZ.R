@@ -6,6 +6,7 @@ library(Matrix)
 library(graphics)
 library(stringr)
 library(matter)
+library(RColorBrewer)
 
 
 #### SpaMTP Seurat Plotting Functions #################################################################################################################################################################################
