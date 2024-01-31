@@ -960,13 +960,11 @@ MassIntensityPlot <- function (data,
 
   if (is.null(cols)){
     n <- dim(Cardinal::pixelData(cardinal.data))[1]
-    if ( n <10 & n > 3){
-      cols <- RColorBrewer::brewer.pal(n = n, name =  "Set1")
-    } else if ( n <3){
-      cols <- c("black","red","blue")[1:n]
+    if ( n < 3){
+      cols <- c("blue","red","black")[1:n]
 
-    } else{
-      cols <- RColorBrewer::brewer.pal(n = n, name =  "Paired")
+    } else {
+      cols <- Cardinal::discrete.colors(n)
     }
 
   }
