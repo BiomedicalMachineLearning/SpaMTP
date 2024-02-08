@@ -36,7 +36,7 @@ NormalizeSeuratData <- function(data, normalisation.type = 'TIC', scale.factor =
 
 
   if (normalisation.type == 'TIC') {
-    normalised.data[[assay]]$data <- exp(normalised.data[[assay]][slot]) -1
+    normalised.data[[assay]]$data <- exp(normalised.data[[assay]]$data) -1
     normalised.data[[assay]]$data <- as(normalised.data[[assay]]$data, "sparseMatrix")
   }
 

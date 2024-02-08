@@ -13,7 +13,8 @@ FindAllDEPs(
   DE_output_dir = NULL,
   run_name = "FindAllDEPs",
   annotation.column = NULL,
-  assay = "Spatial"
+  assay = "Spatial",
+  slot = "counts"
 )
 }
 \arguments{
@@ -32,6 +33,8 @@ FindAllDEPs(
 \item{annotation.column}{Character string defining the column where annotation information is stored in the assay metadata. This requires AnnotateSeuratMALDI() to be run where the default column to store annotations is "all_IsomerNames" (default = "None").}
 
 \item{assay}{A character string defining the assay where the mz count data and annotations are stored (default = "Spatial").}
+
+\item{slot}{Character string defining the assay storage slot to pull the relative mz intensity values from. Note: EdgeR requires raw counts, all values must be positive (default = "counts").}
 }
 \value{
 Returns an list() contains the EdgeR DE results. Pseudo-bulk counts are stored in $counts and DEPs are in $DEPs.

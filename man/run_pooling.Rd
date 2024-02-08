@@ -5,7 +5,7 @@
 \title{Runs pooling of a merged Seurat Dataset to generate psudo-replicates for each sample
 - This function is used by run_edgeR_annotations()}
 \usage{
-run_pooling(data.filt, idents, n)
+run_pooling(data.filt, idents, n, assay, slot)
 }
 \arguments{
 \item{data.filt}{A Seurat Object containing count values for pooling.}
@@ -13,6 +13,10 @@ run_pooling(data.filt, idents, n)
 \item{idents}{A character string defining the idents column to pool the data against.}
 
 \item{n}{An integer defining the amount of psudo-replicates to generate for each sample (default = 3).}
+
+\item{assay}{Character string defining the assay where the mz count data and annotations are stored (default = "Spatial").}
+
+\item{slot}{Character string defining the assay storage slot to pull the relative mz intensity values from (default = "counts").}
 }
 \value{
 A SinglCellExpereiment object which contains pooled (n)-psudo-replicate counts data based on the Seurat Object input
@@ -22,5 +26,5 @@ Runs pooling of a merged Seurat Dataset to generate psudo-replicates for each sa
 - This function is used by run_edgeR_annotations()
 }
 \examples{
-# run_pooling <- list(seuratObj, idents = "sample", n = 3)
+# run_pooling <- list(seuratObj, idents = "sample", n = 3, assay = "Spatial", slot = "counts")
 }

@@ -20,17 +20,19 @@ library(grDevices)
 #' @param data.filt A Seurat Object containing count values for pooling.
 #' @param idents A character string defining the idents column to pool the data against.
 #' @param n An integer defining the amount of psudo-replicates to generate for each sample (default = 3).
+#' @param assay Character string defining the assay where the mz count data and annotations are stored (default = "Spatial").
+#' @param slot Character string defining the assay storage slot to pull the relative mz intensity values from (default = "counts").
 #'
 #' @returns A SinglCellExpereiment object which contains pooled (n)-psudo-replicate counts data based on the Seurat Object input
 #' @export
 #'
 #' @examples
-#' # run_pooling <- list(seuratObj, idents = "sample", n = 3)
-run_pooling <- function(data.filt, idents, n) {
+#' # run_pooling <- list(seuratObj, idents = "sample", n = 3, assay = "Spatial", slot = "counts")
+run_pooling <- function(data.filt, idents, n, assay, slot) {
 
   cell_metadata <- data.filt@meta.data
   samples <- unique(cell_metadata[[idents]])
-  message("Pooling one sample into 3 replicates...")
+  message(paste0("Pooling one sample into ", n ," replicates..."))
   nrg <- n
   for(i in c(1:length(samples))){
     set.seed(i)
@@ -39,7 +41,7 @@ run_pooling <- function(data.filt, idents, n) {
                                                              ,replace=T,prob=rep(1/nrg,nrg)),sep='_')
   }
   gene_data <- row.names(data.filt)
-  filtered.sce <- SingleCellExperiment::SingleCellExperiment(assays = list(counts = data.filt@assays$Spatial$counts),
+  filtered.sce <- SingleCellExperiment::SingleCellExperiment(assays = list(counts = data.filt[[assay]][slot]),
                                        colData = cell_metadata)
 
 
@@ -85,7 +87,7 @@ run_pooling <- function(data.filt, idents, n) {
 #' # run_DE(pooled_obj, SeuratObj, "sample", "~/Documents/DE_output/", "run_1", n = 3, logFC_threshold = 1.2, annotation.column = "all_IsomerNames", assay = "Spatial")
 run_DE <- function(pooled_data, seurat_data, ident, output_dir, run_name, n, logFC_threshold, annotation.column, assay){
 
-  message(paste("Running edgeR DE Analysis for ", run_name, " -> with samples [", paste(unique(unlist(seurat_data@meta.data$sample)), collapse = ", "), "]"))
+  message(paste("Running edgeR DE Analysis for ", run_name, " -> with samples [", paste(unique(unlist(seurat_data@meta.data[[ident]])), collapse = ", "), "]"))
 
   annotation_result <- list()
   for (condition in unique(seurat_data@meta.data[[ident]])){
@@ -159,13 +161,14 @@ run_DE <- function(pooled_data, seurat_data, ident, output_dir, run_name, n, log
 #' @param run_name A character string defining the title of this DE analysis that will be used when saving DEPs to .csv file (default = 'FindAllDEPs').
 #' @param annotation.column Character string defining the column where annotation information is stored in the assay metadata. This requires AnnotateSeuratMALDI() to be run where the default column to store annotations is "all_IsomerNames" (default = "None").
 #' @param assay A character string defining the assay where the mz count data and annotations are stored (default = "Spatial").
+#' @param slot Character string defining the assay storage slot to pull the relative mz intensity values from. Note: EdgeR requires raw counts, all values must be positive (default = "counts").
 #'
 #' @returns Returns an list() contains the EdgeR DE results. Pseudo-bulk counts are stored in $counts and DEPs are in $DEPs.
 #' @export
 #'
 #' @examples
 #' # FindAllDEPs(SeuratObj, "sample",DE_output_dir = "~/Documents/DE_output/", annotations = TRUE)
-FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir = NULL, run_name = "FindAllDEPs", annotation.column = NULL, assay = "Spatial"){
+FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir = NULL, run_name = "FindAllDEPs", annotation.column = NULL, assay = "Spatial", slot = "counts"){
 
   if (!(is.null(DE_output_dir))){
     if (dir.exists(DE_output_dir)){
@@ -177,7 +180,7 @@ FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir
   }
 
   #Step 1: Run Pooling to split each unique ident into 'n' number of pseudo-replicate pools
-  pooled_data <- run_pooling(data,ident, n = n)
+  pooled_data <- run_pooling(data,ident, n = n, assay = assay, slot = slot)
 
   #Step 2: Run EdgeR to calculate differentially expressed m/z peaks
   DEP_results <- run_DE(pooled_data, data, ident = ident, output_dir = DE_output_dir, run_name = run_name, n=n, logFC_threshold=logFC_threshold, annotation.column = annotation.column, assay = assay)
