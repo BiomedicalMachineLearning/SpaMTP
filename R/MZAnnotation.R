@@ -203,7 +203,7 @@ SearchAnnotations <- function (data, metabolite, assay = "Spatial",search.exact 
     }
   }
 
-  return(data@assays$Spatial@meta.data[indexs,])
+  return(data[[assay]]@meta.data[indexs,])
 }
 
 

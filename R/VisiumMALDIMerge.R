@@ -172,6 +172,7 @@ increase_MALDI_res <- function(MALDI_adata, res_increase = 4) {
 #' @param original_MALDI A Seurat Spatial Metabolomics object containing the original counts matrix
 #' @param obs_x A metadata table with information about the correspondence between MALDI and Visium spots. It should have columns 'Visium_spot' and 'MALDI_barcodes'.
 #' @param assay Character string defining the Seurat assay that contains the annotated counts and metadata corresponding to the m/z values.
+#' @param slot Character string describing the assay slot to pull the relative intensity values from (default = "counts").
 #'
 #' @return A data frame representing the new counts matrix for equivalent Visium spots,where each row corresponds to a Visium spot and columns correspond to m/z features.
 #' @export
@@ -179,7 +180,7 @@ increase_MALDI_res <- function(MALDI_adata, res_increase = 4) {
 #' @examples
 #' ## Generate new MALDI counts matrix for equivalent Visium spots
 #' # new_counts <- generate_new_MALDI_counts(SeuratObj, obs_x, assay = "Spatial")
-generate_new_MALDI_counts <- function(original_MALDI, obs_x, assay) {
+generate_new_MALDI_counts <- function(original_MALDI, obs_x, assay, slot) {
 
   message("Merging MALDI counts ... ")
 
@@ -225,6 +226,7 @@ generate_new_MALDI_counts <- function(original_MALDI, obs_x, assay) {
 #' @param res_increase Integer value defining the factor by which the resolution of MALDI spots should be increased before assignment. It should be either 4 or 9, see increase_MALDI_res() documentation for specifics (Default = NULL).
 #' @param annotations Boolean value indicating if the Spatial Metabolomics (MALDI) Seurat object contains annotations assigned to m/z values (default = FALSE).
 #' @param assay Character string defining the Seurat assay that contains the annotated counts and metadata corresponding to the m/z values (default = "Spatial").
+#' @param slot Character string describing the assay slot to pull the relative intensity values from (default = "counts").
 #' @param slice Character string of the image slice name in the Visium object (default = "slice1").
 #'
 #' @return A Seurat object with the Spatial Metabolomic data assigned to equivalent Spatial Transcripomics (Visium) spots.
@@ -233,7 +235,7 @@ generate_new_MALDI_counts <- function(original_MALDI, obs_x, assay) {
 #' @examples
 #' ## Convert MALDI data to equivalent Visium spots
 #' # convert_MALDI_to_visium_like_adata(VisiumObj, SeuratObj, img_res = "hires", new_library_id = "MALDI", res_increase = NULL)
-convert_MALDI_to_visium_like_adata <- function(visium_adata, MALDI_adata, img_res = "hires", new_library_id = "MALDI", res_increase = NULL, annotations = FALSE, assay = "Spatial", slice = "slice1") {
+convert_MALDI_to_visium_like_adata <- function(visium_adata, MALDI_adata, img_res = "hires", new_library_id = "MALDI", res_increase = NULL, annotations = FALSE, assay = "Spatial", slot = "counts", slice = "slice1") {
 
   new_MALDI_obs <- MALDI_adata@meta.data
 
@@ -278,7 +280,7 @@ convert_MALDI_to_visium_like_adata <- function(visium_adata, MALDI_adata, img_re
     dplyr::summarize(MALDI_barcodes = toString(unique(old_barcode)))
 
   obs_x <- data.frame(obs_x)
-  counts_x <- generate_new_MALDI_counts(MALDI_adata, obs_x, assay = assay)
+  counts_x <- generate_new_MALDI_counts(MALDI_adata, obs_x, assay = assay, slot = slot)
 
   message("Generating new MALDI Anndata Object ... ")
 
