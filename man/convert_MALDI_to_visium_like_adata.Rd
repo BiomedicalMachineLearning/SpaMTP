@@ -15,6 +15,7 @@ convert_MALDI_to_visium_like_adata(
   res_increase = NULL,
   annotations = FALSE,
   assay = "Spatial",
+  slot = "counts",
   slice = "slice1"
 )
 }
@@ -32,6 +33,8 @@ convert_MALDI_to_visium_like_adata(
 \item{annotations}{Boolean value indicating if the Spatial Metabolomics (MALDI) Seurat object contains annotations assigned to m/z values (default = FALSE).}
 
 \item{assay}{Character string defining the Seurat assay that contains the annotated counts and metadata corresponding to the m/z values (default = "Spatial").}
+
+\item{slot}{Character string describing the assay slot to pull the relative intensity values from (default = "counts").}
 
 \item{slice}{Character string of the image slice name in the Visium object (default = "slice1").}
 }
