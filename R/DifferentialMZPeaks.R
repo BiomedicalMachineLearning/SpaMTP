@@ -207,7 +207,7 @@ FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir
 #' @param fontsize_col A numeric value defining the fontsize of colnames (default = 15).
 #' @param cutree_cols A numeric value defining the number of clusters the columns are divided into, based on the hierarchical clustering(using cutree), if cols are not clustered, the argument is ignored (default = 9).
 #' @param silent A boolean value indicating if the plot should not be draw (default = TRUE).
-#' @param plot_annotations A boolean value indicating if metabolite annotation names should be plot rather then m/z values. Annotations = TRUE must be used in FindAllDEPs() for edgeR output to include annotations (default = FALSE).
+#' @param plot_annotations_column Character string indicating the column name that contains the metabolite annotations to plot. Annotations = TRUE must be used in FindAllDEPs() for edgeR output to include annotations. If plot_annotations_column = NULL, m/z vaues will be plotted (default = NULL).
 #' @param save_to_path Character string defining the full filepath and name of the plot to be saved as.
 #' @param plot.save.width Integer value representing the width of the saved pdf plot (default = 20).
 #' @param plot.save.height Integer value representing the height of the saved pdf plot (default = 20).
@@ -230,7 +230,7 @@ DEPsHeatmap <- function(edgeR_output,
                         fontsize_col = 15,
                         cutree_cols = 9,
                         silent = TRUE,
-                        plot_annotations = FALSE,
+                        plot_annotations_column = NULL,
                         save_to_path = NULL,
                         plot.save.width = 20,
                         plot.save.height = 20){
@@ -251,11 +251,11 @@ DEPsHeatmap <- function(edgeR_output,
   row.names(col_annot) <- colnames(as.data.frame(edgeR::cpm(edgeR_output,log=TRUE)))
 
   mtx <- as.matrix(as.data.frame(edgeR::cpm(edgeR_output,log=TRUE))[rownames(degs),])
-  if (plot_annotations){
-    if (is.null(edgeR_output$DEPs$annotations)){
+  if (!(is.null(plot_annotations_column))){
+    if (is.null(edgeR_output$DEPs[[plot_annotations_column]])){
       warning("There are no annotations present in the edgeR_output object. Run 'annotate.SeuratMALDI()' prior to 'FindAllDEPs' and set annotations = TRUE .....\n Heatmap will plot default m/z values ... ")
     } else{
-      rownames(mtx) <- degs$annotations
+      rownames(mtx) <- degs[[plot_annotations_column]]
     }
   }
 

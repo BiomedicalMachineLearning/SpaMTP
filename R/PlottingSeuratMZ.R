@@ -293,8 +293,8 @@ ImageMZPlot <- function(object,
 
     for (plot_idx in seq(1, length(mz_list))){
       mz_integer <- as.numeric(strsplit(mz_list[plot_idx], "-")[[1]][2])
-      plot[[plot_idx]] <- plot[[plot_idx]] +
-        ggplot2::ggtitle(paste0("mz: ",round(mz_integer,3)))+
+      plot[[plot_idx]] <- plot[[plot_idx]] &
+        ggplot2::ggtitle(paste0("mz: ",round(mz_integer,3)))&
         ggplot2::labs(fill = paste0("mz: ",round(mz_integer,3)))
     }
   }
@@ -528,8 +528,8 @@ ImageMZAnnotationPlot <- function(object,
       plusmin_str <- paste0(" \u00b1 ", plusminus)
     }
 
-    plot[[i]] <- plot[[i]] +
-      ggplot2::ggtitle(paste0(metabolites[i], plusmin_str))+
+    plot[[i]] <- plot[[i]] &
+      ggplot2::ggtitle(paste0(metabolites[i], plusmin_str))&
       ggplot2::labs(fill = paste0(metabolites[i], plusmin_str))
 
   }
@@ -636,7 +636,7 @@ SpatialMZPlot <- function(object,
     )
 
     for (plot_idx in seq(1, length(plot_titles))){
-      plot[[plot_idx]] <- plot[[plot_idx]] +
+      plot[[plot_idx]] <- plot[[plot_idx]] &
         ggplot2::labs(fill = plot_titles[[plot_idx]])
     }
 
@@ -662,7 +662,7 @@ SpatialMZPlot <- function(object,
 
     for (plot_idx in seq(1, length(mz_list))){
       mz_integer <- as.numeric(strsplit(mz_list[plot_idx], "-")[[1]][2])
-      plot[[plot_idx]] <- plot[[plot_idx]] +
+      plot[[plot_idx]] <- plot[[plot_idx]] &
         ggplot2::labs(fill = paste0("mz: ",round(mz_integer,3)))
     }
   }
@@ -776,7 +776,7 @@ SpatialMZAnnotationPlot <- function(object,
       plusmin_str <- paste0(" \u00b1 ", plusminus)
     }
 
-    plot[[i]] <- plot[[i]]+
+    plot[[i]] <- plot[[i]] &
       ggplot2::labs(fill = paste0(metabolites[i], plusmin_str))
 
   }

@@ -7,16 +7,16 @@
 \item This is required for combined analysis and plotting
 }}
 \usage{
-MergeCardinalData(data_list, ncols = 2, padding = 200, shift.image = FALSE)
+MergeCardinalData(data_list, shift.image = FALSE, ncols = 2, padding = 200)
 }
 \arguments{
 \item{data_list}{List of Cardinal Objects being merged together.}
 
+\item{shift.image}{Boolean value describing if to shift the image coordinates for plotting to prevent overlay (default = FALSE).}
+
 \item{ncols}{An integer defining the number of columns present when plotting the merged Cardinal Object (default = 2).}
 
 \item{padding}{An integer defining the pixel padding between plots (default = 200).}
-
-\item{shift.image}{Boolean value describing if to shift the image coordinates for plotting to prevent overlay (default = FALSE).}
 }
 \value{
 A Cardinal Object with values merged form each individual Cardinal Object givin.
