@@ -9,7 +9,8 @@ ConvertSeuratToCardinal(
   assay = "Spatial",
   slot = "counts",
   run_col = NULL,
-  feature.metadata = FALSE
+  feature.metadata = FALSE,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ ConvertSeuratToCardinal(
 \item{run_col}{Character string describing the Seurat meta.data column where the run identities are stored (default = NULL).}
 
 \item{feature.metadata}{Boolean value of whether the Seurat Object contains annotations stored in the feature metadata slot of the specified assay (default = FALSE).}
+
+\item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the messsage will be suppressed (default = TRUE).}
 }
 \value{
 A Cardinal object containing intensity values and feature metadata (anntoations)

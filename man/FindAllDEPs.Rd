@@ -14,7 +14,8 @@ FindAllDEPs(
   run_name = "FindAllDEPs",
   annotation.column = NULL,
   assay = "Spatial",
-  slot = "counts"
+  slot = "counts",
+  verbose = TRUE
 )
 }
 \arguments{
@@ -35,6 +36,8 @@ FindAllDEPs(
 \item{assay}{A character string defining the assay where the mz count data and annotations are stored (default = "Spatial").}
 
 \item{slot}{Character string defining the assay storage slot to pull the relative mz intensity values from. Note: EdgeR requires raw counts, all values must be positive (default = "counts").}
+
+\item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the messsage will be suppressed (default = TRUE).}
 }
 \value{
 Returns an list() contains the EdgeR DE results. Pseudo-bulk counts are stored in $counts and DEPs are in $DEPs.

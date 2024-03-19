@@ -7,7 +7,7 @@
 \item This function takes an original Spatial Metabolomics counts matrix, along with a metadata table (\code{obs_x}) containing information about the correspondence between MALDI and Visium spots. It generates a new counts matrix where each MALDI spot has an associated aggregated count based on its corresponding Visium spots.
 }}
 \usage{
-generate_new_MALDI_counts(original_MALDI, obs_x, assay, slot)
+generate_new_MALDI_counts(original_MALDI, obs_x, assay, slots)
 }
 \arguments{
 \item{original_MALDI}{A Seurat Spatial Metabolomics object containing the original counts matrix}
@@ -16,7 +16,7 @@ generate_new_MALDI_counts(original_MALDI, obs_x, assay, slot)
 
 \item{assay}{Character string defining the Seurat assay that contains the annotated counts and metadata corresponding to the m/z values.}
 
-\item{slot}{Character string describing the assay slot to pull the relative intensity values from (default = "counts").}
+\item{slots}{Vector of character strings describing which slots to pull the relative intensity values from (default = c("counts", "data")).}
 }
 \value{
 A data frame representing the new counts matrix for equivalent Visium spots,where each row corresponds to a Visium spot and columns correspond to m/z features.

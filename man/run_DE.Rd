@@ -14,7 +14,8 @@ run_DE(
   n,
   logFC_threshold,
   annotation.column,
-  assay
+  assay,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -35,6 +36,8 @@ run_DE(
 \item{annotation.column}{Character string defining the column where annotation information is stored in the assay metadata. This requires AnnotateSeuratMALDI() to be run where the default column to store annotations is "all_IsomerNames" (default = "None").}
 
 \item{assay}{A character string defining the assay where the mz count data and annotations are stored (default = "Spatial").}
+
+\item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the messsage will be suppressed (default = TRUE).}
 }
 \value{
 A list which contains the relative output requested by the "to_return" variable

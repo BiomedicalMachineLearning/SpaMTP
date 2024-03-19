@@ -172,7 +172,7 @@ increase_MALDI_res <- function(MALDI_adata, res_increase = 4) {
 #' @param original_MALDI A Seurat Spatial Metabolomics object containing the original counts matrix
 #' @param obs_x A metadata table with information about the correspondence between MALDI and Visium spots. It should have columns 'Visium_spot' and 'MALDI_barcodes'.
 #' @param assay Character string defining the Seurat assay that contains the annotated counts and metadata corresponding to the m/z values.
-#' @param slot Character string describing the assay slot to pull the relative intensity values from (default = "counts").
+#' @param slots Vector of character strings describing which slots to pull the relative intensity values from (default = c("counts", "data")).
 #'
 #' @return A data frame representing the new counts matrix for equivalent Visium spots,where each row corresponds to a Visium spot and columns correspond to m/z features.
 #' @export
@@ -180,40 +180,49 @@ increase_MALDI_res <- function(MALDI_adata, res_increase = 4) {
 #' @examples
 #' ## Generate new MALDI counts matrix for equivalent Visium spots
 #' # new_counts <- generate_new_MALDI_counts(SeuratObj, obs_x, assay = "Spatial")
-generate_new_MALDI_counts <- function(original_MALDI, obs_x, assay, slot) {
+generate_new_MALDI_counts <- function(original_MALDI, obs_x, assay, slots) {
 
   message("Merging MALDI counts ... ")
 
-  counts_df <- t(as.data.frame(original_MALDI[[assay]]$counts))
+  data_list <- list()
+  new_data_list <- list()
 
-  new_count_data <- data.frame(matrix(NA, nrow = 0, ncol = ncol(counts_df)))
-  colnames(new_count_data) <- colnames(counts_df)
+  for (slot in slots) {
+    data_list[[slot]] <- t(as.data.frame(original_MALDI[[assay]][slot]))
+    new_data_list[[slot]] <- data.frame(matrix(NA, nrow = 0, ncol = ncol(data_list[[slot]])))
+    colnames(new_data_list[[slot]]) <- colnames(data_list[[slot]])
+  }
 
 
   total_spots = nrow(obs_x)
   pb <- utils::txtProgressBar(min = 0,      # Minimum value of the progress bar
-                       max = total_spots, # Maximum value of the progress bar
-                       style = 3,    # Progress bar style (also available style = 1 and style = 2)
-                       width = 50,   # Progress bar width. Defaults to getOption("width")
-                       char = "=")
+                              max = total_spots, # Maximum value of the progress bar
+                              style = 3,    # Progress bar style (also available style = 1 and style = 2)
+                              width = 50,   # Progress bar width. Defaults to getOption("width")
+                              char = "=")
 
   for (spot_idx in 1:total_spots) {
     spot_barcode <- obs_x$Visium_spot[spot_idx]
     barcode_list <- unlist(strsplit(obs_x$MALDI_barcodes[spot_idx], ", "))
 
     if (all(barcode_list[1] == barcode_list)) {
-      new_count_data[spot_barcode, ] <- counts_df[barcode_list[1], ]
+      for (data_slot in names(data_list)){
+        new_data_list[[data_slot]][spot_barcode, ] <- data_list[[data_slot]][barcode_list[1], ]
+      }
     } else {
-      mini_raw_count_dfs <- lapply(barcode_list, function(MALDI_barcodes) counts_df[MALDI_barcodes, ])
-      combined_df <- do.call(rbind, mini_raw_count_dfs)
-      new_count_data[spot_barcode, ] <- colMeans(combined_df)
+      for (data_slot in names(data_list)){
+        mini_raw_count_dfs <- lapply(barcode_list, function(MALDI_barcodes) data_list[[data_slot]][MALDI_barcodes, ])
+        combined_df <- do.call(rbind, mini_raw_count_dfs)
+        new_data_list[[data_slot]][spot_barcode, ] <- colMeans(combined_df)
+      }
     }
     utils::setTxtProgressBar(pb, spot_idx)
   }
   close(pb)
 
-  return(new_count_data)
+  return(new_data_list)
 }
+
 
 
 #' Converts and aggregates Spatial Metabolomic (MALDI) data to corresponding Spatial Transcriptomics (Visium) spots.
@@ -222,12 +231,17 @@ generate_new_MALDI_counts <- function(original_MALDI, obs_x, assay, slot) {
 #' @param visium_adata A Seurat object representing the Visium Spatial Transcriptomics data.
 #' @param MALDI_adata A Seurat object representing the Spatial Metabolomics data.
 #' @param img_res Character string defining the image resolution associated with the Visium image pixel data (default = "hires").
-#' @param new_library_id Character string specifying the library ID for the new MALDI data in the output Seurat object.
 #' @param res_increase Integer value defining the factor by which the resolution of MALDI spots should be increased before assignment. It should be either 4 or 9, see increase_MALDI_res() documentation for specifics (Default = NULL).
 #' @param annotations Boolean value indicating if the Spatial Metabolomics (MALDI) Seurat object contains annotations assigned to m/z values (default = FALSE).
 #' @param assay Character string defining the Seurat assay that contains the annotated counts and metadata corresponding to the m/z values (default = "Spatial").
-#' @param slot Character string describing the assay slot to pull the relative intensity values from (default = "counts").
 #' @param slice Character string of the image slice name in the Visium object (default = "slice1").
+#' @param slots Vector of character strings describing which slots from the Spatial Metabolomic Seurat object to adjust for the new overlayed object (default = c("counts", "data")).
+#' @param new_SpM.assay Character string defining the assay name of the new overlayed Seurat object containing all updated metabolomic data (default = "SPM").
+#' @param add.ST Boolean indicating whether to add the Spatial Metabolomic data from the Seurat Visium Object to the new updated Seruat Object (default = TRUE).
+#' @param ST.assay Character string specifying the current assay to use to extract transcriptional data from (default = "Spatial").
+#' @param ST.layers Vector of character strings defining the relative slots to extract from the initial Visium object, to add to the new Seurat Object if ST.assay == TRUE (default = c("counts", "data")).
+#' @param new_SpT.assay Character string defining the assay name of the new overlayed Seurat object containing all updated transcriptomics data (default = "SPT").
+#' @param verbose Boolean value indicating whether to print pregression update messages and progress bar (default = TRUE).
 #'
 #' @return A Seurat object with the Spatial Metabolomic data assigned to equivalent Spatial Transcripomics (Visium) spots.
 #' @export
@@ -235,7 +249,8 @@ generate_new_MALDI_counts <- function(original_MALDI, obs_x, assay, slot) {
 #' @examples
 #' ## Convert MALDI data to equivalent Visium spots
 #' # convert_MALDI_to_visium_like_adata(VisiumObj, SeuratObj, img_res = "hires", new_library_id = "MALDI", res_increase = NULL)
-convert_MALDI_to_visium_like_adata <- function(visium_adata, MALDI_adata, img_res = "hires", new_library_id = "MALDI", res_increase = NULL, annotations = FALSE, assay = "Spatial", slot = "counts", slice = "slice1") {
+AlignSpatialOmics <- function(visium_adata, MALDI_adata, res_increase = NULL, annotations = FALSE, assay = "Spatial", slots = c("counts"), img_res = "hires", slice = "slice1", new_SpM.assay = "SPM", add.ST = TRUE, ST.assay = "Spatial", ST.layers = c("counts", "data"), new_SpT.assay = "SPT", verbose = FALSE) {
+
 
   new_MALDI_obs <- MALDI_adata@meta.data
 
@@ -280,23 +295,59 @@ convert_MALDI_to_visium_like_adata <- function(visium_adata, MALDI_adata, img_re
     dplyr::summarize(MALDI_barcodes = toString(unique(old_barcode)))
 
   obs_x <- data.frame(obs_x)
-  counts_x <- generate_new_MALDI_counts(MALDI_adata, obs_x, assay = assay, slot = slot)
+  counts_x <- generate_new_MALDI_counts(MALDI_adata, obs_x, assay = assay, slot = slots)
 
   message("Generating new MALDI Anndata Object ... ")
+  seuratobj <- Seurat::CreateSeuratObject(counts = t(counts_x[[names(counts_x)[1]]]), assay = new_SpM.assay) #creates a new assay with the spatial metabolomics
 
-  seuratobj <- Seurat::CreateSeuratObject(counts = t(counts_x), assay = "Spatial")
+  if (names(counts_x)[1] != "counts"){
+    seuratobj[[new_SpM.assay]][names(counts_x)[1]] <- seuratobj[[new_SpM.assay]]
+    seuratobj[[new_SpM.assay]]$counts <- NULL
+  }
 
-  rownames(obs_x) <- rownames(seuratobj@assays$Spatial@cells)
+  if (length(names(counts_x)) > 1){
+    for (slot_name in names(counts_x)[2:length(names(counts_x))]){
+      seuratobj[[new_SpM.assay]][slot_name] <- t(counts_x[[slot_name]])
+    }
+  }
+
+
+  rownames(obs_x) <- rownames(seuratobj[[new_SpM.assay]]@cells)
   seuratobj@meta.data <- obs_x
+
+
 
   vis_subset <- subset(visium_adata, cells = rownames(seuratobj@meta.data))
   seuratobj <- subset(seuratobj, cells = rownames(vis_subset@meta.data))
-  seuratobj@images[["slice1"]] <- vis_subset@images$slice1
+  seuratobj@images[["slice1"]] <- vis_subset@images[[slice]]
+
+
 
   if (annotations){
-    seuratobj[[assay]]@meta.data <- MALDI_adata[[assay]]@meta.data
+    seuratobj[[new_SpM.assay]]@meta.data <- MALDI_adata[[assay]]@meta.data
   }
 
+  if (add.ST){
+    visium_sub <- subset(visium_adata, cells = intersect(colnames(seuratobj), colnames(visium_adata)))
+
+    # add Transcriptomic assay to combined object
+    counts_layer <- NULL
+    data_layer <- NULL
+
+    for (layer in ST.layers) {
+      if ( layer == "counts" ) {
+        counts_layer <- visium_sub[[ST.assay]]$counts
+      }  else if (layer == "data") {
+        data_layer <- visium_sub[[ST.assay]]$data
+      } else {
+        stop("ST.layers given does not match requirments. Must be 'counts' and/or 'data'")
+      }
+    }
+    st_assay <- CreateAssay5Object(counts = counts_layer, data = data_layer)
+    seuratobj[[new_SpT.assay]] <- st_assay
+
+
+  }
   return(seuratobj)
 
 }

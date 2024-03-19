@@ -15,7 +15,7 @@ NormalizeSeuratData(
 \arguments{
 \item{data}{Seurat Object to be normalized.}
 
-\item{normalisation.type}{Character string defining the normalization method to run. Options are either c("TIC", "LogNormalize") which represent Total Ion Current (TIC) normalization or Log Normalization, respectively (default = "TIC").}
+\item{normalisation.type}{Character string defining the normalization method to run. Options are either c("TIC", "LogNormalize", "RC") which represent Total Ion Current (TIC) normalization, Log Normalization or counts per million (RC), respectively (default = "TIC").}
 
 \item{scale.factor}{Numeric value that sets the scale factor for pixel/spot level normalization. Following normalization the total intensity value across each pixel will equal this value. If scale.factor = NULL, TIC normalization will use a scale factor = number of m/z and Log Normalisation will use a scale factor = 10000 (default = NULL).}
 

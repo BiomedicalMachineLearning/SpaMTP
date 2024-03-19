@@ -22,17 +22,20 @@ library(grDevices)
 #' @param n An integer defining the amount of psudo-replicates to generate for each sample (default = 3).
 #' @param assay Character string defining the assay where the mz count data and annotations are stored (default = "Spatial").
 #' @param slot Character string defining the assay storage slot to pull the relative mz intensity values from (default = "counts").
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the messsage will be suppressed (default = TRUE).
 #'
 #' @returns A SinglCellExpereiment object which contains pooled (n)-psudo-replicate counts data based on the Seurat Object input
 #' @export
 #'
 #' @examples
 #' # run_pooling <- list(seuratObj, idents = "sample", n = 3, assay = "Spatial", slot = "counts")
-run_pooling <- function(data.filt, idents, n, assay, slot) {
+run_pooling <- function(data.filt, idents, n, assay, slot, verbose = TRUE) {
 
   cell_metadata <- data.filt@meta.data
   samples <- unique(cell_metadata[[idents]])
-  message(paste0("Pooling one sample into ", n ," replicates..."))
+
+  verbose_message(message_text = paste0("Pooling one sample into ", n ," replicates..."), verbose = verbose)
+
   nrg <- n
   for(i in c(1:length(samples))){
     set.seed(i)
@@ -78,6 +81,7 @@ run_pooling <- function(data.filt, idents, n, assay, slot) {
 #' @param logFC_threshold A numeric value indicating the logFC threshold to use for defining significant genes (default = 1.2).
 #' @param annotation.column Character string defining the column where annotation information is stored in the assay metadata. This requires AnnotateSeuratMALDI() to be run where the default column to store annotations is "all_IsomerNames" (default = "None").
 #' @param assay A character string defining the assay where the mz count data and annotations are stored (default = "Spatial").
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the messsage will be suppressed (default = TRUE).
 #'
 #' @returns A list which contains the relative output requested by the "to_return" variable
 #' @export
@@ -85,13 +89,14 @@ run_pooling <- function(data.filt, idents, n, assay, slot) {
 #' @examples
 #' # pooled_obj <- run_pooling(SeuratObj, "sample", n = 3)
 #' # run_DE(pooled_obj, SeuratObj, "sample", "~/Documents/DE_output/", "run_1", n = 3, logFC_threshold = 1.2, annotation.column = "all_IsomerNames", assay = "Spatial")
-run_DE <- function(pooled_data, seurat_data, ident, output_dir, run_name, n, logFC_threshold, annotation.column, assay){
+run_DE <- function(pooled_data, seurat_data, ident, output_dir, run_name, n, logFC_threshold, annotation.column, assay, verbose = TRUE){
 
-  message(paste("Running edgeR DE Analysis for ", run_name, " -> with samples [", paste(unique(unlist(seurat_data@meta.data[[ident]])), collapse = ", "), "]"))
+  verbose_message(message_text = paste("Running edgeR DE Analysis for ", run_name, " -> with samples [", paste(unique(unlist(seurat_data@meta.data[[ident]])), collapse = ", "), "]"), verbose = verbose)
 
   annotation_result <- list()
   for (condition in unique(seurat_data@meta.data[[ident]])){
-    message(paste0("Starting condition: ",condition))
+    verbose_message(message_text = paste0("Starting condition: ",condition), verbose = verbose)
+
     groups <- SingleCellExperiment::colData(pooled_data)[[ident]]
     groups <- gsub(condition, "Comp_A", groups)
     groups <- ifelse(groups != "Comp_A", "Comp_B", groups)
@@ -162,13 +167,14 @@ run_DE <- function(pooled_data, seurat_data, ident, output_dir, run_name, n, log
 #' @param annotation.column Character string defining the column where annotation information is stored in the assay metadata. This requires AnnotateSeuratMALDI() to be run where the default column to store annotations is "all_IsomerNames" (default = "None").
 #' @param assay A character string defining the assay where the mz count data and annotations are stored (default = "Spatial").
 #' @param slot Character string defining the assay storage slot to pull the relative mz intensity values from. Note: EdgeR requires raw counts, all values must be positive (default = "counts").
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the messsage will be suppressed (default = TRUE).
 #'
 #' @returns Returns an list() contains the EdgeR DE results. Pseudo-bulk counts are stored in $counts and DEPs are in $DEPs.
 #' @export
 #'
 #' @examples
 #' # FindAllDEPs(SeuratObj, "sample",DE_output_dir = "~/Documents/DE_output/", annotations = TRUE)
-FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir = NULL, run_name = "FindAllDEPs", annotation.column = NULL, assay = "Spatial", slot = "counts"){
+FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir = NULL, run_name = "FindAllDEPs", annotation.column = NULL, assay = "Spatial", slot = "counts", verbose = TRUE){
 
   if (!(is.null(DE_output_dir))){
     if (dir.exists(DE_output_dir)){
@@ -180,10 +186,10 @@ FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir
   }
 
   #Step 1: Run Pooling to split each unique ident into 'n' number of pseudo-replicate pools
-  pooled_data <- run_pooling(data,ident, n = n, assay = assay, slot = slot)
+  pooled_data <- run_pooling(data,ident, n = n, assay = assay, slot = slot, verbose = verbose)
 
   #Step 2: Run EdgeR to calculate differentially expressed m/z peaks
-  DEP_results <- run_DE(pooled_data, data, ident = ident, output_dir = DE_output_dir, run_name = run_name, n=n, logFC_threshold=logFC_threshold, annotation.column = annotation.column, assay = assay)
+  DEP_results <- run_DE(pooled_data, data, ident = ident, output_dir = DE_output_dir, run_name = run_name, n=n, logFC_threshold=logFC_threshold, annotation.column = annotation.column, assay = assay, verbose = verbose)
 
   # Returns an EDGEr object which contains the pseudo-bulk counts in $counts and DEPs in $DEPs
   return(DEP_results)

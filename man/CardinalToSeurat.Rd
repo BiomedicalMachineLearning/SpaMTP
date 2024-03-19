@@ -4,7 +4,13 @@
 \alias{CardinalToSeurat}
 \title{Converts a Cardinal Object into a Seurat Object}
 \usage{
-CardinalToSeurat(data, run_name, seurat.coord = NULL)
+CardinalToSeurat(
+  data,
+  run_name,
+  seurat.coord = NULL,
+  assay = "Spatial",
+  verbose = TRUE
+)
 }
 \arguments{
 \item{data}{A Cardinal Object that is being converted into a Seurat Object.}
@@ -12,6 +18,10 @@ CardinalToSeurat(data, run_name, seurat.coord = NULL)
 \item{run_name}{A character string defining the run name of the Cardinal data to be converted to a Seurat Object}
 
 \item{seurat.coord}{A Data.Frame containing two columns titled 'X_new' and 'Y_new' specifying the pixel coordinates of each data point. This is only required mapping Spatial Metabolomic data with a H&E image if the Cardinal Object coordinates are not the same as the H&E image coordinates. Else, set to NULL(default).}
+
+\item{assay}{Character string containing the name of the assay (default = "Spatial").}
+
+\item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the messsage will be suppressed (default = TRUE).}
 }
 \value{
 A Seurat Object containing the mz count data of the supplied Cardinal Object
