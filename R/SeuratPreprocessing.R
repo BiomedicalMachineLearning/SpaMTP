@@ -1,4 +1,5 @@
 library(Seurat)
+library(ggridges)
 
 
 #' Normalizes m/z intensity data stored in a Seurat Object
