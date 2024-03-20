@@ -19,6 +19,7 @@ Imports:
     DropletUtils,
     edgeR,
     ggplot2,
+    ggridges,
     graphics,
     grDevices,
     limma,
