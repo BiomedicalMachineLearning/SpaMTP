@@ -1,4 +1,3 @@
-
 #' Helper function for suppressing function progress messages
 #'
 #' @param message_text Character string containing the message being shown
@@ -17,6 +16,9 @@ verbose_message <- function(message_text, verbose) {
 
 
 #cite: https://github.com/alikhuseynov/add-on_R/blob/develop/R/subset_obj_seurat_v2.R
+
+#'@importFrom magrittr %>% %<>%
+NULL
 
 #' Intermediate solution to \code{subset()}:
 #' subset FOVs/centroids if selected cells are NOT found in each FOV

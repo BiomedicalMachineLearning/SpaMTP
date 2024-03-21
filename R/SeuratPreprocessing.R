@@ -114,7 +114,7 @@ TMMNormalize <- function(combined.obj, ident, refIdent, normalisation.type = "CP
     norm_data_list[[name]] <- norm.data
   }
 
-  merged.data <- SeuratObject::JoinLayers(SeuratObject::merge(norm_data_list[[1]], y = norm_data_list[2: length(names(norm_data_list))]), merge.data = TRUE)
+  merged.data <- SeuratObject::JoinLayers(merge(norm_data_list[[1]], y = norm_data_list[2: length(names(norm_data_list))]), merge.data = TRUE)
 return(merged.data)
 }
 
@@ -223,9 +223,6 @@ MZRidgePlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = 
                    group.by = group.by,
                    assay = assay,
                    slot = slot,
-                   title = title,
-                   x.lab = x.lab,
-                   y.lab = y.lab,
                    bottom.cutoff = bottom.cutoff,
                    top.cutoff = top.cutoff,
                    log.data = log.data)
@@ -268,9 +265,6 @@ MZVlnPlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "c
                    group.by = group.by,
                    assay = assay,
                    slot = slot,
-                   title = title,
-                   x.lab = x.lab,
-                   y.lab = y.lab,
                    bottom.cutoff = bottom.cutoff,
                    top.cutoff = top.cutoff,
                    log.data = log.data)
@@ -316,9 +310,6 @@ MZBoxPlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "c
                    group.by = group.by,
                    assay = assay,
                    slot = slot,
-                   title = title,
-                   x.lab = x.lab,
-                   y.lab = y.lab,
                    bottom.cutoff = bottom.cutoff,
                    top.cutoff = top.cutoff,
                    log.data = log.data)

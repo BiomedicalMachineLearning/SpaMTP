@@ -23,6 +23,7 @@ Imports:
     graphics,
     grDevices,
     limma,
+    magrittr,
     Matrix,
     matter,
     pheatmap,
