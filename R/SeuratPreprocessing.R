@@ -1,5 +1,11 @@
 library(Seurat)
+library(ggplot2)
 library(ggridges)
+library(Matrix)
+library(edgeR)
+library(stats)
+library(dplyr)
+library(tidyr)
 
 
 #' Normalizes m/z intensity data stored in a Seurat Object
@@ -41,27 +47,43 @@ NormalizeSeuratData <- function(data, normalisation.type = 'TIC', scale.factor =
 
 }
 
-TMMNormalize <- function(combined.obj, ident, refIdent = NULL, normalisation.type = "CPM", CPM.scale.factor = 1e6, assay = "Spatial", slot = "counts") {
+#' Performs TMM normalization between categories based on a specified ident
+#'
+#' @param combined.obj Seurat object that contains groups being normalized.
+#' @param ident Character string defining the column name or ident group to normalize between.
+#' @param refIdent Character string specifying one class/group type to use as a reference for TMM normalisation.
+#' @param normalisation.type Character string defining the normalization method to run. Options are either c("CPM", "TIC", "LogNormalize") which represent counts per million (CPM), Total Ion Current (TIC) normalization or Log Normalization, respectively (default = "CPM").
+#' @param CPM.scale.factor Numeric value that sets the scale factor for pixel/spot level normalization. Following normalization the total intensity value across each pixel will equal this value (default = 1e6).
+#' @param assay Character string defining the name of the Seurat Object assay to pull the corresponding intensity data from (default = "Spatial").
+#' @param slot  Character string defining the name of the slot within the Seurat Object assay to pull the corresponding intensity data from (default = "counts").
+#'
+#' @return Seurat object with count values normalised and corrected for between categories
+#' @export
+#'
+#' @examples
+#' # norm.data <- TMMNormalize(SeuratObj, ident = "samples", refIdent = "sample1", normalisation.type = "CPM")
+TMMNormalize <- function(combined.obj, ident, refIdent, normalisation.type = "CPM", CPM.scale.factor = 1e6, assay = "Spatial", slot = "counts") {
 
   data_list <- list()
-  Idents(combined.obj) <- ident
-  if (length(unique(Idents(combined.obj))) <= 1){
+  Seurat::Idents(combined.obj) <- ident
+  if (length(unique(Seurat::Idents(combined.obj))) <= 1){
     stop("Specified ident has 0 or 1 catagory in seurat object. Length of Idents must be > 1 for TMM (between sample) normalisation factors to be calculated")
 
   }
 
-  if (is.null(refIdent)){
-    stop("A refIdent must be specified")
+
+  if (!(refIdent %in% unique(Seurat::Idents(combined.obj)))){
+    stop("The refIdent supplied is not present in the ident column. Please specify a group that is found within the ident column specififed")
   }
 
-  if (!(is.null(refIdent))) {
-    if (!(refIdent %in% unique(Idents(combined.obj)))){
-      stop("The refIdent supplied is not present in the ident column. Please specify a group that is found within the ident column specififed")
-    }
-  }
 
   if (normalisation.type == "CPM") {
     normalisation.type <- "RC"
+  }
+
+  if (normalisation.type == "TIC") {
+    normalisation.type <- "RC"
+    CPM.scale.factor <- length(rownames(combined.obj))
   }
 
 
@@ -79,7 +101,7 @@ TMMNormalize <- function(combined.obj, ident, refIdent = NULL, normalisation.typ
   rownames(df) <- df$mz
 
   for (dataset in names(data_list)){
-    rowsum <- rowSums(data_list[[dataset]][[assay]][slot])
+    rowsum <- Matrix::rowSums(data_list[[dataset]][[assay]][slot])
     df[dataset] <- rowsum
   }
   mtx <- Matrix::as.matrix(df[names(data_list)])
@@ -88,23 +110,40 @@ TMMNormalize <- function(combined.obj, ident, refIdent = NULL, normalisation.typ
 
   norm_data_list <- list()
   for (name in names(data_list)){
-    norm.data <- NormalizeSeuratDataX(data_list[[name]], normalisation.type = normalisation.type, scale.factor = (CPM.scale.factor * factors[name]), assay = assay, slot = slot)
+    norm.data <- NormalizeSeuratData(data_list[[name]], normalisation.type = normalisation.type, scale.factor = (CPM.scale.factor / factors[[name]]), assay = assay, slot = slot)
     norm_data_list[[name]] <- norm.data
   }
 
-  merged.data <- JoinLayers(merge(norm_data_list[[1]], y = norm_data_list[2: length(names(norm_data_list))]), merge.data = TRUE)
+  merged.data <- SeuratObject::JoinLayers(SeuratObject::merge(norm_data_list[[1]], y = norm_data_list[2: length(names(norm_data_list))]), merge.data = TRUE)
 return(merged.data)
 }
 
 
 
 ########### Pre-processing plots #############
-statPlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "counts", title = "VlnPlot", x.lab = "var", y.lab = "intensity", bottom.cutoff = NULL, top.cutoff = NULL, log.data = FALSE){
+
+
+#' Helper function for QC plots by generating intensity count data
+#'
+#' @param seurat.obj Seruat object containing the intensity data.
+#' @param group.by Character string specifying the meta.data column to group by (default = NULL).
+#' @param assay Character string defining the name of the Seurat Object assay to pull the corresponding intensity data from (default = "Spatial").
+#' @param slot  Character string defining the name of the slot within the Seurat Object assay to pull the corresponding intensity data from (default = "counts").
+#' @param bottom.cutoff Numeric value defining the percent of data to exclude for the lower end of the distribution. A bottom.cutoff = 0.05 will remove the bottom 5% of data point (default = NULL).
+#' @param top.cutoff Numeric value defining the percent of data to exclude for the upper end of the distribution. A top.cutoff = 0.05 will remove the top 5% of data point (default = NULL).
+#' @param log.data Boolean value indicating whether to log transform the y-axis values (default = FALSE).
+#'
+#' @return A data.frame containing the relative transformed and sum counts required for various QC plots
+#' @export
+#'
+#' @examples
+#' # df <- statPlot(SeuratObj, group.by = "sample", bottom.cutoff = 0.05, top.cutoff = 0.05, log.data = TRUE)
+statPlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "counts", bottom.cutoff = NULL, top.cutoff = NULL, log.data = FALSE){
 
   data_list <- list()
   if (!(is.null(group.by))){
-    Idents(seurat.obj) <- group.by
-    for (ident in unique(Idents(seurat.obj))){
+    Seurat::Idents(seurat.obj) <- group.by
+    for (ident in unique(Seurat::Idents(seurat.obj))){
       suppressWarnings({
         suppressMessages({
           sub <- subset_opt(seurat.obj, idents = ident)
@@ -121,7 +160,7 @@ statPlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "co
   rownames(df) <- df$mz
 
   for (dataset in names(data_list)){
-    rowsum <- rowSums(data_list[[dataset]][[assay]][slot])
+    rowsum <- Matrix::rowSums(data_list[[dataset]][[assay]][slot])
     df[dataset] <- rowsum
   }
 
@@ -132,7 +171,7 @@ statPlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "co
   if (!(is.null(bottom.cutoff))){
     df2 <- df2 %>%
       dplyr::group_by(var) %>%
-      dplyr::mutate(bottom_cutoff = quantile(x, bottom.cutoff))
+      dplyr::mutate(bottom_cutoff = stats::quantile(x, bottom.cutoff))
 
     df2 <- df2 %>%  dplyr::group_by(var) %>%dplyr::filter(x >= bottom_cutoff)
     message(paste0("Removing bottom ", bottom.cutoff*100, "% of datapoints"))
@@ -155,7 +194,31 @@ statPlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "co
   return(df2)
 }
 
-MZRidgePlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "counts", title = "VlnPlot", x.lab = "var", y.lab = "intensity", bottom.cutoff = NULL, top.cutoff = NULL, bins = 1000,log.data = FALSE, cols = NULL){
+
+
+
+
+
+#' Generates a ridge plot of Spatial Metabolomic intensity data
+#'
+#' @param seurat.obj Seurat object containing the metabolomic intensity data.
+#' @param group.by Character string specifying the meta.data column to group by (default = NULL).
+#' @param assay Character string defining the name of the Seurat Object assay to pull the corresponding intensity data from (default = "Spatial").
+#' @param slot  Character string defining the name of the slot within the Seurat Object assay to pull the corresponding intensity data from (default = "counts").
+#' @param title Character string of the plot title (default = "RidgePlot").
+#' @param x.lab Character string of the x-axis label (default = "var").
+#' @param y.lab Character string of the y-axis label (default = "intensity").
+#' @param bottom.cutoff Numeric value defining the percent of data to exclude for the lower end of the distribution. A bottom.cutoff = 0.05 will remove the bottom 5% of data point (default = NULL).
+#' @param top.cutoff Numeric value defining the percent of data to exclude for the upper end of the distribution. A top.cutoff = 0.05 will remove the top 5% of data point (default = NULL).
+#' @param bins number of bins to group
+#' @param log.data Boolean value indicating whether to log transform the y-axis values (default = FALSE).
+#' @param cols Vector of strings defining the colours to use for plotting. This vector should match the length of unique groups (default = NULL).
+#'
+#' @export
+#'
+#' @examples
+#' # MZRidgePlot(SeuratObj, group.by = "sample")
+MZRidgePlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "counts", title = "RidgePlot", x.lab = "var", y.lab = "intensity", bottom.cutoff = NULL, top.cutoff = NULL, bins = 1000,log.data = FALSE, cols = NULL){
   data <- statPlot(seurat.obj = seurat.obj,
                    group.by = group.by,
                    assay = assay,
@@ -167,13 +230,38 @@ MZRidgePlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = 
                    top.cutoff = top.cutoff,
                    log.data = log.data)
 
-  ridge_plot <- ggplot(data, aes(y=var, x=x,  fill=var)) +
+  ridge_plot <- ggplot2::ggplot(data, ggplot2::aes(y=var, x=x,  fill=var)) +
     ggridges::geom_density_ridges(alpha=0.6, stat="binline", bins=bins) +
-    ggridges::theme_ridges() +  labs(title = title, x = x.lab, y = y.lab)
+    ggridges::theme_ridges() +  ggplot2::labs(title = title, x = x.lab, y = y.lab)
+
+  if (!(is.null(cols))){
+    ridge_plot <- ridge_plot + ggplot2::scale_fill_manual(values = cols)
+  }
 
   return(ridge_plot)
 }
 
+
+
+#' Generates a Violin plot of Spatial Metabolomic intensity data
+#'
+#' @param seurat.obj Seurat object containing the metabolomic intensity data.
+#' @param group.by Character string specifying the meta.data column to group by (default = NULL).
+#' @param assay Character string defining the name of the Seurat Object assay to pull the corresponding intensity data from (default = "Spatial").
+#' @param slot  Character string defining the name of the slot within the Seurat Object assay to pull the corresponding intensity data from (default = "counts").
+#' @param title Character string of the plot title (default = "VlnPlot").
+#' @param x.lab Character string of the x-axis label (default = "var").
+#' @param y.lab Character string of the y-axis label (default = "intensity").
+#' @param show.points Boolean value describing whether to show each individual data point (default = TRUE).
+#' @param bottom.cutoff Numeric value defining the percent of data to exclude for the lower end of the distribution. A bottom.cutoff = 0.05 will remove the bottom 5% of data point (default = NULL).
+#' @param top.cutoff Numeric value defining the percent of data to exclude for the upper end of the distribution. A top.cutoff = 0.05 will remove the top 5% of data point (default = NULL).
+#' @param log.data Boolean value indicating whether to log transform the y-axis values (default = FALSE).
+#' @param cols Vector of strings defining the colours to use for plotting. This vector should match the length of unique groups (default = NULL).
+#'
+#' @export
+#'
+#' @examples
+#' # MZVlnPlot(SeuratObj, group.by = "sample",  bottom.cutoff = 0.05)
 MZVlnPlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "counts", title = "VlnPlot", x.lab = "var", y.lab = "intensity", show.points = TRUE, bottom.cutoff = NULL, top.cutoff = NULL,log.data = FALSE, cols = NULL){
 
   data <- statPlot(seurat.obj = seurat.obj,
@@ -187,20 +275,43 @@ MZVlnPlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "c
                    top.cutoff = top.cutoff,
                    log.data = log.data)
 
-  violin_plot <- ggplot(data, aes(x = var , y = x, fill = var)) +
-    geom_violin() +
-    theme_classic() +
-    labs(title = title, x = x.lab, y = y.lab)
+  violin_plot <- ggplot2::ggplot(data, ggplot2::aes(x = var , y = x, fill = var)) +
+    ggplot2::geom_violin() +
+    ggplot2::theme_classic() +
+    ggplot2::labs(title = title, x = x.lab, y = y.lab)
 
   if (show.points){
-    violin_plot <- violin_plot + geom_point(position = position_jitter(width = 0.2), alpha = 0.5)
+    violin_plot <- violin_plot + ggplot2::geom_point(position = ggplot2::position_jitter(width = 0.2), alpha = 0.5)
   }
 
+  if (!(is.null(cols))){
+    violin_plot <- violin_plot + ggplot2::scale_fill_manual(values = cols)
+  }
 
   return(violin_plot)
 }
 
-MZBoxPlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "counts", title = "VlnPlot", x.lab = "var", y.lab = "intensity", show.points = TRUE, bottom.cutoff = NULL, top.cutoff = NULL,log.data = FALSE, cols = NULL){
+
+#' Generates a Boxplot of Spatial Metabolomic intensity data
+#'
+#' @param seurat.obj Seurat object containing the metabolomic intensity data.
+#' @param group.by Character string specifying the meta.data column to group by (default = NULL).
+#' @param assay Character string defining the name of the Seurat Object assay to pull the corresponding intensity data from (default = "Spatial").
+#' @param slot  Character string defining the name of the slot within the Seurat Object assay to pull the corresponding intensity data from (default = "counts").
+#' @param title Character string of the plot title (default = "BoxPlot").
+#' @param x.lab Character string of the x-axis label (default = "var").
+#' @param y.lab Character string of the y-axis label (default = "intensity").
+#' @param show.points Boolean value describing whether to show each individual data point (default = TRUE).
+#' @param bottom.cutoff Numeric value defining the percent of data to exclude for the lower end of the distribution. A bottom.cutoff = 0.05 will remove the bottom 5% of data point (default = NULL).
+#' @param top.cutoff Numeric value defining the percent of data to exclude for the upper end of the distribution. A top.cutoff = 0.05 will remove the top 5% of data point (default = NULL).
+#' @param log.data Boolean value indicating whether to log transform the y-axis values (default = FALSE).
+#' @param cols Vector of strings defining the colours to use for plotting. This vector should match the length of unique groups (default = NULL).
+#'
+#' @export
+#'
+#' @examples
+#' # MZBoxPlot(SeuratObj, group.by = "sample",  bottom.cutoff = 0.05)
+MZBoxPlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "counts", title = "BoxPlot", x.lab = "var", y.lab = "intensity", show.points = TRUE, bottom.cutoff = NULL, top.cutoff = NULL,log.data = FALSE, cols = NULL){
   data <- statPlot(seurat.obj = seurat.obj,
                    group.by = group.by,
                    assay = assay,
@@ -212,17 +323,17 @@ MZBoxPlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "c
                    top.cutoff = top.cutoff,
                    log.data = log.data)
 
-  box_plot <- ggplot(data, aes(x = var , y = x, fill = var)) +
-    geom_boxplot() +
-    theme_classic() +
-    labs(title = title, x = x.lab, y = y.lab)
+  box_plot <- ggplot2::ggplot(data, ggplot2::aes(x = var , y = x, fill = var)) +
+    ggplot2::geom_boxplot() +
+    ggplot2::theme_classic() +
+    ggplot2::labs(title = title, x = x.lab, y = y.lab)
 
   if (show.points){
-    box_plot <- box_plot + geom_point(position = position_jitter(width = 0.2), alpha = 0.5)
+    box_plot <- box_plot + ggplot2::geom_point(position = ggplot2::position_jitter(width = 0.2), alpha = 0.5)
   }
 
   if (!(is.null(cols))){
-    box_plot <- box_plot + scale_fill_manual(values = cols)
+    box_plot <- box_plot + ggplot2::scale_fill_manual(values = cols)
   }
 
   return(box_plot)

@@ -295,7 +295,7 @@ AlignSpatialOmics <- function(visium_adata, MALDI_adata, res_increase = NULL, an
     dplyr::summarize(MALDI_barcodes = toString(unique(old_barcode)))
 
   obs_x <- data.frame(obs_x)
-  counts_x <- generate_new_MALDI_counts(MALDI_adata, obs_x, assay = assay, slot = slots)
+  counts_x <- generate_new_MALDI_counts(MALDI_adata, obs_x, assay = assay, slots = slots)
 
   message("Generating new MALDI Anndata Object ... ")
   seuratobj <- Seurat::CreateSeuratObject(counts = t(counts_x[[names(counts_x)[1]]]), assay = new_SpM.assay) #creates a new assay with the spatial metabolomics
