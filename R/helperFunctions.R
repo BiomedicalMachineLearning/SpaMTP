@@ -35,10 +35,11 @@ NULL
 #' @param ... Arguments passed to \code{subset()} and other methods
 #'
 #' @return A subset Seurat object
+#' @export
 #'
 #' @examples
 #' # sub <- subset_obt(seurat.obj, idents = "Sample1")
-subset_opt <- function(
+subset_SPM <- function(
     object = NULL,
     subset = NULL,
     cells = NULL,

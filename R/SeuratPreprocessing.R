@@ -90,7 +90,7 @@ TMMNormalize <- function(combined.obj, ident, refIdent, normalisation.type = "CP
   for (name in unique(Idents(combined.obj))){
     suppressWarnings({
       suppressMessages({
-        sub <- subset_opt(combined.obj, idents = name)
+        sub <- subset_SPM(combined.obj, idents = name)
       })
     })
 
@@ -146,7 +146,7 @@ statPlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "co
     for (ident in unique(Seurat::Idents(seurat.obj))){
       suppressWarnings({
         suppressMessages({
-          sub <- subset_opt(seurat.obj, idents = ident)
+          sub <- subset_SPM(seurat.obj, idents = ident)
         })
       })
 

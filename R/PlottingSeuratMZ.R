@@ -916,7 +916,7 @@ MassIntensityPlot <- function (data,
     for (ident in unique(run)){
       SeuratObject::Idents(data) <- metadata.column
       suppressWarnings({
-        sub <- subset(data, ident = ident)
+        sub <- subset_SPM(data, ident = ident)
       })
 
       if (dim(sub@meta.data)[1] > 1){

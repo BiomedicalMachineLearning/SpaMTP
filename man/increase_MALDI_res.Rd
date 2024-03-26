@@ -8,10 +8,10 @@
 \item This function uses the split_pixel() function
 }}
 \usage{
-increase_MALDI_res(MALDI_adata, res_increase = 4)
+increase_MALDI_res(SM.data, res_increase = 4)
 }
 \arguments{
-\item{MALDI_adata}{A Seurat Spatial Metabolomics object containing spatial metabolomic information. It should have 'x_coord' and 'y_coord' columns representing spot coordinates.}
+\item{SM.data}{A Seurat Spatial Metabolomics object containing spatial metabolomic information. It should have 'x_coord' and 'y_coord' columns representing spot coordinates.}
 
 \item{res_increase}{An integer specifying the factor by which the resolution should be increased. res_increase = 4, will generates 4 times as many spots in each dimension (default = 4).}
 }

@@ -8,8 +8,8 @@
 }}
 \usage{
 AlignSpatialOmics(
-  visium_adata,
-  MALDI_adata,
+  SM.data,
+  ST.data,
   res_increase = NULL,
   annotations = FALSE,
   assay = "Spatial",
@@ -19,15 +19,15 @@ AlignSpatialOmics(
   new_SpM.assay = "SPM",
   add.ST = TRUE,
   ST.assay = "Spatial",
-  ST.layers = c("counts", "data"),
+  ST.layers = c("counts"),
   new_SpT.assay = "SPT",
   verbose = FALSE
 )
 }
 \arguments{
-\item{visium_adata}{A Seurat object representing the Visium Spatial Transcriptomics data.}
+\item{SM.data}{A Seurat object representing the Spatial Metabolomics data.}
 
-\item{MALDI_adata}{A Seurat object representing the Spatial Metabolomics data.}
+\item{ST.data}{A Seurat object representing the Visium Spatial Transcriptomics data.}
 
 \item{res_increase}{Integer value defining the factor by which the resolution of MALDI spots should be increased before assignment. It should be either 4 or 9, see increase_MALDI_res() documentation for specifics (Default = NULL).}
 
