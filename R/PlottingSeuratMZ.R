@@ -172,6 +172,8 @@ plot_plus_minus <-function(object, mz_list, plusminus){
 #' @param axes Boolean defining if to keep axes and panel background (default = FALSE).
 #' @param combine Boolean value stating if to combine plots into a single patchworked ggplot object (default = TRUE).
 #' @param coord.fixed Boolean value of it to plot cartesian coordinates with fixed aspect ratio (default = TURE).
+#' @param assay Character string indicating which Seurat object assay to pull data form (default = "Spatial").
+#' @param slot Character string indicating the assay slot to use to pull expression values form (default = "counts").
 #'
 #' @returns A ggplot showing the Spatial representation of expression data of specified m/z values
 #' @export
@@ -209,7 +211,9 @@ ImageMZPlot <- function(object,
                         overlap = FALSE,
                         axes = FALSE,
                         combine = TRUE,
-                        coord.fixed = TRUE
+                        coord.fixed = TRUE,
+                        assay = "Spatial",
+                        slot = "data"
 ){
 
   if (is.null(mzs)){
@@ -221,6 +225,21 @@ ImageMZPlot <- function(object,
       mz_string <- find_nearest(object, target_mz)
       mz_list <- c(mz_list, mz_string)
     }
+  }
+
+  if (is.null(assay)){
+    message("Seurat Assay set to NULL, default assay will be used")
+    assay <- DefaultAssay(object)
+  } else {
+    DefaultAssay(object) <- assay
+  }
+
+  if (is.null(slot)){
+    message("Default data slot will be used. If data slot is not present will use counts slot instead")
+
+  } else if (slot != "data"){
+
+    object[[assay]]$data <- object[[assay]][slot]
   }
 
   if (!(is.null(plusminus))){
@@ -258,8 +277,8 @@ ImageMZPlot <- function(object,
     )
 
     for (plot_idx in seq(1, length(plot_titles))){
-      plot[[plot_idx]] <- plot[[plot_idx]] +
-        ggplot2::ggtitle(plot_titles[[plot_idx]])+
+      plot[[plot_idx]] <- plot[[plot_idx]] &
+        ggplot2::ggtitle(plot_titles[[plot_idx]]) &
         ggplot2::labs(fill = plot_titles[[plot_idx]])
     }
 
@@ -337,7 +356,8 @@ ImageMZPlot <- function(object,
 #' @param axes Boolean defining if to keep axes and panel background (default = FALSE).
 #' @param combine Boolean value stating if to combine plots into a single patchworked ggplot object (default = TRUE).
 #' @param coord.fixed Boolean value of it to plot cartesian coordinates with fixed aspect ratio (default = TURE).
-#' @param assay Character string defining the Seurat assay that contains the annotated metadata corresponding to the m/z values.
+#' @param assay Character string indicating which Seurat object assay to pull data form (default = "Spatial").
+#' @param slot Character string indicating the assay slot to use to pull expression values form (default = "counts").
 #' @param column.name Character string defining the column name where the annotations are stored in the slot meta.data (default = "all_IsomerNames").
 #' @param plot.exact Boolean value describing if to only plot exact matches to the metabolite search terms, else will plot all metabolites which contain serach word in name (default = TRUE).
 #'
@@ -379,10 +399,16 @@ ImageMZAnnotationPlot <- function(object,
                                   combine = TRUE,
                                   coord.fixed = TRUE,
                                   assay = "Spatial",
+                                  slot = "data",
                                   column.name = "all_IsomerNames",
                                   plot.exact = TRUE
 
 ){
+
+  if (is.null(assay)){
+    stop("Seurat Assay set to NULL, please provide correct assay name")
+  }
+
   multi_annotation <- FALSE
   multi_plusminus <- NULL
   mzs <- c()
@@ -461,6 +487,17 @@ ImageMZAnnotationPlot <- function(object,
 
 
   if (multi_annotation){
+
+    DefaultAssay(data_copy) <- assay
+
+    if (is.null(slot)){
+      message("Default data slot will be used. If data slot is not present will use counts slot instead")
+
+    } else if (slot != "data"){
+
+      data_copy[[assay]]$data <- data_copy[[assay]][slot]
+    }
+
     plot <- Seurat::ImageFeaturePlot(data_copy,
                              features =  mzs,
                              fov = fov,
@@ -514,7 +551,9 @@ ImageMZAnnotationPlot <- function(object,
                         overlap = overlap,
                         axes = axes,
                         combine = combine,
-                        coord.fixed = coord.fixed)
+                        coord.fixed = coord.fixed,
+                        assay = assay,
+                        slot = slot)
   }
   for (i in 1:length(plot)){
 
@@ -549,6 +588,7 @@ ImageMZAnnotationPlot <- function(object,
 #' @param plusminus Numeric value defining the range/threshold either side of the target peak/peaks to be binned together for plotting (default = NULL).
 #' @param images Character string of the name of the image to plot (default = NULL).
 #' @param crop Boolean value indicating if to crop the plot to focus on only points being plotted (default = TRUE).
+#' @param assay Character string indicating which Seurat object assay to pull data form (default = "Spatial").
 #' @param slot Character string indicating the assay slot to use to pull expression values form (default = "counts").
 #' @param keep.scale Character string describing how to handle the color scale across multiple plots. Check Seurat::SpatialFeaturePlot() for all options (default = "feature").
 #' @param min.cutoff Vector of numeric value describing the minimum cutoff values for each m/z feature (default = NA).
@@ -573,6 +613,7 @@ SpatialMZPlot <- function(object,
                         plusminus = NULL,
                         images = NULL,
                         crop = TRUE,
+                        assay = "Spatial",
                         slot = "counts",
                         keep.scale = "feature",
                         min.cutoff = NA,
@@ -596,6 +637,13 @@ SpatialMZPlot <- function(object,
       mz_string <- find_nearest(object, target_mz)
       mz_list <- c(mz_list, mz_string)
     }
+  }
+
+  if (is.null(assay)){
+    message("Seurat Assay set to NULL, default assay will be used")
+    assay <- DefaultAssay(object)
+  } else {
+    DefaultAssay(object) <- assay
   }
 
   if (!(is.null(plusminus))){
@@ -682,8 +730,8 @@ SpatialMZPlot <- function(object,
 #' @param metabolites Vector of metabolite names to plot (e.g. c("Glucose", "Glutamine")). The Seurat Object provided must contain annotations in the respective assay metadata.
 #' @param plusminus Numeric value defining the range/threshold either side of the target peak/peaks to be binned together for plotting (default = NULL).
 #' @param images Character string of the name of the image to plot (default = NULL).
-#' @param assay Character string indicating which Seurat object assay to pull data form (default = "Spatial").
 #' @param crop Boolean value indicating if to crop the plot to focus on only points being plotted (default = TRUE).
+#' @param assay Character string indicating which Seurat object assay to pull data form (default = "Spatial").
 #' @param slot Character string indicating the assay slot to use to pull expression values form (default = "counts").
 #' @param keep.scale Character string describing how to handle the color scale across multiple plots. Check Seurat::SpatialFeaturePlot() for all options (default = "feature").
 #' @param min.cutoff Vector of numeric value describing the minimum cutoff values for each m/z feature (default = NA).
@@ -727,6 +775,11 @@ SpatialMZAnnotationPlot <- function(object,
                                     plot.exact = TRUE
 
 ){
+
+  if (is.null(assay)){
+    stop("Seurat Assay set to NULL, please provide correct assay name")
+  }
+
   mzs <- c()
   for (metabolite in metabolites){
     met.row <- SearchAnnotations(object,metabolite, assay = assay, column.name = column.name,search.exact = plot.exact)
@@ -754,6 +807,7 @@ SpatialMZAnnotationPlot <- function(object,
                         plusminus = plusminus,
                         images = images,
                         crop = crop,
+                        assay = assay,
                         slot = slot,
                         keep.scale = keep.scale,
                         min.cutoff = min.cutoff,

@@ -12,6 +12,7 @@ SpatialMZPlot(
   plusminus = NULL,
   images = NULL,
   crop = TRUE,
+  assay = "Spatial",
   slot = "counts",
   keep.scale = "feature",
   min.cutoff = NA,
@@ -36,6 +37,8 @@ SpatialMZPlot(
 \item{images}{Character string of the name of the image to plot (default = NULL).}
 
 \item{crop}{Boolean value indicating if to crop the plot to focus on only points being plotted (default = TRUE).}
+
+\item{assay}{Character string indicating which Seurat object assay to pull data form (default = "Spatial").}
 
 \item{slot}{Character string indicating the assay slot to use to pull expression values form (default = "counts").}
 

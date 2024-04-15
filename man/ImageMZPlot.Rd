@@ -38,7 +38,9 @@ ImageMZPlot(
   overlap = FALSE,
   axes = FALSE,
   combine = TRUE,
-  coord.fixed = TRUE
+  coord.fixed = TRUE,
+  assay = "Spatial",
+  slot = "data"
 )
 }
 \arguments{
@@ -95,6 +97,10 @@ ImageMZPlot(
 \item{combine}{Boolean value stating if to combine plots into a single patchworked ggplot object (default = TRUE).}
 
 \item{coord.fixed}{Boolean value of it to plot cartesian coordinates with fixed aspect ratio (default = TURE).}
+
+\item{assay}{Character string indicating which Seurat object assay to pull data form (default = "Spatial").}
+
+\item{slot}{Character string indicating the assay slot to use to pull expression values form (default = "counts").}
 }
 \value{
 A ggplot showing the Spatial representation of expression data of specified m/z values

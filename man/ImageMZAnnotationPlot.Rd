@@ -40,6 +40,7 @@ ImageMZAnnotationPlot(
   combine = TRUE,
   coord.fixed = TRUE,
   assay = "Spatial",
+  slot = "data",
   column.name = "all_IsomerNames",
   plot.exact = TRUE
 )
@@ -99,7 +100,9 @@ ImageMZAnnotationPlot(
 
 \item{coord.fixed}{Boolean value of it to plot cartesian coordinates with fixed aspect ratio (default = TURE).}
 
-\item{assay}{Character string defining the Seurat assay that contains the annotated metadata corresponding to the m/z values.}
+\item{assay}{Character string indicating which Seurat object assay to pull data form (default = "Spatial").}
+
+\item{slot}{Character string indicating the assay slot to use to pull expression values form (default = "counts").}
 
 \item{column.name}{Character string defining the column name where the annotations are stored in the slot meta.data (default = "all_IsomerNames").}
 
