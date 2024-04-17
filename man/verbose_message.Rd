@@ -14,6 +14,3 @@ verbose_message(message_text, verbose)
 \description{
 Helper function for suppressing function progress messages
 }
-\examples{
-verbose_message("Finished!", TRUE)
-}

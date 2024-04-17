@@ -3,9 +3,6 @@
 #' @param message_text Character string containing the message being shown
 #' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the messsage will be suppressed (default = TRUE).
 #'
-#'
-#' @examples
-#' verbose_message("Finished!", TRUE)
 verbose_message <- function(message_text, verbose) {
   if (verbose) {
     message(message_text)
