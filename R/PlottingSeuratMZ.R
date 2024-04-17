@@ -901,6 +901,7 @@ get_optimal_layout <- function(list_length) {
 #' @param labelOffset Value that controls the distance of the text label from the specified coordinates. Seen graphics::text() for more details (default = 0).
 #' @param labelCol Character string defining the colour of the annotation labels (default = "#eb4034").
 #' @param plot.layout Vector of two numeric values defining the plot layout. This is only used when split.by is specified, but is not required (default = NULL).
+#' @param nlabels.to.show Numeric value defining the number of annotations to show per m/z (default = NULL).
 #'
 #' @return A mass spectrometry plot displaying mean intensity values
 #' @export
@@ -938,7 +939,8 @@ MassIntensityPlot <- function (data,
                                labelPos = 4,
                                labelOffset = 0,
                                labelCol = "#eb4034",
-                               plot.layout = NULL){
+                               plot.layout = NULL,
+                               nlabels.to.show = NULL){
 
   if (!(is.null(group.by))&!(is.null(split.by))){
     stop("'group.by' and 'split.by' cannot both be valid -> pick only one option to set = idents")
@@ -951,6 +953,10 @@ MassIntensityPlot <- function (data,
     if (!(annotation.column %in% colnames(data[[assay]]@meta.data))){
       warning(paste("'",annotation.column," column not in object metadata. If data object does not have annotations set annotation.column = FALSE"))
       stop("annotation.column does not exist")
+    } else {
+      if (!is.null(nlabels.to.show)){
+        data[[assay]]@meta.data[[annotation.column]] <- labels_to_show(data[[assay]]@meta.data[[annotation.column]], n = nlabels.to.show)
+      }
     }
   }
 
@@ -1080,12 +1086,21 @@ MassIntensityPlot <- function (data,
 
   }
 
+
+  if (is.null(ylim) & !is.null(mass.range)){
+    closest_index_min <- which.min(abs(Cardinal::featureData(cardinal.data)@mz - mass.range[1]))
+    closest_index_max <- which.min(abs(Cardinal::featureData(cardinal.data)@mz - mass.range[2]))
+    ylim_max <- ceiling(max(spectra(cardinal.data)[closest_index_min:closest_index_max,]))
+    ylim <- c(0,ylim_max)
+  }
+
+  Cardinal::pData(cardinal.data)@run <- factor(Cardinal::pData(cardinal.data)@run, levels = Cardinal::pData(cardinal.data)@run)
   temp <- cardinal.data
   assign("temp", cardinal.data, envir = .GlobalEnv)
 
   if (!(is.null(split.by))){
 
-    plot_data <- plot(temp, pixel.groups = levels(Cardinal::pData(temp)@run), superpose = FALSE)
+    plot_data <- Cardinal::plot(temp, pixel.groups = levels(Cardinal::pData(temp)@run), superpose = FALSE)
 
     n_plots <- length(plot_data$facets)
 

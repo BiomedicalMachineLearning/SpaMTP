@@ -20,7 +20,8 @@ DEPsHeatmap(
   plot_annotations_column = NULL,
   save_to_path = NULL,
   plot.save.width = 20,
-  plot.save.height = 20
+  plot.save.height = 20,
+  nlabels.to.show = NULL
 )
 }
 \arguments{
@@ -53,6 +54,8 @@ DEPsHeatmap(
 \item{plot.save.width}{Integer value representing the width of the saved pdf plot (default = 20).}
 
 \item{plot.save.height}{Integer value representing the height of the saved pdf plot (default = 20).}
+
+\item{nlabels.to.show}{Numeric value defining the number of annotations to show per m/z (default = NULL).}
 }
 \value{
 A heatmap plot of significantly differentially expressed peaks defined in the edgeR ouput object.

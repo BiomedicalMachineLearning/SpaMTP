@@ -3,7 +3,6 @@
 #' @param message_text Character string containing the message being shown
 #' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the messsage will be suppressed (default = TRUE).
 #'
-#' @export
 #'
 #' @examples
 #' verbose_message("Finished!", TRUE)
@@ -161,6 +160,7 @@ subset_SPM <- function(
   return(obj_subset)
 
 }
+
 
 
 ########################################################################

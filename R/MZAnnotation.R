@@ -26,6 +26,28 @@ subsetMZFeatures <- function(data, features, assay = "Spatial"){
 }
 
 
+
+#' Filters the annotation list to only include the first n number of annotations per m/z
+#'
+#' @param annotation_column Vector of the meta.data column containing the m/z annotations.
+#' @param n Numeric value defining the number of annotations to keep (default = 3).
+#'
+#' @return Vector contating the first n number of annotations
+#'
+#' @examples
+#' # labels_to_show(`SeuratObject[["Spatial"]]@meta.data$annotations`, n = 3)
+labels_to_show <- function(annotation_column, n = 3) {
+  new_column <- sapply(strsplit(annotation_column, "; "), function(x) {
+    # Filter out NA values and select the first three entries
+    non_na_values <- x[!is.na(x)]
+    paste(non_na_values[1:min(n, length(non_na_values))], collapse = "; ")
+  })
+  return(new_column)
+}
+
+
+
+
 #' Annotates m/z values based on reference metabolite dataset
 #'
 #' @param data Seurat Spatial Metabolomic Object containing m/z values for annotation.

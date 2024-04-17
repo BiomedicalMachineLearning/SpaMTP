@@ -26,7 +26,8 @@ MassIntensityPlot(
   labelPos = 4,
   labelOffset = 0,
   labelCol = "#eb4034",
-  plot.layout = NULL
+  plot.layout = NULL,
+  nlabels.to.show = NULL
 )
 }
 \arguments{
@@ -73,6 +74,8 @@ MassIntensityPlot(
 \item{labelCol}{Character string defining the colour of the annotation labels (default = "#eb4034").}
 
 \item{plot.layout}{Vector of two numeric values defining the plot layout. This is only used when split.by is specified, but is not required (default = NULL).}
+
+\item{nlabels.to.show}{Numeric value defining the number of annotations to show per m/z (default = NULL).}
 }
 \value{
 A mass spectrometry plot displaying mean intensity values

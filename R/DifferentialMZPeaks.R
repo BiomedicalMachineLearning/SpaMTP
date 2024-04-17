@@ -217,6 +217,7 @@ FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir
 #' @param save_to_path Character string defining the full filepath and name of the plot to be saved as.
 #' @param plot.save.width Integer value representing the width of the saved pdf plot (default = 20).
 #' @param plot.save.height Integer value representing the height of the saved pdf plot (default = 20).
+#' @param nlabels.to.show Numeric value defining the number of annotations to show per m/z (default = NULL).
 #'
 #' @returns A heatmap plot of significantly differentially expressed peaks defined in the edgeR ouput object.
 #' @export
@@ -239,7 +240,8 @@ DEPsHeatmap <- function(edgeR_output,
                         plot_annotations_column = NULL,
                         save_to_path = NULL,
                         plot.save.width = 20,
-                        plot.save.height = 20){
+                        plot.save.height = 20,
+                        nlabels.to.show = NULL){
 
   message("Generating Heatmap .......")
 
@@ -261,6 +263,9 @@ DEPsHeatmap <- function(edgeR_output,
     if (is.null(edgeR_output$DEPs[[plot_annotations_column]])){
       warning("There are no annotations present in the edgeR_output object. Run 'annotate.SeuratMALDI()' prior to 'FindAllDEPs' and set annotations = TRUE .....\n Heatmap will plot default m/z values ... ")
     } else{
+      if (!is.null(nlabels.to.show)){
+        degs[[plot_annotations_column]] <- labels_to_show(degs[[plot_annotations_column]], n = nlabels.to.show)
+      }
       rownames(mtx) <- degs[[plot_annotations_column]]
     }
   }
