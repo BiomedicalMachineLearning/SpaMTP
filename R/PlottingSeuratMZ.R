@@ -457,7 +457,7 @@ ImageMZAnnotationPlot <- function(object,
         stored.in.metadata <- TRUE
       }
 
-      binned.data <- bin.mz( data_copy, col_names_to_plot, stored.in.metadata = stored.in.metadata)
+      binned.data <- bin.mz( data_copy, col_names_to_plot, stored.in.metadata = stored.in.metadata, assay = assay, slot = slot)
 
       col_name <- paste0(metabolite,"_binned")
 
@@ -655,7 +655,7 @@ SpatialMZPlot <- function(object,
     for (target_mz in mz_list){
       mz_integer <- as.numeric(strsplit(target_mz, "-")[[1]][2])
 
-      meta_col <- bin.mz(data_copy, plusminus(data_copy, mz_integer, plusminus))
+      meta_col <- bin.mz(data_copy, plusminus(data_copy, mz_integer, plusminus), assay = assay, slot = slot)
 
       col_name <- paste0(target_mz,"_plusminus_", plusminus)
       plot_name <- paste0("mz: ", round(mz_integer, 3)," \u00b1 ", plusminus)
