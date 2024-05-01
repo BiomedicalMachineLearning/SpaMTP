@@ -129,7 +129,7 @@ run_DE <- function(pooled_data, seurat_data, ident, output_dir, run_name, n, log
     res$table$regulate[res$table$logFC>0 & res$table$FDR<0.05] <- "Up"
     res$table$regulate[res$table$logFC<0 & res$table$FDR<0.05] <- "Down"
     de_group_edgeR <- res$table[order(res$table$FDR),]
-    table(de_group_edgeR$regulate)
+    #table(de_group_edgeR$regulate)
 
     if (!(is.null(annotation.column))){
 
