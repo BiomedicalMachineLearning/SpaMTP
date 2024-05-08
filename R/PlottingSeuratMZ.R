@@ -1172,6 +1172,156 @@ MassIntensityPlot <- function (data,
 
 
 
+
+library(plotly)
+library(dplyr)
+
+Plot3DFeature <- function(data,
+                          features,
+                          assays = c("SPT", "SPM"),
+                          slots = "counts",
+                          between.layer.height = 100,
+                          names= NULL,
+                          size = 3,
+                          x.axis.label = "x",
+                          y.axis.label = "y",
+                          z.axis.label = "z",
+                          show.x.ticks = FALSE,
+                          show.y.ticks = FALSE,
+                          show.z.ticks = FALSE,
+                          show.image = FALSE){
+
+  ## handeling of inncorect input legnths
+  if (length(features) < 1 | length(features) > 2){
+    stop("Number of features supplied does not match required length. Either 1 or 2 features must be supplied")
+  }
+  if (length(assays) > 2){
+    stop("Number of assays supplied does not match required length. 2 assays or less must be supplied")
+  }
+  if (length(slots) > 2){
+    stop("Number of slots supplied does not match required length. 2 slots or less must be supplied")
+  }
+
+  ## Handling of only 1 submitted value
+  if (length(features) ==  1 ){
+    features <- c(features, features)
+  }
+  if (length(assays) ==  1 ){
+    assays <- c(assays, assays)
+  }
+  if (length(assays) ==  1 ){
+    assays <- c(assays, assays)
+  }
+
+
+  feature_data <- list()
+
+  i <- 1
+  default_names <- c()
+  for (feature in features) {
+
+    if (feature %in% colnames(data@meta.data)){
+      default_names <- c(default_names, feature)
+      feature_data[[i]] <- data@meta.data[[feature]]
+    } else {
+      if (length(assays) != 0){
+
+        feature_data[[i]] <- tryCatch({test_aligned[[assays[i]]][slots[i]][feature,]},
+                                      error = function(err){
+                                        stop("The feature provided does not exist in the ", assays[i],": ",slots[i], " object. Please provide a value feature")})
+      } else {
+        stop("No assay supplied. The feature ", feature," either does not exist in @meta.data slot, or no matching assay was provided for the gene/feature. Please check SpaMTP object")
+      }
+      default_names <- c(default_names, paste0(feature,"_", assays[i]))
+    }
+    i <- i + 1
+  }
+  if (!(is.null(names))){
+    if (length(names) == 2) {
+      default_names <- names
+    } else {
+      warning("length of names must be == 2. Default names will be used instead ... ")
+    }
+  }
+
+
+  # Create scatter3d traces for each layer
+  trace1 <-
+    plot_ly(GetTissueCoordinates(data),
+            x = ~imagerow,
+            y = ~imagecol,
+            z = rep(0 + between.layer.height, times = dim(GetTissueCoordinates(data))[1]),
+            type = "scatter3d",
+            mode = "markers",
+            name = default_names[1],
+            marker = list(color = feature_data[[1]],
+                          coloraxis = 'coloraxis', size = size)) %>%
+    layout(scene = list(
+      aspectmode = "data",
+      xaxis = list(title = x.axis.label, showticklabels = show.x.ticks),
+      yaxis = list(title = y.axis.label, showticklabels = show.y.ticks),
+      zaxis = list(title = z.axis.label, showticklabels = show.z.ticks)))
+
+  plot <-  trace1 %>% add_trace(GetTissueCoordinates(data),
+                                x = ~imagerow,
+                                y = ~imagecol,
+                                z = rep(0, times = dim(GetTissueCoordinates(data))[1]),
+                                type = "scatter3d",
+                                mode = "markers",
+                                name = default_names[2],
+                                marker = list(color = feature_data[[2]],
+                                              coloraxis = 'coloraxis2')) %>%
+    layout(
+      scene = list(
+        aspectmode = "data",
+        xaxis = list(title = x.axis.label, showticklabels = show.x.ticks),
+        yaxis = list(title = y.axis.label, showticklabels = show.y.ticks),
+        zaxis = list(title = z.axis.label, showticklabels = show.z.ticks)),
+      coloraxis = list(colorbar = list(orientation = "v",
+                                       xanchor ="right",
+                                       x = 0,
+                                       title = list( side = "top",
+                                                     text = default_names[1]
+                                       ))),
+      coloraxis2 = list(colorbar = list(orientation = "v",
+                                        xanchor ="left",
+                                        x = 0,
+                                        title = list( side = "top",
+                                                      text = default_names[2]
+                                        )))
+
+    )
+
+  if (show.image){
+
+    color_matrix <- GetImage(data)$raster
+    row_indices <- rep(seq_len(nrow(color_matrix)), each = ncol(color_matrix))
+    col_indices <- rep(seq_len(ncol(color_matrix)), times = nrow(color_matrix))
+
+    # Flatten the color matrix into a vector
+    colors <- as.vector(color_matrix)
+
+    # Create a data frame
+    df <- data.frame(row = row_indices,
+                     col = col_indices,
+                     color = colors)
+
+
+    plot <- plot %>% add_trace(df,
+                               x = df$row,
+                               y = df$col,
+                               z = rep(0 - between.layer.height, times = dim(df)[1]),
+                               type = "scatter3d",
+                               mode = "markers",
+                               name = "H&E",
+                               marker = list(color = df$color))
+
+  }
+  return(plot)
+
+}
+
+
 ########################################################################################################################################################################################################################
 
 
