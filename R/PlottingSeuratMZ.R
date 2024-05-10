@@ -6,6 +6,8 @@ library(Matrix)
 library(graphics)
 library(stringr)
 library(matter)
+library(plotly)
+library(dplyr)
 
 
 #### SpaMTP Seurat Plotting Functions #################################################################################################################################################################################
@@ -1173,9 +1175,31 @@ MassIntensityPlot <- function (data,
 
 
 
-library(plotly)
-library(dplyr)
 
+
+#' Generates a 3D spatial feature plot from a SpaMTP object
+#'
+#' @param data A SpaMTP Seurat Object.
+#' @param features A character vector specifying the features to be plotted.
+#' @param assays A character vector specifying the Seurat Object assays to be used for plotting (default = c("SPT", "SPM")).
+#' @param slots A character vector specifying the assay slots to be used for plotting (deafult = "counts").
+#' @param between.layer.height A numeric value specifying the height between layers (default = 100).
+#' @param names A character vector specifying custom names for the features. If NULL will use feature names (default = NULL).
+#' @param size A numeric value specifying the size of markers in the plot (default = 3).
+#' @param x.axis.label A character string specifying the label for the x-axis (default = "x").
+#' @param y.axis.label A character string specifying the label for the y-axis (default = "y").
+#' @param z.axis.label A character string specifying the label for the z-axis (default = "z").
+#' @param show.x.ticks A logical value specifying whether to show ticks on the x-axis (default = FALSE).
+#' @param show.y.ticks A logical value specifying whether to show ticks on the y-axis (default = FALSE).
+#' @param show.z.ticks A logical value specifying whether to show ticks on the z-axis (default = FALSE).
+#' @param show.image A logical value specifying whether to overlay an image on the plot (default = FALSE).
+#'
+#'
+#' @return A 3D Plotly plot
+#' @export
+#'
+#' @examples
+#' # Plot3DFeature(data = my_data, features = c("gene1", "gene2"), assays = c("SPT", "SPM"))
 Plot3DFeature <- function(data,
                           features,
                           assays = c("SPT", "SPM"),
