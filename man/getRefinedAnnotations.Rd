@@ -2,7 +2,7 @@
 % Please edit documentation in R/MZAnnotation.R
 \name{getRefinedAnnotations}
 \alias{getRefinedAnnotations}
-\title{Used to subset dataset to only include annotations that have n number of enteries
+\title{Used to subset dataset to only include annotations that have n number of entries
 \itemize{
 \item (i.e. some peaks can have multiple annotations. Peaks which have above n number of annotations assigned will be removed from Seurat Object)
 }}
@@ -14,13 +14,13 @@ getRefinedAnnotations(obj, assay = "Spatial", n = 1)
 
 \item{assay}{Character string defining the Seurat object assay where the annotation data is stored (default = "Spatial").}
 
-\item{n}{Integer defining the number of enteries an annotation can have assigned. Any higher counts will be removed (default = 1).}
+\item{n}{Integer defining the number of entries an annotation can have assigned. Any higher counts will be removed (default = 1).}
 }
 \value{
 Refined Seurat object that only contains annotated mz values that have n number of annotations assigned (per mz value)
 }
 \description{
-Used to subset dataset to only include annotations that have n number of enteries
+Used to subset dataset to only include annotations that have n number of entries
 \itemize{
 \item (i.e. some peaks can have multiple annotations. Peaks which have above n number of annotations assigned will be removed from Seurat Object)
 }

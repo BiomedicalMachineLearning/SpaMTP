@@ -16,7 +16,8 @@ MZVlnPlot(
   bottom.cutoff = NULL,
   top.cutoff = NULL,
   log.data = FALSE,
-  cols = NULL
+  cols = NULL,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ MZVlnPlot(
 \item{log.data}{Boolean value indicating whether to log transform the y-axis values (default = FALSE).}
 
 \item{cols}{Vector of strings defining the colours to use for plotting. This vector should match the length of unique groups (default = NULL).}
+
+\item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = FALSE).}
 }
 \description{
 Generates a Violin plot of Spatial Metabolomic intensity data

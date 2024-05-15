@@ -15,6 +15,3 @@ Character string containing double backslashes around special features
 \description{
 Adds in backslashes required to take into account special using grepl such as brackets and +
 }
-\examples{
-add_backslashes_to_specialfeatures("(L)-Glucose")
-}

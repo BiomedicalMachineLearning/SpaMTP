@@ -103,8 +103,8 @@ subset_SPM <- function(
   }
 
   if (all(cells_check)) {
-    verbose_message(message_text = "Cell subsets are found in all FOVs!", "\n",
-                    "Subsetting object..", verbose = verbose)
+    verbose_message(message_text = paste0("Cell subsets are found in all FOVs!", "\n",
+                    "Subsetting object.."), verbose = verbose)
 
 
     obj_subset %<>% base::subset(cells = cells,

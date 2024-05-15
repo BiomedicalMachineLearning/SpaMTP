@@ -5,7 +5,7 @@
 \title{Saves Seurat Spatial Metabolomic object to files.
 \itemize{
 \item This can be used for saving data for transfer to python Anndata using scanpy.read_10x_mtx()
-\item For saving in R saveRDS() is recomended
+\item For saving in R saveRDS() is recommended
 }}
 \usage{
 saveSeuratData(
@@ -13,7 +13,8 @@ saveSeuratData(
   outdir,
   assay = "Spatial",
   slot = "counts",
-  annotations = FALSE
+  annotations = FALSE,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -26,12 +27,14 @@ saveSeuratData(
 \item{slot}{Character string defining the Seurat assay slot that contains the m/z values directly (default = "counts").}
 
 \item{annotations}{Boolean values defining if the Seurat Object contains annotations to be saved (default = FALSE).}
+
+\item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).}
 }
 \description{
 Saves Seurat Spatial Metabolomic object to files.
 \itemize{
 \item This can be used for saving data for transfer to python Anndata using scanpy.read_10x_mtx()
-\item For saving in R saveRDS() is recomended
+\item For saving in R saveRDS() is recommended
 }
 }
 \examples{

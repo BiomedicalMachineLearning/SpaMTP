@@ -16,24 +16,24 @@ loadSM(
 )
 }
 \arguments{
-\item{name}{Character string of the object name. This should match the filname.}
+\item{name}{Character string of the object name. This should match the filename.}
 
 \item{path}{Character string defining the directory path of the file. This should not include the file name.}
 
-\item{mass.range}{Vector of numeric values indicating the mass range to use for the imported data (defualt = NULL).}
+\item{mass.range}{Vector of numeric values indicating the mass range to use for the imported data (default = NULL).}
 
 \item{resolution}{Numeric value defining the the accuracy to which the m/z values will be binned after reading. This value can be in either "ppm" or "mz" depending on the units type specified (default = 10).}
 
 \item{units}{Character string defining the resolution value unit type, either c("ppm", "mz") (default = "ppm")}
 
-\item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the messsage will be suppressed (default = TRUE)}
+\item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE)}
 
 \item{assay}{Character string describing the name of the new assay which stores the imported data (default = "Spatial").}
 
 \item{...}{Additional arguments passed to the \code{readMSIData} function.}
 }
 \value{
-A new SpaMTP Seurat object contain the imported spatial metabolomic intesnity values
+A new SpaMTP Seurat object contain the imported spatial metabolic intensity values
 }
 \description{
 Loads in spatial metabolomic data directly to a SpaMTP Seurat Object

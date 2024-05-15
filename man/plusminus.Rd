@@ -4,7 +4,7 @@
 \alias{plusminus}
 \title{Identifies all mz peaks within a plus-minus range of the target_mz
 \itemize{
-\item This function uses find_nearest()
+\item This function uses FindNearestMZ()
 }}
 \usage{
 plusminus(data, target_mz, plus_minus)
@@ -22,7 +22,7 @@ Vector of m/z values within plus-minus range of the target mz value
 \description{
 Identifies all mz peaks within a plus-minus range of the target_mz
 \itemize{
-\item This function uses find_nearest()
+\item This function uses FindNearestMZ()
 }
 }
 \examples{

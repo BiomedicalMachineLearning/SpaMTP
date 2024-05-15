@@ -26,7 +26,8 @@ SpatialMZAnnotationPlot(
   interactive = FALSE,
   information = NULL,
   column.name = "all_IsomerNames",
-  plot.exact = TRUE
+  plot.exact = TRUE,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -69,6 +70,8 @@ SpatialMZAnnotationPlot(
 \item{column.name}{Character string defining the column name where the annotations are stored in the slot meta.data (default = "all_IsomerNames").}
 
 \item{plot.exact}{Boolean value describing if to only plot exact matches to the metabolite search terms, else will plot all metabolites which contain serach word in name (default = TRUE).}
+
+\item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).}
 }
 \value{
 A ggplot showing the Spatial representation of expression data of specified m/z values for Spatial data with H&E Image

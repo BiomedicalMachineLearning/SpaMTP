@@ -2,7 +2,7 @@
 % Please edit documentation in R/DifferentialMZPeaks.R
 \name{run_pooling}
 \alias{run_pooling}
-\title{Runs pooling of a merged Seurat Dataset to generate psudo-replicates for each sample
+\title{Runs pooling of a merged Seurat Dataset to generate pseudo-replicates for each sample
 - This function is used by run_edgeR_annotations()}
 \usage{
 run_pooling(data.filt, idents, n, assay, slot, verbose = TRUE)
@@ -12,19 +12,19 @@ run_pooling(data.filt, idents, n, assay, slot, verbose = TRUE)
 
 \item{idents}{A character string defining the idents column to pool the data against.}
 
-\item{n}{An integer defining the amount of psudo-replicates to generate for each sample (default = 3).}
+\item{n}{An integer defining the amount of pseudo-replicates to generate for each sample (default = 3).}
 
 \item{assay}{Character string defining the assay where the mz count data and annotations are stored (default = "Spatial").}
 
 \item{slot}{Character string defining the assay storage slot to pull the relative mz intensity values from (default = "counts").}
 
-\item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the messsage will be suppressed (default = TRUE).}
+\item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).}
 }
 \value{
-A SinglCellExpereiment object which contains pooled (n)-psudo-replicate counts data based on the Seurat Object input
+A SinglCellExpereiment object which contains pooled (n)-pseudo-replicate counts data based on the Seurat Object input
 }
 \description{
-Runs pooling of a merged Seurat Dataset to generate psudo-replicates for each sample
+Runs pooling of a merged Seurat Dataset to generate pseudo-replicates for each sample
 - This function is used by run_edgeR_annotations()
 }
 \examples{

@@ -11,7 +11,8 @@ TMMNormalize(
   normalisation.type = "CPM",
   CPM.scale.factor = 1e+06,
   assay = "Spatial",
-  slot = "counts"
+  slot = "counts",
+  verbose = FALSE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ TMMNormalize(
 \item{assay}{Character string defining the name of the Seurat Object assay to pull the corresponding intensity data from (default = "Spatial").}
 
 \item{slot}{Character string defining the name of the slot within the Seurat Object assay to pull the corresponding intensity data from (default = "counts").}
+
+\item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = FALSE).}
 }
 \value{
 Seurat object with count values normalised and corrected for between categories

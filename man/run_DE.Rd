@@ -37,7 +37,7 @@ run_DE(
 
 \item{assay}{A character string defining the assay where the mz count data and annotations are stored (default = "Spatial").}
 
-\item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the messsage will be suppressed (default = TRUE).}
+\item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).}
 }
 \value{
 A list which contains the relative output requested by the "to_return" variable

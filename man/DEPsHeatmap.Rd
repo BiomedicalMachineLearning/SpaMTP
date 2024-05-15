@@ -35,9 +35,9 @@ DEPsHeatmap(
 
 \item{color}{A vector of colors used in heatmap (default = grDevices::colorRampPalette(c("navy", "white", "red"))(50)).}
 
-\item{cluster_cols}{A boolean values determining if columns should be clustered or hclust object (default = F).}
+\item{cluster_cols}{Boolean value determining if columns should be clustered or hclust object (default = F).}
 
-\item{cluster_rows}{A boolean values determining if rows should be clustered or hclust object (default = T).}
+\item{cluster_rows}{Boolean value determining if rows should be clustered or hclust object (default = T).}
 
 \item{fontsize_row}{A numeric value defining the fontsize of rownames (default = 15).}
 
@@ -45,7 +45,7 @@ DEPsHeatmap(
 
 \item{cutree_cols}{A numeric value defining the number of clusters the columns are divided into, based on the hierarchical clustering(using cutree), if cols are not clustered, the argument is ignored (default = 9).}
 
-\item{silent}{A boolean value indicating if the plot should not be draw (default = TRUE).}
+\item{silent}{Boolean value indicating if the plot should not be draw (default = TRUE).}
 
 \item{plot_annotations_column}{Character string indicating the column name that contains the metabolite annotations to plot. Annotations = TRUE must be used in FindAllDEPs() for edgeR output to include annotations. If plot_annotations_column = NULL, m/z vaues will be plotted (default = NULL).}
 

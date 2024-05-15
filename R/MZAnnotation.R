@@ -180,9 +180,6 @@ getRefinedAnnotations <- function(obj, assay = "Spatial",n = 1){
 #' @param input_string Character string requiring additional backslashes
 #'
 #' @return Character string containing double backslashes around special features
-#'
-#' @examples
-#' add_backslashes_to_specialfeatures("(L)-Glucose")
 add_backslashes_to_specialfeatures <- function(input_string) {
   # Use gsub to replace ( with \\( and ) with \\)
   result_string <- gsub("\\(", "\\\\(", input_string)

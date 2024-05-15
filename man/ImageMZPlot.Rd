@@ -40,13 +40,14 @@ ImageMZPlot(
   combine = TRUE,
   coord.fixed = TRUE,
   assay = "Spatial",
-  slot = "data"
+  slot = "data",
+  verbose = TRUE
 )
 }
 \arguments{
 \item{object}{Seurat Spatial Metabolomic Object to Visualise.}
 
-\item{mzs}{Vector of numeric m/z values to plot (e.g. c(400.1578, 300.1)). The function find_nearest() is used to automatically find the nearest m/z value to the ones given.}
+\item{mzs}{Vector of numeric m/z values to plot (e.g. c(400.1578, 300.1)). The function FindNearestMZ() is used to automatically find the nearest m/z value to the ones given.}
 
 \item{plusminus}{Numeric value defining the range/threshold either side of the target peak/peaks to be binned together for plotting (default = NULL).}
 
@@ -101,6 +102,8 @@ ImageMZPlot(
 \item{assay}{Character string indicating which Seurat object assay to pull data form (default = "Spatial").}
 
 \item{slot}{Character string indicating the assay slot to use to pull expression values form (default = "counts").}
+
+\item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).}
 }
 \value{
 A ggplot showing the Spatial representation of expression data of specified m/z values

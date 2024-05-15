@@ -24,13 +24,14 @@ SpatialMZPlot(
   image.alpha = 1,
   stroke = 0.25,
   interactive = FALSE,
-  information = NULL
+  information = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
 \item{object}{Seurat Spatial Metabolomic Object to Visualise.}
 
-\item{mzs}{Vector of numeric m/z values to plot (e.g. c(400.1578, 300.1)). The function find_nearest() is used to automatically find the nearest m/z value to the ones given.}
+\item{mzs}{Vector of numeric m/z values to plot (e.g. c(400.1578, 300.1)). The function FindNearestMZ() is used to automatically find the nearest m/z value to the ones given.}
 
 \item{plusminus}{Numeric value defining the range/threshold either side of the target peak/peaks to be binned together for plotting (default = NULL).}
 
@@ -62,7 +63,9 @@ SpatialMZPlot(
 
 \item{interactive}{Boolean value of if to launch an interactive SpatialDimPlot or SpatialFeaturePlot session, see Seurat::ISpatialDimPlot() or Seurat::ISpatialFeaturePlot() for more details (default = FALSE).}
 
-\item{information}{An optional dataframe or matrix of extra infomation to be displayed on hover (default = NULL).}
+\item{information}{An optional dataframe or matrix of extra information to be displayed on hover (default = NULL).}
+
+\item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).}
 }
 \value{
 A ggplot showing the Spatial representation of expression data of specified m/z values for Spatial data with H&E Image

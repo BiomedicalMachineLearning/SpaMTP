@@ -12,7 +12,7 @@ labels_to_show(annotation_column, n = 3)
 \item{n}{Numeric value defining the number of annotations to keep (default = 3).}
 }
 \value{
-Vector contating the first n number of annotations
+Vector containing the first n number of annotations
 }
 \description{
 Filters the annotation list to only include the first n number of annotations per m/z

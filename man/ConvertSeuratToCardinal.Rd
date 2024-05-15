@@ -24,10 +24,10 @@ ConvertSeuratToCardinal(
 
 \item{feature.metadata}{Boolean value of whether the Seurat Object contains annotations stored in the feature metadata slot of the specified assay (default = FALSE).}
 
-\item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the messsage will be suppressed (default = TRUE).}
+\item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).}
 }
 \value{
-A Cardinal object containing intensity values and feature metadata (anntoations)
+A Cardinal object containing intensity values and feature metadata (annotations)
 }
 \description{
 Converts a Seurat object to a Cardinal object, including annotations and metadata

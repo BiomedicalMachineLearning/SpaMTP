@@ -11,7 +11,8 @@ statPlot(
   slot = "counts",
   bottom.cutoff = NULL,
   top.cutoff = NULL,
-  log.data = FALSE
+  log.data = FALSE,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ statPlot(
 \item{top.cutoff}{Numeric value defining the percent of data to exclude for the upper end of the distribution. A top.cutoff = 0.05 will remove the top 5\% of data point (default = NULL).}
 
 \item{log.data}{Boolean value indicating whether to log transform the y-axis values (default = FALSE).}
+
+\item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = FALSE).}
 }
 \value{
 A data.frame containing the relative transformed and sum counts required for various QC plots

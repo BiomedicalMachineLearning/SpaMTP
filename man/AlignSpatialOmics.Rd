@@ -4,7 +4,7 @@
 \alias{AlignSpatialOmics}
 \title{Converts and aggregates Spatial Metabolomic (MALDI) data to corresponding Spatial Transcriptomics (Visium) spots.
 \itemize{
-\item This function uses generate_new_MALDI_counts() and increase_MALDI_res()
+\item This function uses generate_new_SM_counts() and increase_SM_res()
 }}
 \usage{
 AlignSpatialOmics(
@@ -21,7 +21,7 @@ AlignSpatialOmics(
   ST.assay = "Spatial",
   ST.layers = c("counts"),
   new_SpT.assay = "SPT",
-  verbose = FALSE
+  verbose = TRUE
 )
 }
 \arguments{
@@ -29,7 +29,7 @@ AlignSpatialOmics(
 
 \item{ST.data}{A Seurat object representing the Visium Spatial Transcriptomics data.}
 
-\item{res_increase}{Integer value defining the factor by which the resolution of MALDI spots should be increased before assignment. It should be either 4 or 9, see increase_MALDI_res() documentation for specifics (Default = NULL).}
+\item{res_increase}{Integer value defining the factor by which the resolution of MALDI spots should be increased before assignment. It should be either 4 or 9, see increase_SM_res() documentation for specifics (Default = NULL).}
 
 \item{annotations}{Boolean value indicating if the Spatial Metabolomics (MALDI) Seurat object contains annotations assigned to m/z values (default = FALSE).}
 
@@ -59,7 +59,7 @@ A Seurat object with the Spatial Metabolomic data assigned to equivalent Spatial
 \description{
 Converts and aggregates Spatial Metabolomic (MALDI) data to corresponding Spatial Transcriptomics (Visium) spots.
 \itemize{
-\item This function uses generate_new_MALDI_counts() and increase_MALDI_res()
+\item This function uses generate_new_SM_counts() and increase_SM_res()
 }
 }
 \examples{

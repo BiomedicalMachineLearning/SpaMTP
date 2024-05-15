@@ -23,7 +23,7 @@ FindAllDEPs(
 
 \item{ident}{A character string defining the metadata column or groups to compare mz values between.}
 
-\item{n}{An integer that defines the number of psudo-replicates (pools) per sample (default = 3).}
+\item{n}{An integer that defines the number of pseudo-replicates (pools) per sample (default = 3).}
 
 \item{logFC_threshold}{A numeric value indicating the logFC threshold to use for defining significant genes (default = 1.2).}
 
@@ -37,7 +37,7 @@ FindAllDEPs(
 
 \item{slot}{Character string defining the assay storage slot to pull the relative mz intensity values from. Note: EdgeR requires raw counts, all values must be positive (default = "counts").}
 
-\item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the messsage will be suppressed (default = TRUE).}
+\item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).}
 }
 \value{
 Returns an list() contains the EdgeR DE results. Pseudo-bulk counts are stored in $counts and DEPs are in $DEPs.
