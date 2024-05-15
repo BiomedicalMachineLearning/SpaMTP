@@ -257,6 +257,7 @@ AlignSpatialOmics <- function(SM.data, ST.data, res_increase = NULL, annotations
 
   new_SM_metadata <- SM.data@meta.data
 
+  ## Increases resolution of the SM data (This will shift the centroid position close to each Visium spot)
   if (!is.null(res_increase)) {
     if (res_increase == 4 || res_increase == 9) {
       new_SM_metadata <- increase_SM_res(SM.data, res_increase = 4, verbose = verbose)
@@ -267,29 +268,54 @@ AlignSpatialOmics <- function(SM.data, ST.data, res_increase = NULL, annotations
 
   verbose_message(message_text = "Assigning MALDI to Visium Spots ... \n", verbose = verbose)
 
+  ## Get coordinates of ST data
   img <- ST.data@images[[slice]]
 
   image_data <- ST.data@images[[slice]]@coordinates
   image_data$imagerow_sf <- image_data$imagerow * ST.data@images[[slice]]@scale.factors[[img_res]]
   image_data$imagecol_sf <- image_data$imagecol * ST.data@images[[slice]]@scale.factors[[img_res]]
 
+  ## Find average distance between the spot coordinates and their true coordinates in pixels
   dis <- abs((stats::lm(image_data$imagerow_sf ~image_data$col))$coefficients[[2]])
-  radius <- 2 * dis / 100 * 55 / 2
 
+  radius <- 2 * dis / 100 * 55 / 2 #radius is used to determine the area for each spot to bin pixel data to
+
+
+  ## find which pixels fall into each spot radius
   new_coords <- as.matrix(new_SM_metadata[, c("new_y_coord", "new_x_coord")])
   query_coords <- as.matrix(image_data[, c("imagerow_sf", "imagecol_sf")])
   v_points <- RANN::nn2(new_coords,query_coords, treetype = "kd",searchtype = "radius", radius = radius)$nn.idx
 
+
+  ## Constructing a df to store new metadata based on binned pixels
   obs_ <- data.frame(
     index = rownames(new_SM_metadata),
     nFeature_Spatial = new_SM_metadata$nFeature_Spatial,
     old_barcode = new_SM_metadata$old_barcode,
     Visium_spot = "Not_assigned")
 
-  for (i in 1:nrow(v_points)) {
-    obs_[v_points[i,], "Visium_spot"] <- rownames(ST.data@meta.data)[i]
-  }
 
+  ## Generating a new df which contains the corresponding visium spot for each SM pixel
+  new_df <- lapply(1:nrow(v_points), function(i){
+    lapply(v_points[i,], function(x){
+      if (as.numeric(x) != 0){
+        if (obs_[x,"Visium_spot"] == "Not_assigned"){
+          obs_[x,"Visium_spot"] <- rownames(ST.data@meta.data)[i]
+          obs_[x,]
+        } else {
+          obs_[length(obs_$Visium_spot)+1,] <- obs_[x,]
+          obs_[length(obs_$Visium_spot)+1,] <- rownames(ST.data@meta.data)[i]
+          obs_[length(obs_$Visium_spot)+1,]
+        }
+      }
+    })
+  })
+
+  obs_ <- dplyr::bind_rows(
+    new_df
+  )
+
+  ## Tidying up df to create Seurat object
   obs_x <- obs_[, c("Visium_spot", "nFeature_Spatial", "old_barcode")]
 
   obs_x <- obs_x %>%
