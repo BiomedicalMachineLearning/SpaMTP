@@ -14,17 +14,17 @@ library(grDevices)
 #### SpaMTP Differential Peaks Analysis Functions ########################################################################################################################################################################################
 
 
-#' Runs pooling of a merged Seurat Dataset to generate psudo-replicates for each sample
+#' Runs pooling of a merged Seurat Dataset to generate pseudo-replicates for each sample
 #'       - This function is used by run_edgeR_annotations()
 #'
 #' @param data.filt A Seurat Object containing count values for pooling.
 #' @param idents A character string defining the idents column to pool the data against.
-#' @param n An integer defining the amount of psudo-replicates to generate for each sample (default = 3).
+#' @param n An integer defining the amount of pseudo-replicates to generate for each sample (default = 3).
 #' @param assay Character string defining the assay where the mz count data and annotations are stored (default = "Spatial").
 #' @param slot Character string defining the assay storage slot to pull the relative mz intensity values from (default = "counts").
-#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the messsage will be suppressed (default = TRUE).
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
 #'
-#' @returns A SinglCellExpereiment object which contains pooled (n)-psudo-replicate counts data based on the Seurat Object input
+#' @returns A SinglCellExpereiment object which contains pooled (n)-pseudo-replicate counts data based on the Seurat Object input
 #' @export
 #'
 #' @examples
@@ -81,7 +81,7 @@ run_pooling <- function(data.filt, idents, n, assay, slot, verbose = TRUE) {
 #' @param logFC_threshold A numeric value indicating the logFC threshold to use for defining significant genes (default = 1.2).
 #' @param annotation.column Character string defining the column where annotation information is stored in the assay metadata. This requires AnnotateSeuratMALDI() to be run where the default column to store annotations is "all_IsomerNames" (default = "None").
 #' @param assay A character string defining the assay where the mz count data and annotations are stored (default = "Spatial").
-#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the messsage will be suppressed (default = TRUE).
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
 #'
 #' @returns A list which contains the relative output requested by the "to_return" variable
 #' @export
@@ -160,14 +160,14 @@ run_DE <- function(pooled_data, seurat_data, ident, output_dir, run_name, n, log
 #'
 #' @param data A Seurat object containing mz values for differential expression analysis.
 #' @param ident A character string defining the metadata column or groups to compare mz values between.
-#' @param n An integer that defines the number of psudo-replicates (pools) per sample (default = 3).
+#' @param n An integer that defines the number of pseudo-replicates (pools) per sample (default = 3).
 #' @param logFC_threshold A numeric value indicating the logFC threshold to use for defining significant genes (default = 1.2).
 #' @param DE_output_dir A character string defining the directory path for all output files to be stored. This path must a new directory. Else, set to NULL as default.
 #' @param run_name A character string defining the title of this DE analysis that will be used when saving DEPs to .csv file (default = 'FindAllDEPs').
 #' @param annotation.column Character string defining the column where annotation information is stored in the assay metadata. This requires AnnotateSeuratMALDI() to be run where the default column to store annotations is "all_IsomerNames" (default = "None").
 #' @param assay A character string defining the assay where the mz count data and annotations are stored (default = "Spatial").
 #' @param slot Character string defining the assay storage slot to pull the relative mz intensity values from. Note: EdgeR requires raw counts, all values must be positive (default = "counts").
-#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the messsage will be suppressed (default = TRUE).
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
 #'
 #' @returns Returns an list() contains the EdgeR DE results. Pseudo-bulk counts are stored in $counts and DEPs are in $DEPs.
 #' @export
@@ -207,12 +207,12 @@ FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir
 #' @param FDR_threshold An integer that defines the FDR_threshold to use for defining most significant results (default = 0.05).
 #' @param scale A character string indicating if the values should be centered and scaled in either the row direction or the column direction, or none. Corresponding values are "row", "column" and "none"
 #' @param color A vector of colors used in heatmap (default = grDevices::colorRampPalette(c("navy", "white", "red"))(50)).
-#' @param cluster_cols A boolean values determining if columns should be clustered or hclust object (default = F).
-#' @param cluster_rows A boolean values determining if rows should be clustered or hclust object (default = T).
+#' @param cluster_cols Boolean value determining if columns should be clustered or hclust object (default = F).
+#' @param cluster_rows Boolean value determining if rows should be clustered or hclust object (default = T).
 #' @param fontsize_row A numeric value defining the fontsize of rownames (default = 15).
 #' @param fontsize_col A numeric value defining the fontsize of colnames (default = 15).
 #' @param cutree_cols A numeric value defining the number of clusters the columns are divided into, based on the hierarchical clustering(using cutree), if cols are not clustered, the argument is ignored (default = 9).
-#' @param silent A boolean value indicating if the plot should not be draw (default = TRUE).
+#' @param silent Boolean value indicating if the plot should not be draw (default = TRUE).
 #' @param plot_annotations_column Character string indicating the column name that contains the metabolite annotations to plot. Annotations = TRUE must be used in FindAllDEPs() for edgeR output to include annotations. If plot_annotations_column = NULL, m/z vaues will be plotted (default = NULL).
 #' @param save_to_path Character string defining the full filepath and name of the plot to be saved as.
 #' @param plot.save.width Integer value representing the width of the saved pdf plot (default = 20).
@@ -242,8 +242,6 @@ DEPsHeatmap <- function(edgeR_output,
                         plot.save.width = 20,
                         plot.save.height = 20,
                         nlabels.to.show = NULL){
-
-  message("Generating Heatmap .......")
 
   degs <- edgeR_output$DEPs
   degs$gene <- rownames(degs)

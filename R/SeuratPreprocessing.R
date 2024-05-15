@@ -56,13 +56,14 @@ NormalizeSeuratData <- function(data, normalisation.type = 'TIC', scale.factor =
 #' @param CPM.scale.factor Numeric value that sets the scale factor for pixel/spot level normalization. Following normalization the total intensity value across each pixel will equal this value (default = 1e6).
 #' @param assay Character string defining the name of the Seurat Object assay to pull the corresponding intensity data from (default = "Spatial").
 #' @param slot  Character string defining the name of the slot within the Seurat Object assay to pull the corresponding intensity data from (default = "counts").
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = FALSE).
 #'
 #' @return Seurat object with count values normalised and corrected for between categories
 #' @export
 #'
 #' @examples
 #' # norm.data <- TMMNormalize(SeuratObj, ident = "samples", refIdent = "sample1", normalisation.type = "CPM")
-TMMNormalize <- function(combined.obj, ident, refIdent, normalisation.type = "CPM", CPM.scale.factor = 1e6, assay = "Spatial", slot = "counts") {
+TMMNormalize <- function(combined.obj, ident, refIdent, normalisation.type = "CPM", CPM.scale.factor = 1e6, assay = "Spatial", slot = "counts", verbose = FALSE) {
 
   data_list <- list()
   Seurat::Idents(combined.obj) <- ident
@@ -88,11 +89,8 @@ TMMNormalize <- function(combined.obj, ident, refIdent, normalisation.type = "CP
 
 
   for (name in unique(Idents(combined.obj))){
-    suppressWarnings({
-      suppressMessages({
-        sub <- subset_SPM(combined.obj, idents = name)
-      })
-    })
+
+        sub <- subset_SPM(combined.obj, idents = name, verbose = verbose)
 
     data_list[[name]] <- sub
   }
@@ -132,23 +130,21 @@ return(merged.data)
 #' @param bottom.cutoff Numeric value defining the percent of data to exclude for the lower end of the distribution. A bottom.cutoff = 0.05 will remove the bottom 5% of data point (default = NULL).
 #' @param top.cutoff Numeric value defining the percent of data to exclude for the upper end of the distribution. A top.cutoff = 0.05 will remove the top 5% of data point (default = NULL).
 #' @param log.data Boolean value indicating whether to log transform the y-axis values (default = FALSE).
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = FALSE).
+
 #'
 #' @return A data.frame containing the relative transformed and sum counts required for various QC plots
 #' @export
 #'
 #' @examples
 #' # df <- statPlot(SeuratObj, group.by = "sample", bottom.cutoff = 0.05, top.cutoff = 0.05, log.data = TRUE)
-statPlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "counts", bottom.cutoff = NULL, top.cutoff = NULL, log.data = FALSE){
+statPlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "counts", bottom.cutoff = NULL, top.cutoff = NULL, log.data = FALSE, verbose = FALSE){
 
   data_list <- list()
   if (!(is.null(group.by))){
     Seurat::Idents(seurat.obj) <- group.by
     for (ident in unique(Seurat::Idents(seurat.obj))){
-      suppressWarnings({
-        suppressMessages({
-          sub <- subset_SPM(seurat.obj, idents = ident)
-        })
-      })
+          sub <- subset_SPM(seurat.obj, idents = ident, verbose = verbose)
 
       data_list[[ident]] <- sub
     }
@@ -174,7 +170,8 @@ statPlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "co
       dplyr::mutate(bottom_cutoff = stats::quantile(x, bottom.cutoff))
 
     df2 <- df2 %>%  dplyr::group_by(var) %>%dplyr::filter(x >= bottom_cutoff)
-    message(paste0("Removing bottom ", bottom.cutoff*100, "% of datapoints"))
+
+    verbose_message(message_text = paste0("Removing bottom ", bottom.cutoff*100, "% of datapoints"), verbose = verbose)
   }
 
   if (!(is.null(top.cutoff))){
@@ -183,7 +180,8 @@ statPlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "co
       dplyr::mutate(top_cutoff = quantile(x, 1- top.cutoff))
 
     df2 <- df2 %>%  dplyr::group_by(var) %>% dplyr::filter(x <= top_cutoff)
-    message(paste0("Removing top ", top.cutoff*100, "% of datapoints"))
+
+    verbose_message(message_text = paste0("Removing top ", top.cutoff*100, "% of datapoints"), verbose = verbose)
 
   }
 
@@ -213,19 +211,21 @@ statPlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "co
 #' @param bins number of bins to group
 #' @param log.data Boolean value indicating whether to log transform the y-axis values (default = FALSE).
 #' @param cols Vector of strings defining the colours to use for plotting. This vector should match the length of unique groups (default = NULL).
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = FALSE).
 #'
 #' @export
 #'
 #' @examples
 #' # MZRidgePlot(SeuratObj, group.by = "sample")
-MZRidgePlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "counts", title = "RidgePlot", x.lab = "var", y.lab = "intensity", bottom.cutoff = NULL, top.cutoff = NULL, bins = 1000,log.data = FALSE, cols = NULL){
+MZRidgePlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "counts", title = "RidgePlot", x.lab = "var", y.lab = "intensity", bottom.cutoff = NULL, top.cutoff = NULL, bins = 1000,log.data = FALSE, cols = NULL, verbose = FALSE){
   data <- statPlot(seurat.obj = seurat.obj,
                    group.by = group.by,
                    assay = assay,
                    slot = slot,
                    bottom.cutoff = bottom.cutoff,
                    top.cutoff = top.cutoff,
-                   log.data = log.data)
+                   log.data = log.data,
+                   verbose = verbose)
 
   ridge_plot <- ggplot2::ggplot(data, ggplot2::aes(y=var, x=x,  fill=var)) +
     ggridges::geom_density_ridges(alpha=0.6, stat="binline", bins=bins) +
@@ -254,12 +254,13 @@ MZRidgePlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = 
 #' @param top.cutoff Numeric value defining the percent of data to exclude for the upper end of the distribution. A top.cutoff = 0.05 will remove the top 5% of data point (default = NULL).
 #' @param log.data Boolean value indicating whether to log transform the y-axis values (default = FALSE).
 #' @param cols Vector of strings defining the colours to use for plotting. This vector should match the length of unique groups (default = NULL).
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = FALSE).
 #'
 #' @export
 #'
 #' @examples
 #' # MZVlnPlot(SeuratObj, group.by = "sample",  bottom.cutoff = 0.05)
-MZVlnPlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "counts", title = "VlnPlot", x.lab = "var", y.lab = "intensity", show.points = TRUE, bottom.cutoff = NULL, top.cutoff = NULL,log.data = FALSE, cols = NULL){
+MZVlnPlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "counts", title = "VlnPlot", x.lab = "var", y.lab = "intensity", show.points = TRUE, bottom.cutoff = NULL, top.cutoff = NULL,log.data = FALSE, cols = NULL, verbose = FALSE){
 
   data <- statPlot(seurat.obj = seurat.obj,
                    group.by = group.by,
@@ -267,7 +268,8 @@ MZVlnPlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "c
                    slot = slot,
                    bottom.cutoff = bottom.cutoff,
                    top.cutoff = top.cutoff,
-                   log.data = log.data)
+                   log.data = log.data,
+                   verbose = verbose)
 
   violin_plot <- ggplot2::ggplot(data, ggplot2::aes(x = var , y = x, fill = var)) +
     ggplot2::geom_violin() +
@@ -300,19 +302,21 @@ MZVlnPlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "c
 #' @param top.cutoff Numeric value defining the percent of data to exclude for the upper end of the distribution. A top.cutoff = 0.05 will remove the top 5% of data point (default = NULL).
 #' @param log.data Boolean value indicating whether to log transform the y-axis values (default = FALSE).
 #' @param cols Vector of strings defining the colours to use for plotting. This vector should match the length of unique groups (default = NULL).
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = FALSE).
 #'
 #' @export
 #'
 #' @examples
 #' # MZBoxPlot(SeuratObj, group.by = "sample",  bottom.cutoff = 0.05)
-MZBoxPlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "counts", title = "BoxPlot", x.lab = "var", y.lab = "intensity", show.points = TRUE, bottom.cutoff = NULL, top.cutoff = NULL,log.data = FALSE, cols = NULL){
+MZBoxPlot <- function (seurat.obj, group.by = NULL, assay = "Spatial", slot = "counts", title = "BoxPlot", x.lab = "var", y.lab = "intensity", show.points = TRUE, bottom.cutoff = NULL, top.cutoff = NULL,log.data = FALSE, cols = NULL, verbose = FALSE){
   data <- statPlot(seurat.obj = seurat.obj,
                    group.by = group.by,
                    assay = assay,
                    slot = slot,
                    bottom.cutoff = bottom.cutoff,
                    top.cutoff = top.cutoff,
-                   log.data = log.data)
+                   log.data = log.data,
+                   verbose = verbose)
 
   box_plot <- ggplot2::ggplot(data, ggplot2::aes(x = var , y = x, fill = var)) +
     ggplot2::geom_boxplot() +

@@ -11,7 +11,7 @@ verbose_message <- function(message_text, verbose) {
 
 
 
-#cite: https://github.com/alikhuseynov/add-on_R/blob/develop/R/subset_obj_seurat_v2.R
+#Functiona modified from: https://github.com/alikhuseynov/add-on_R/blob/develop/R/subset_obj_seurat_v2.R
 
 #'@importFrom magrittr %>% %<>%
 NULL
@@ -28,6 +28,7 @@ NULL
 #' @param features A vector of feature names or indices to keep
 #' @param Update.slots If to update slots of an object
 #' @param Update.object If to update final object, default to TRUE.
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
 #' @param ... Arguments passed to \code{subset()} and other methods
 #'
 #' @return A subset Seurat object
@@ -43,15 +44,16 @@ subset_SPM <- function(
     features = NULL,
     Update.slots = TRUE,
     Update.object = TRUE,
+    verbose = TRUE,
     ...)
 {
 
   if (Update.slots) {
-    message("Updating object slots..")
+    verbose_message(message_text = "Updating object slots..", verbose = verbose)
     object %<>% UpdateSlots()
   }
 
-  message("Cloing object..")
+  verbose_message(message_text = "Cloing object..", verbose = verbose)
   obj_subset <- object
 
   # sanity check - use only cell ids (no indices)
@@ -60,11 +62,11 @@ subset_SPM <- function(
   }
 
   if (!missing(subset) || !is.null(idents)) {
-    message("Extracting cells matched to `subset` and/or `idents`")
+    verbose_message(message_text = "Extracting cells matched to `subset` and/or `idents`", verbose = verbose)
   }
 
   if (class(obj_subset) == "FOV") {
-    message("object class is `FOV` ")
+    verbose_message(message_text = "object class is `FOV` ", verbose = verbose)
     cells <- Cells(obj_subset)
   } else if (!class(obj_subset) == "FOV" && !missing(subset)) {
     subset <- enquo(arg = subset)
@@ -87,11 +89,12 @@ subset_SPM <- function(
 
   # added support for object class `FOV`
   if (class(obj_subset) == "FOV") {
-    message("Matching cells for object class `FOV`..")
+    verbose_message(message_text = "Matching cells for object class `FOV`..", verbose = verbose)
     cells_check <- any(obj_subset %>% Cells %in% cells)
   } else {
     # check if cells are present in all FOV
-    message("Matching cells in FOVs..")
+    verbose_message(message_text = "Matching cells in FOVs..", verbose = verbose)
+
     cells_check <-
       lapply(Images(obj_subset) %>% seq,
              function(i) {
@@ -100,14 +103,17 @@ subset_SPM <- function(
   }
 
   if (all(cells_check)) {
-    message("Cell subsets are found in all FOVs!", "\n",
-            "Subsetting object..")
+    verbose_message(message_text = "Cell subsets are found in all FOVs!", "\n",
+                    "Subsetting object..", verbose = verbose)
+
+
     obj_subset %<>% base::subset(cells = cells,
                                  idents = idents,
                                  features = features,
                                  ...)
     # subset FOVs
-    message("Subsetting FOVs..")
+    verbose_message(message_text = "Subsetting FOVs..", verbose = verbose)
+
     fovs <-
       lapply(Images(obj_subset) %>% seq, function(i) {
         base::subset(x = obj_subset[[Images(obj_subset)[i]]],
@@ -125,8 +131,10 @@ subset_SPM <- function(
     fovs <-
       lapply(Images(obj_subset) %>% seq, function(i) {
         if (any(obj_subset[[Images(obj_subset)[i]]][["centroids"]] %>% Cells %in% cells)) {
-          message("Cell subsets are found only in FOV: ", "\n", Images(obj_subset)[i])
-          message("Subsetting Centroids..")
+
+          verbose_message(message_text = paste0("Cell subsets are found only in FOV: ", "\n", Images(obj_subset)[i]), verbose = verbose)
+          verbose_message(message_text = "Subsetting Centroids..", verbose = verbose)
+
           base::subset(x = obj_subset[[Images(obj_subset)[i]]],
                        cells = cells,
                        idents = idents,
@@ -135,13 +143,16 @@ subset_SPM <- function(
         }
       })
     # remove FOVs with no matching cells
-    message("Removing FOVs where cells are NOT found: ", "\n",
-            paste0(Images(object)[which(!cells_check == TRUE)], "\n"))
+
+    verbose_message(message_text = paste0("Removing FOVs where cells are NOT found: ", "\n",
+                    paste0(Images(object)[which(!cells_check == TRUE)], "\n")), verbose = verbose)
+
     # replace subsetted FOVs
     for (i in fovs %>% seq) { obj_subset[[Images(object)[i]]] <- fovs[[i]] }
 
     # subset final object
-    message("..subset final object")
+    verbose_message(message_text = "..subset final object", verbose = verbose)
+
     obj_subset %<>%
       base::subset(cells = cells,
                    idents = idents,
@@ -150,10 +161,11 @@ subset_SPM <- function(
   }
 
   if (Update.object && !class(obj_subset) == "FOV") {
-    message("Updating object..")
+    verbose_message(message_text = "Updating object..", verbose = verbose)
+
     obj_subset %<>% UpdateSeuratObject() }
 
-  message("Object is ready!")
+  verbose_message(message_text = "Object is ready!", verbose = verbose)
   return(obj_subset)
 
 }

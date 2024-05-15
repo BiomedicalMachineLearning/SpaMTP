@@ -47,7 +47,7 @@ split_pixel <- function(center_point, pixel_radius, pseudo_n = 4, pixel_shape = 
                           -(R - dis) + x, R - dis + y, -(R - dis) + x, -(R - dis) + y), ncol = 2, byrow = TRUE)
 
     } else {
-      # print("Assuming Pixel is in the shape of a square, if not set 'pixel_shape = 'circle'")
+
       r <- (pixel_radius * 2) / (sqrt(pseudo_n) * 2)
 
       if (pseudo_n == 4) {
@@ -102,15 +102,16 @@ split_pixel <- function(center_point, pixel_radius, pseudo_n = 4, pixel_shape = 
 #'
 #' @param SM.data A Seurat Spatial Metabolomics object containing spatial metabolomic information. It should have 'x_coord' and 'y_coord' columns representing spot coordinates.
 #' @param res_increase An integer specifying the factor by which the resolution should be increased. res_increase = 4, will generates 4 times as many spots in each dimension (default = 4).
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
 #'
 #' @returns A data frame with increased resolution metadata, containing additional columns 'new_x_coord', 'new_y_coord', 'new_barcode', and 'old_barcode'. The 'new_x_coord' and 'new_y_coord' columns represent the coordinates of the pseudo-high-resolution spots. The 'new_barcode' column is a unique identifier for each pseudo-high-resolution spot, and 'old_barcode' retains the original spot identifier.
-#' @export
 #'
 #' @examples
 #' ## Increase resolution of MALDI dataset by a factor of 4
-#' # increased_data <- increase_MALDI_res(SeuratObj, res_increase = 4)
-increase_MALDI_res <- function(SM.data, res_increase = 4) {
-  message("Increasing the resolution of MALDI Pixel Data ...\n")
+#' # increased_data <- increase_SM_res(SeuratObj, res_increase = 4)
+increase_SM_res <- function(SM.data, res_increase = 4, verbose = TRUE) {
+
+  verbose_message(message_text = "Increasing the resolution of MALDI Pixel Data ...\n", verbose = verbose)
 
   # Assuming SM.data$obs has columns 'x_coord' and 'y_coord'
 
@@ -130,7 +131,7 @@ increase_MALDI_res <- function(SM.data, res_increase = 4) {
   # Find the median distance
   median_distance <- stats::median(distances)
 
-  message("Median Distance Between MALDI Spots: ", median_distance, "\n")
+  verbose_message(message_text = paste0("Median Distance Between MALDI Spots: ", median_distance, "\n"), verbose = verbose)
 
   # Generates new obs matrix with higher resolution
   new_meta_data <- data.frame(matrix(NA, nrow = nrow(SM.data@meta.data) * 4, ncol = ncol(SM.data@meta.data)))
@@ -138,7 +139,8 @@ increase_MALDI_res <- function(SM.data, res_increase = 4) {
 
   total_spots = nrow(SM.data@meta.data)
 
-  message("Generating psuedo-highres MALDI data: ")
+  verbose_message(message_text = "Generating psuedo-highres MALDI data: ", verbose = verbose)
+
 
   pb <- utils::txtProgressBar(min = 0,      # Minimum value of the progress bar
                        max = total_spots, # Maximum value of the progress bar
@@ -169,26 +171,27 @@ increase_MALDI_res <- function(SM.data, res_increase = 4) {
 #' Generate new MALDI counts matrix for equivalent Visium spots
 #'    - This function takes an original Spatial Metabolomics counts matrix, along with a metadata table (`obs_x`) containing information about the correspondence between MALDI and Visium spots. It generates a new counts matrix where each MALDI spot has an associated aggregated count based on its corresponding Visium spots.
 #'
-#' @param original_MALDI A Seurat Spatial Metabolomics object containing the original counts matrix
+#' @param original_SM A Seurat Spatial Metabolomics object containing the original counts matrix
 #' @param obs_x A metadata table with information about the correspondence between MALDI and Visium spots. It should have columns 'Visium_spot' and 'MALDI_barcodes'.
 #' @param assay Character string defining the Seurat assay that contains the annotated counts and metadata corresponding to the m/z values.
 #' @param slots Vector of character strings describing which slots to pull the relative intensity values from (default = c("counts", "data")).
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
 #'
 #' @return A data frame representing the new counts matrix for equivalent Visium spots,where each row corresponds to a Visium spot and columns correspond to m/z features.
 #' @export
 #'
 #' @examples
 #' ## Generate new MALDI counts matrix for equivalent Visium spots
-#' # new_counts <- generate_new_MALDI_counts(SeuratObj, obs_x, assay = "Spatial")
-generate_new_MALDI_counts <- function(original_MALDI, obs_x, assay, slots) {
+#' # new_counts <- generate_new_SM_counts(SeuratObj, obs_x, assay = "Spatial")
+generate_new_SM_counts <- function(original_SM, obs_x, assay, slots, verbose = TRUE) {
 
-  message("Merging MALDI counts ... ")
+  verbose_message(message_text = "Merging MALDI counts ... ", verbose = verbose)
 
   data_list <- list()
   new_data_list <- list()
 
   for (slot in slots) {
-    data_list[[slot]] <- t(as.data.frame(original_MALDI[[assay]][slot]))
+    data_list[[slot]] <- t(as.data.frame(original_SM[[assay]][slot]))
     new_data_list[[slot]] <- data.frame(matrix(NA, nrow = 0, ncol = ncol(data_list[[slot]])))
     colnames(new_data_list[[slot]]) <- colnames(data_list[[slot]])
   }
@@ -226,12 +229,12 @@ generate_new_MALDI_counts <- function(original_MALDI, obs_x, assay, slots) {
 
 
 #' Converts and aggregates Spatial Metabolomic (MALDI) data to corresponding Spatial Transcriptomics (Visium) spots.
-#'    - This function uses generate_new_MALDI_counts() and increase_MALDI_res()
+#'    - This function uses generate_new_SM_counts() and increase_SM_res()
 #'
 #' @param SM.data A Seurat object representing the Spatial Metabolomics data.
 #' @param ST.data A Seurat object representing the Visium Spatial Transcriptomics data.
 #' @param img_res Character string defining the image resolution associated with the Visium image pixel data (default = "hires").
-#' @param res_increase Integer value defining the factor by which the resolution of MALDI spots should be increased before assignment. It should be either 4 or 9, see increase_MALDI_res() documentation for specifics (Default = NULL).
+#' @param res_increase Integer value defining the factor by which the resolution of MALDI spots should be increased before assignment. It should be either 4 or 9, see increase_SM_res() documentation for specifics (Default = NULL).
 #' @param annotations Boolean value indicating if the Spatial Metabolomics (MALDI) Seurat object contains annotations assigned to m/z values (default = FALSE).
 #' @param assay Character string defining the Seurat assay that contains the annotated counts and metadata corresponding to the m/z values (default = "Spatial").
 #' @param slice Character string of the image slice name in the Visium object (default = "slice1").
@@ -249,21 +252,20 @@ generate_new_MALDI_counts <- function(original_MALDI, obs_x, assay, slots) {
 #' @examples
 #' ## Convert MALDI data to equivalent Visium spots
 #' # convert_MALDI_to_visium_like_adata(VisiumObj, SeuratObj, img_res = "hires", new_library_id = "MALDI", res_increase = NULL)
-AlignSpatialOmics <- function(SM.data, ST.data, res_increase = NULL, annotations = FALSE, assay = "Spatial", slots = c("counts"), img_res = "hires", slice = "slice1", new_SpM.assay = "SPM", add.ST = TRUE, ST.assay = "Spatial", ST.layers = c("counts"), new_SpT.assay = "SPT", verbose = FALSE) {
+AlignSpatialOmics <- function(SM.data, ST.data, res_increase = NULL, annotations = FALSE, assay = "Spatial", slots = c("counts"), img_res = "hires", slice = "slice1", new_SpM.assay = "SPM", add.ST = TRUE, ST.assay = "Spatial", ST.layers = c("counts"), new_SpT.assay = "SPT", verbose = TRUE) {
 
 
-  new_MALDI_obs <- SM.data@meta.data
+  new_SM_metadata <- SM.data@meta.data
 
   if (!is.null(res_increase)) {
     if (res_increase == 4 || res_increase == 9) {
-      new_MALDI_obs <- increase_MALDI_res(SM.data, res_increase = 4)
+      new_SM_metadata <- increase_SM_res(SM.data, res_increase = 4, verbose = verbose)
     } else {
-      message("Error: res_increase must be either 4 or 9\n")
-      return(NULL)
+      stop("Error: res_increase must be either 4 or 9\n")
     }
   }
 
-  message("Assigning MALDI to Visium Spots ... \n")
+  verbose_message(message_text = "Assigning MALDI to Visium Spots ... \n", verbose = verbose)
 
   img <- ST.data@images[[slice]]
 
@@ -274,14 +276,14 @@ AlignSpatialOmics <- function(SM.data, ST.data, res_increase = NULL, annotations
   dis <- abs((stats::lm(image_data$imagerow_sf ~image_data$col))$coefficients[[2]])
   radius <- 2 * dis / 100 * 55 / 2
 
-  new_coords <- as.matrix(new_MALDI_obs[, c("new_y_coord", "new_x_coord")])
+  new_coords <- as.matrix(new_SM_metadata[, c("new_y_coord", "new_x_coord")])
   query_coords <- as.matrix(image_data[, c("imagerow_sf", "imagecol_sf")])
   v_points <- RANN::nn2(new_coords,query_coords, treetype = "kd",searchtype = "radius", radius = radius)$nn.idx
 
   obs_ <- data.frame(
-    index = rownames(new_MALDI_obs),
-    nFeature_Spatial = new_MALDI_obs$nFeature_Spatial,
-    old_barcode = new_MALDI_obs$old_barcode,
+    index = rownames(new_SM_metadata),
+    nFeature_Spatial = new_SM_metadata$nFeature_Spatial,
+    old_barcode = new_SM_metadata$old_barcode,
     Visium_spot = "Not_assigned")
 
   for (i in 1:nrow(v_points)) {
@@ -295,9 +297,10 @@ AlignSpatialOmics <- function(SM.data, ST.data, res_increase = NULL, annotations
     dplyr::summarize(MALDI_barcodes = toString(unique(old_barcode)))
 
   obs_x <- data.frame(obs_x)
-  counts_x <- generate_new_MALDI_counts(SM.data, obs_x, assay = assay, slots = slots)
+  counts_x <- generate_new_SM_counts(SM.data, obs_x, assay = assay, slots = slots, verbose = verbose)
 
-  message("Generating new MALDI Seurat Object ... ")
+  verbose_message(message_text = "Generating new MALDI Seurat Object ... ", verbose = verbose)
+
   seuratobj <- Seurat::CreateSeuratObject(counts = t(counts_x[[names(counts_x)[1]]]), assay = new_SpM.assay) #creates a new assay with the spatial metabolomics
 
   if (names(counts_x)[1] != "counts"){

@@ -16,8 +16,8 @@ library(stringr)
 #' @export
 #'
 #' @examples
-#' # subsetMZFeatures(SeuratObj, c("mz-160","mz-170","mz-180"))
-subsetMZFeatures <- function(data, features, assay = "Spatial"){
+#' # SubsetMZFeatures(SeuratObj, c("mz-160","mz-170","mz-180"))
+SubsetMZFeatures <- function(data, features, assay = "Spatial"){
   feature.metadata <- data[[assay]]@meta.data
   sub.data <- subset(data, features = features)
 
@@ -32,7 +32,7 @@ subsetMZFeatures <- function(data, features, assay = "Spatial"){
 #' @param annotation_column Vector of the meta.data column containing the m/z annotations.
 #' @param n Numeric value defining the number of annotations to keep (default = 3).
 #'
-#' @return Vector contating the first n number of annotations
+#' @return Vector containing the first n number of annotations
 #'
 #' @examples
 #' # labels_to_show(`SeuratObject[["Spatial"]]@meta.data$annotations`, n = 3)
@@ -59,14 +59,15 @@ labels_to_show <- function(annotation_column, n = 3) {
 #' @param polarity Character string defining the polarity of adducts to use, either "pos" or "neg" (default = "pos").
 #' @param filepath Character string of the directory to store the _annotated_mz_peaks.csv. Else, set to NULL as default.
 #' @param return.only.annotated Boolean value indicating if the annotated Seurat Object should only include m/z values that were successfully annotated (default = TRUE).
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
 #'
 #' @returns A Seurat Object with m/z values annotated. These annotations are stored in the relative assay's meta.data (e.g. SeuratObj`[["Spatial"]][[]]`)
 #' @export
 #'
 #' @examples
 #' # HMDB_db <- load("data/HMDB_1_names.rds")
-#' # Annotated_SeuratObj <- AnnotateSeuratMALDI(SeuratObj, HMDB_db)
-AnnotateSeuratMALDI <- function(data, db, feature.metadata.assay = "Spatial", feature.metadata.slot = "raw_mz", ppm_error = 5, test_add_pos = c("M+H"), polarity = "pos", filepath = NULL, return.only.annotated = TRUE){
+#' # Annotated_SeuratObj <- AnnotateSM(SeuratObj, HMDB_db)
+AnnotateSM <- function(data, db, feature.metadata.assay = "Spatial", feature.metadata.slot = "raw_mz", ppm_error = 5, test_add_pos = c("M+H"), polarity = "pos", filepath = NULL, return.only.annotated = TRUE, verbose = TRUE){
 
   mz_df <- data[[feature.metadata.assay]][[feature.metadata.slot]]
   mz_df$mz <- mz_df[[feature.metadata.slot]]
@@ -87,14 +88,15 @@ AnnotateSeuratMALDI <- function(data, db, feature.metadata.assay = "Spatial", fe
   # Three main steps relates to the three main functions
   # Steps 1) & 2) are aimed at condensing the databases by applying 1) a filter to only consider the adducts that the user specifies. 2) Filtering the molecular formulas to contain only elements that the user specifies. # Step 3) This last function then does the database matching and searching.
   # 1) Filter DB by adduct.
-  message(paste0("Filtering '", db_name, "' database by ", paste0(test_add_pos, collapse = ", "), " adduct/s"))
+  verbose_message(message_text = paste0("Filtering '", db_name, "' database by ", paste0(test_add_pos, collapse = ", "), " adduct/s"), verbose = verbose)
+
   db_1 <- db_adduct_filter(db, test_add_pos, polarity = "pos")
 
   # 2) only select natural elements
   db_2 <- formula_filter(db_1)
 
   # 3) search db against mz df return results
-  message("Searching database against input m/z's to return annotaiton results")
+  verbose_message(message_text = "Searching database against input m/z's to return annotaiton results", verbose = verbose)
 
   db_3 <- proc_db(mz_df, db_2, ppm_error)
 
@@ -105,7 +107,7 @@ AnnotateSeuratMALDI <- function(data, db, feature.metadata.assay = "Spatial", fe
     data.table::fwrite(db_3, path)
   }
 
-  message("Adding annotations to Seurat Object .... ")
+  verbose_message(message_text = "Adding annotations to Seurat Object .... ", verbose = verbose)
 
   result_df <- db_3 %>%
     dplyr::group_by(observed_mz) %>%
@@ -133,8 +135,10 @@ AnnotateSeuratMALDI <- function(data, db, feature.metadata.assay = "Spatial", fe
 
   data[[feature.metadata.assay]][[]] <- feature_metadata
   if (return.only.annotated == TRUE){
-    message("Returning Seurat object that include ONLY SUCCESSFULLY ANNOTATED m/z features")
-    data <- subsetMZFeatures(data, features = result_df$mz_names)
+
+    verbose_message(message_text = "Returning Seurat object that include ONLY SUCCESSFULLY ANNOTATED m/z features", verbose = verbose)
+
+    data <- SubsetMZFeatures(data, features = result_df$mz_names)
   }
 
   return(data)
@@ -143,12 +147,12 @@ AnnotateSeuratMALDI <- function(data, db, feature.metadata.assay = "Spatial", fe
 
 
 
-#' Used to subset dataset to only include annotations that have n number of enteries
+#' Used to subset dataset to only include annotations that have n number of entries
 #'    - (i.e. some peaks can have multiple annotations. Peaks which have above n number of annotations assigned will be removed from Seurat Object)
 #'
 #' @param obj Seurat object needing annotation refinement. This object must have annotations present in 'obj`[[assay]]@meta.data`'
 #' @param assay Character string defining the Seurat object assay where the annotation data is stored (default = "Spatial").
-#' @param n Integer defining the number of enteries an annotation can have assigned. Any higher counts will be removed (default = 1).
+#' @param n Integer defining the number of entries an annotation can have assigned. Any higher counts will be removed (default = 1).
 #'
 #' @return Refined Seurat object that only contains annotated mz values that have n number of annotations assigned (per mz value)
 #' @export
@@ -161,7 +165,7 @@ AnnotateSeuratMALDI <- function(data, db, feature.metadata.assay = "Spatial", fe
 getRefinedAnnotations <- function(obj, assay = "Spatial",n = 1){
   n <- n-1
   subset.metadata <- obj[[assay]]@meta.data %>% dplyr::filter(stringr::str_count(all_IsomerNames, ";") %in% c(0:n))
-  subset.obj <- subsetMZFeatures(data = obj, features = subset.metadata$mz_names,assay = assay)
+  subset.obj <- SubsetMZFeatures(data = obj, features = subset.metadata$mz_names,assay = assay)
   return(subset.obj)
 
 }
@@ -176,7 +180,6 @@ getRefinedAnnotations <- function(obj, assay = "Spatial",n = 1){
 #' @param input_string Character string requiring additional backslashes
 #'
 #' @return Character string containing double backslashes around special features
-#' @export
 #'
 #' @examples
 #' add_backslashes_to_specialfeatures("(L)-Glucose")
@@ -260,7 +263,6 @@ FindDuplicateAnnotations <- function (data, assay = "Spatial"){
 #' @param db DataFrame of the current reference database
 #'
 #' @return Character string of the complete or truncated adduct
-#' @export
 #'
 #' @examples
 #' # HMDB_db <- load("data/HMDB_1_names.rds")
@@ -293,7 +295,6 @@ check_and_truncate_adduct_vector <- function(adduct, db) {
 #' @param polarity Character string defining the polarity of the adducts (default = "neg").
 #'
 #' @return A filtered reference metabolomic database DataFrame
-#' @export
 #'
 #' @examples
 #' # HMDB_db <- load("data/HMDB_1_names.rds")
@@ -380,7 +381,6 @@ db_adduct_filter <- function(db, adduct, polarity = "neg") {
 #' @param formula Character string defining t
 #' @param allowed_elements Vector of character strings defining allowed elements
 #'
-#' @export
 #'
 #' @examples
 #' ### Helper function ###
@@ -400,7 +400,6 @@ is_formula_valid <- function(formula,allowed_elements) {
 #' @param elements Vector of character strings of elements to include (default = c("H", "C", "N", "O", "S", "Cl", "Br", "F", "Na", "P", "I")).
 #'
 #' @return A refined DataFrame which only includes annotations containing the specified elements
-#' @export
 #'
 #' @examples
 #' ## Get filtered DB by adduct
@@ -433,7 +432,6 @@ formula_filter <- function(df, elements = NULL) {
 #' @param input_df DataFrame of the observed dataframe being annotated
 #'
 #' @return A list containing the lower and upper mz range for the provided sample
-#' @export
 #'
 #' @examples
 #' # mz_df <- SeuratObject`[["Spatial"]][["mz"]]`
@@ -464,7 +462,6 @@ calculate_bounds <- function(input_df) {
 #' @param ppm Numeric value defining the maximum acceptable ppm_error/threshold for searching.
 #'
 #' @return Numeric value defining the ppm_error between the observed and reference mz value
-#' @export
 #'
 #' @examples
 #' ### Helper Function ###
@@ -490,7 +487,6 @@ ppm_error <- function(observed_mz, reference_mz, ppm) {
 #' @param ppm Numeric value defining the maximum acceptable ppm_error/threshold for searching.
 #'
 #' @return Boolean value indicating if a match is found (TRUE) or not (FALSE)
-#' @export
 #'
 #' @examples
 #' ### Helper Function ###
@@ -512,7 +508,6 @@ ppm_range_match <- function(observed_mz, reference_mz, ppm) {
 #' @param ppm_threshold Numeric value defining the maximum acceptable ppm_error/threshold allowed between observed and reference mz values
 #'
 #' @return A DataFrame containing matched mz values between the observed and reference dataframes
-#' @export
 #'
 #' @examples
 #' # HMDB_db <- load("data/HMDB_1_names.rds")
@@ -543,9 +538,8 @@ proc_db <- function(observed_df,
     observed_df <- rbind(observed_df, dummy_row)
   } else if (nrow(observed_df) == 0) {
     # Handle the case when observed_df is empty
-    message(
-      "Warning: No entries detected in input mz list.\n Please check format of input list,\n it must contain row_id and mz as the headers"
-    )
+    verbose_message(message_text =  "Warning: No entries detected in input mz list.\n Please check format of input list,\n it must contain row_id and mz as the headers", verbose = verbose)
+
     return(NULL)
   }
 

@@ -21,8 +21,8 @@ library(dplyr)
 #' @export
 #'
 #' @examples
-#' # find_nearest(SeuratObj, target_mz = 400.01)
-find_nearest <- function(data, target_mz){
+#' # FindNearestMZ(SeuratObj, target_mz = 400.01)
+FindNearestMZ <- function(data, target_mz){
 
   numbers <- as.numeric(gsub("mz-", "", SeuratObject::Features(data)))
   closest_number <- numbers[which.min(abs(numbers - target_mz))]
@@ -39,7 +39,6 @@ find_nearest <- function(data, target_mz){
 #' @param stored.in.metadata Boolean value indicating if the mz_list should be searched in the metadata DataFrame. If FALSE searches in Seurat object assay slot, if TRUE searches in metadata slot (default = FALSE).
 #'
 #' @returns Vector of binned mz counts for each spot/pixel
-#' @export
 #'
 #' @examples
 #' # mz_values <- plusminus(SeuratObj, 448.2, 0.05)
@@ -68,7 +67,7 @@ bin.mz <- function(data, mz_list, assay = "Spatial", slot = "counts", stored.in.
 
 
 #' Identifies all mz peaks within a plus-minus range of the target_mz
-#'    - This function uses find_nearest()
+#'    - This function uses FindNearestMZ()
 #'
 #' @param data Seurat Spatial Metabolomic object containing mz values
 #' @param target_mz Numeric value defining the target m/z peak
@@ -80,14 +79,14 @@ bin.mz <- function(data, mz_list, assay = "Spatial", slot = "counts", stored.in.
 #' # plusminus(SeuratObj, target_mz = 400.01, plus_minus = 0.005)
 plusminus <- function(data, target_mz, plus_minus){
   feature_list <- c()
-  center <- find_nearest(data, target_mz)
+  center <- FindNearestMZ(data, target_mz)
 
   center_value <- as.numeric(gsub("mz-", "", center))
   up_value <- center_value + as.numeric(plus_minus)
   low_value <- center_value - as.numeric(plus_minus)
 
-  upper <- find_nearest(data, up_value)
-  lower <- find_nearest(data, low_value)
+  upper <- FindNearestMZ(data, up_value)
+  lower <- FindNearestMZ(data, low_value)
 
   feature_list <- c(feature_list, center)
   if (!(upper %in% feature_list)){
@@ -112,7 +111,6 @@ plusminus <- function(data, target_mz, plus_minus){
 #' @param plusminus Numeric value defining the range/threshold either side of each mz peak provided.
 #'
 #' @return List contatining a Seurat data object which contains the binned counts in the `@metadata` slot, the column name under where the data is stored and the title of this binned which will be plotted.
-#' @export
 #'
 #' @examples
 #' ### HELPER FUNCTION ###
@@ -148,7 +146,7 @@ plot_plus_minus <-function(object, mz_list, plusminus){
 #'      - This function inherits off Seurat::ImageFeaturePlot(). Look here for more detailed documentation about inputs.
 #'
 #' @param object Seurat Spatial Metabolomic Object to Visualise.
-#' @param mzs Vector of numeric m/z values to plot (e.g. c(400.1578, 300.1)). The function find_nearest() is used to automatically find the nearest m/z value to the ones given.
+#' @param mzs Vector of numeric m/z values to plot (e.g. c(400.1578, 300.1)). The function FindNearestMZ() is used to automatically find the nearest m/z value to the ones given.
 #' @param plusminus Numeric value defining the range/threshold either side of the target peak/peaks to be binned together for plotting (default = NULL).
 #' @param fov Character string of name of FOV to plot (default = NULL).
 #' @param boundaries A vector of segmentation boundaries per image to plot (default = NULL).
@@ -176,6 +174,7 @@ plot_plus_minus <-function(object, mz_list, plusminus){
 #' @param coord.fixed Boolean value of it to plot cartesian coordinates with fixed aspect ratio (default = TURE).
 #' @param assay Character string indicating which Seurat object assay to pull data form (default = "Spatial").
 #' @param slot Character string indicating the assay slot to use to pull expression values form (default = "counts").
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
 #'
 #' @returns A ggplot showing the Spatial representation of expression data of specified m/z values
 #' @export
@@ -215,7 +214,8 @@ ImageMZPlot <- function(object,
                         combine = TRUE,
                         coord.fixed = TRUE,
                         assay = "Spatial",
-                        slot = "data"
+                        slot = "data",
+                        verbose = TRUE
 ){
 
   if (is.null(mzs)){
@@ -224,20 +224,22 @@ ImageMZPlot <- function(object,
 
     mz_list <- c()
     for (target_mz in mzs){
-      mz_string <- find_nearest(object, target_mz)
+      mz_string <- FindNearestMZ(object, target_mz)
       mz_list <- c(mz_list, mz_string)
     }
   }
 
   if (is.null(assay)){
-    message("Seurat Assay set to NULL, default assay will be used")
+
+    verbose_message(message_text =  "Seurat Assay set to NULL, default assay will be used", verbose = verbose)
+
     assay <- DefaultAssay(object)
   } else {
     DefaultAssay(object) <- assay
   }
 
   if (is.null(slot)){
-    message("Default data slot will be used. If data slot is not present will use counts slot instead")
+    verbose_message(message_text =  "Default data slot will be used. If data slot is not present will use counts slot instead", verbose = verbose)
 
   } else if (slot != "data"){
 
@@ -362,6 +364,7 @@ ImageMZPlot <- function(object,
 #' @param slot Character string indicating the assay slot to use to pull expression values form (default = "counts").
 #' @param column.name Character string defining the column name where the annotations are stored in the slot meta.data (default = "all_IsomerNames").
 #' @param plot.exact Boolean value describing if to only plot exact matches to the metabolite search terms, else will plot all metabolites which contain serach word in name (default = TRUE).
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
 #'
 #' @returns A ggplot showing the Spatial representation of expression data of specified metabolites.
 #' @export
@@ -403,7 +406,8 @@ ImageMZAnnotationPlot <- function(object,
                                   assay = "Spatial",
                                   slot = "data",
                                   column.name = "all_IsomerNames",
-                                  plot.exact = TRUE
+                                  plot.exact = TRUE,
+                                  verbose = TRUE
 
 ){
 
@@ -493,7 +497,7 @@ ImageMZAnnotationPlot <- function(object,
     DefaultAssay(data_copy) <- assay
 
     if (is.null(slot)){
-      message("Default data slot will be used. If data slot is not present will use counts slot instead")
+      verbose_message(message_text =  "Default data slot will be used. If data slot is not present will use counts slot instead", verbose = verbose)
 
     } else if (slot != "data"){
 
@@ -555,7 +559,8 @@ ImageMZAnnotationPlot <- function(object,
                         combine = combine,
                         coord.fixed = coord.fixed,
                         assay = assay,
-                        slot = slot)
+                        slot = slot,
+                        verbose = verbose)
   }
   for (i in 1:length(plot)){
 
@@ -586,7 +591,7 @@ ImageMZAnnotationPlot <- function(object,
 #'      - This function inherits off Seurat::SpatialFeaturePlot(). Look here for more detailed documentation about inputs.
 #'
 #' @param object Seurat Spatial Metabolomic Object to Visualise.
-#' @param mzs Vector of numeric m/z values to plot (e.g. c(400.1578, 300.1)). The function find_nearest() is used to automatically find the nearest m/z value to the ones given.
+#' @param mzs Vector of numeric m/z values to plot (e.g. c(400.1578, 300.1)). The function FindNearestMZ() is used to automatically find the nearest m/z value to the ones given.
 #' @param plusminus Numeric value defining the range/threshold either side of the target peak/peaks to be binned together for plotting (default = NULL).
 #' @param images Character string of the name of the image to plot (default = NULL).
 #' @param crop Boolean value indicating if to crop the plot to focus on only points being plotted (default = TRUE).
@@ -602,7 +607,8 @@ ImageMZAnnotationPlot <- function(object,
 #' @param image.alpha Numeric value between 0 and 1 defining the image alpha (default = 1).
 #' @param stroke Numeric value describing the width of the border around the spot (default = 0.25).
 #' @param interactive Boolean value of if to launch an interactive SpatialDimPlot or SpatialFeaturePlot session, see Seurat::ISpatialDimPlot() or Seurat::ISpatialFeaturePlot() for more details (default = FALSE).
-#' @param information An optional dataframe or matrix of extra infomation to be displayed on hover (default = NULL).
+#' @param information An optional dataframe or matrix of extra information to be displayed on hover (default = NULL).
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
 #'
 #' @returns A ggplot showing the Spatial representation of expression data of specified m/z values for Spatial data with H&E Image
 #' @export
@@ -627,7 +633,8 @@ SpatialMZPlot <- function(object,
                         image.alpha = 1,
                         stroke = 0.25,
                         interactive = FALSE,
-                        information = NULL
+                        information = NULL,
+                        verbose = TRUE
                       ){
 
   if (is.null(mzs)){
@@ -636,13 +643,13 @@ SpatialMZPlot <- function(object,
 
     mz_list <- c()
     for (target_mz in mzs){
-      mz_string <- find_nearest(object, target_mz)
+      mz_string <- FindNearestMZ(object, target_mz)
       mz_list <- c(mz_list, mz_string)
     }
   }
 
   if (is.null(assay)){
-    message("Seurat Assay set to NULL, default assay will be used")
+    verbose_message(message_text =  "Seurat Assay set to NULL, default assay will be used", verbose = verbose)
     assay <- DefaultAssay(object)
   } else {
     DefaultAssay(object) <- assay
@@ -748,6 +755,7 @@ SpatialMZPlot <- function(object,
 #' @param information An optional dataframe or matrix of extra infomation to be displayed on hover (default = NULL).
 #' @param column.name Character string defining the column name where the annotations are stored in the slot meta.data (default = "all_IsomerNames").
 #' @param plot.exact Boolean value describing if to only plot exact matches to the metabolite search terms, else will plot all metabolites which contain serach word in name (default = TRUE).
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
 #'
 #' @returns A ggplot showing the Spatial representation of expression data of specified m/z values for Spatial data with H&E Image
 #' @export
@@ -774,7 +782,8 @@ SpatialMZAnnotationPlot <- function(object,
                                     interactive = FALSE,
                                     information = NULL,
                                     column.name = "all_IsomerNames",
-                                    plot.exact = TRUE
+                                    plot.exact = TRUE,
+                                    verbose = TRUE
 
 ){
 
@@ -821,7 +830,8 @@ SpatialMZAnnotationPlot <- function(object,
                         image.alpha = image.alpha,
                         stroke = stroke,
                         interactive = interactive,
-                        information = information
+                        information = information,
+                        verbose = verbose
   )
 
   for (i in 1:length(plot)){
@@ -853,7 +863,6 @@ SpatialMZAnnotationPlot <- function(object,
 #' @param list_length Integer value defining the number of different groups being plotted.
 #'
 #' @return A vector of coordinates to use for the combined plot layout (e.g. c(3,2)).
-#' @export
 #'
 #' @examples
 #' ### Helper Function ###
@@ -1036,7 +1045,7 @@ MassIntensityPlot <- function (data,
     labels <- Cardinal::featureData(cardinal.data)@mz
     mz_list <- c()
     for (target_mz in mz.labels){
-      mz_string <- find_nearest(data, target_mz)
+      mz_string <- FindNearestMZ(data, target_mz)
       mz_list <- c(mz_list, stringr::str_split(pattern = "mz-", string = mz_string)[[1]][2])
     }
 

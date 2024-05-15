@@ -11,23 +11,23 @@ library(matter)
 
 #' Loads in spatial metabolomic data directly to a SpaMTP Seurat Object
 #'
-#' @param name Character string of the object name. This should match the filname.
+#' @param name Character string of the object name. This should match the filename.
 #' @param path Character string defining the directory path of the file. This should not include the file name.
-#' @param mass.range Vector of numeric values indicating the mass range to use for the imported data (defualt = NULL).
+#' @param mass.range Vector of numeric values indicating the mass range to use for the imported data (default = NULL).
 #' @param resolution Numeric value defining the the accuracy to which the m/z values will be binned after reading. This value can be in either "ppm" or "mz" depending on the units type specified (default = 10).
 #' @param units Character string defining the resolution value unit type, either c("ppm", "mz") (default = "ppm")
-#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the messsage will be suppressed (default = TRUE)
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE)
 #' @param assay Character string describing the name of the new assay which stores the imported data (default = "Spatial").
 #' @param ... Additional arguments passed to the \code{readMSIData} function.
 #'
-#' @return A new SpaMTP Seurat object contain the imported spatial metabolomic intesnity values
+#' @return A new SpaMTP Seurat object contain the imported spatial metabolic intensity values
 #' @export
 #'
 #' @examples
 #' # data <-loadSM(name = "run1", path = "/Documents/SpaMTP_test_data/", mass.range = c(160,1500), resolution = 10, assay = "Spatial")
 loadSM <- function (name, path, mass.range = NULL, resolution = 10, units = "ppm", verbose = TRUE, assay = "Spatial", ...){
   data <- Cardinal::readImzML(name,folder = path, mass.range =  mass.range, resolution = resolution, ...)
-  data <- CardinalToSeurat(data, name, verbose = TRUE, assay = assay)
+  data <- CardinalToSeurat(data, name, verbose = verbose, assay = assay)
   return(data)
 }
 
@@ -38,9 +38,9 @@ loadSM <- function (name, path, mass.range = NULL, resolution = 10, units = "ppm
 #'
 #' @param data A Cardinal Object that is being converted into a Seurat Object.
 #' @param run_name A character string defining the run name of the Cardinal data to be converted to a Seurat Object
-#' @param seurat.coord A Data.Frame containing two columns titled 'X_new' and 'Y_new' specifying the pixel coordinates of each data point. This is only required mapping Spatial Metabolomic data with a H&E image if the Cardinal Object coordinates are not the same as the H&E image coordinates. Else, set to NULL(default).
+#' @param seurat.coord A Data.Frame containing two columns titled 'X_new' and 'Y_new' specifying the pixel coordinates of each data point. This is only required if mapping Spatial Metabolic data with a H&E image where the Cardinal Object coordinates are not the same as the H&E image coordinates. Else, set to NULL(default).
 #' @param assay Character string containing the name of the assay (default = "Spatial").
-#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the messsage will be suppressed (default = TRUE).
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
 #'
 #' @returns A Seurat Object containing the mz count data of the supplied Cardinal Object
 #' @export
@@ -148,9 +148,9 @@ CardinalToSeurat <- function(data,run_name, seurat.coord = NULL, assay = "Spatia
 #' @param slot Character string defining which slot from the Seurat Object assay to gather intensity data from (default = "counts").
 #' @param run_col Character string describing the Seurat meta.data column where the run identities are stored (default = NULL).
 #' @param feature.metadata Boolean value of whether the Seurat Object contains annotations stored in the feature metadata slot of the specified assay (default = FALSE).
-#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the messsage will be suppressed (default = TRUE).
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
 #'
-#' @return A Cardinal object containing intensity values and feature metadata (anntoations)
+#' @return A Cardinal object containing intensity values and feature metadata (annotations)
 #' @export
 #'
 #' @examples
