@@ -20,8 +20,8 @@ library(tidyr)
 #' @export
 #'
 #' @examples
-#' # normalised_data <- NormalizeSeuratData(SeuratObject)
-NormalizeSeuratData <- function(data, normalisation.type = 'TIC', scale.factor = NULL, assay = "Spatial", slot = "counts") {
+#' # normalised_data <- NormalizeSMData(SeuratObject)
+NormalizeSMData <- function(data, normalisation.type = 'TIC', scale.factor = NULL, assay = "Spatial", slot = "counts") {
 
   if (is.null(normalisation.type)) {
     stop("Error: no normalisation.type is select. Please enter either 'LogNormalize' or 'TIC'")
@@ -108,7 +108,7 @@ TMMNormalize <- function(combined.obj, ident, refIdent, normalisation.type = "CP
 
   norm_data_list <- list()
   for (name in names(data_list)){
-    norm.data <- NormalizeSeuratData(data_list[[name]], normalisation.type = normalisation.type, scale.factor = (CPM.scale.factor / factors[[name]]), assay = assay, slot = slot)
+    norm.data <- NormalizeSMData(data_list[[name]], normalisation.type = normalisation.type, scale.factor = (CPM.scale.factor / factors[[name]]), assay = assay, slot = slot)
     norm_data_list[[name]] <- norm.data
   }
 

@@ -82,14 +82,15 @@ run_pooling <- function(data.filt, idents, n, assay, slot, verbose = TRUE) {
 #' @param annotation.column Character string defining the column where annotation information is stored in the assay metadata. This requires AnnotateSeuratMALDI() to be run where the default column to store annotations is "all_IsomerNames" (default = "None").
 #' @param assay A character string defining the assay where the mz count data and annotations are stored (default = "Spatial").
 #' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
+#' @param return.individual Boolean value defining whether to return a list of individual edgeR objects for each designated ident. If FALSE, one merged edgeR object will be returned (default = FALSE).
 #'
-#' @returns A list which contains the relative output requested by the "to_return" variable
+#' @returns A modified edgeR object which contains the relative pseudo-bulking analysis outputs, including a DEPs data.frame with a list of differential expressed m/z peaks
 #' @export
 #'
 #' @examples
 #' # pooled_obj <- run_pooling(SeuratObj, "sample", n = 3)
 #' # run_DE(pooled_obj, SeuratObj, "sample", "~/Documents/DE_output/", "run_1", n = 3, logFC_threshold = 1.2, annotation.column = "all_IsomerNames", assay = "Spatial")
-run_DE <- function(pooled_data, seurat_data, ident, output_dir, run_name, n, logFC_threshold, annotation.column, assay, verbose = TRUE){
+run_DE <- function(pooled_data, seurat_data, ident, output_dir, run_name, n, logFC_threshold, annotation.column, assay, return.individual = FALSE, verbose = TRUE){
 
   verbose_message(message_text = paste("Running edgeR DE Analysis for ", run_name, " -> with samples [", paste(unique(unlist(seurat_data@meta.data[[ident]])), collapse = ", "), "]"), verbose = verbose)
 
@@ -147,11 +148,40 @@ run_DE <- function(pooled_data, seurat_data, ident, output_dir, run_name, n, log
       utils::write.csv(de_group_edgeR, paste0(output_dir,condition,"_",run_name, ".csv"))
     }
 
+    de_group_edgeR$gene <- rownames(de_group_edgeR)
+
     y$DEPs <- de_group_edgeR
     annotation_result[[condition]] <- y
 
   }
-  return(annotation_result)
+
+  if (return.individual){
+    annotation_result
+    return(annotation_result)
+  } else {
+
+
+
+    edger <- edgeR::DGEList(
+      counts = annotation_result[[1]]$counts,
+      samples = annotation_result[[1]]$samples
+    )
+    edger$samples$group <- edger$samples$ident
+    edger$samples$condition <- NULL
+
+    deps <- lapply(names(annotation_result), function(x){
+      annotation_result[[x]]$DEPs$cluster <- x
+      rownames(annotation_result[[x]]$DEPs) <- NULL
+      annotation_result[[x]]$DEPs
+    })
+
+    combined_deps <- do.call(rbind, deps)
+    rownames(combined_deps) <- 1:length(combined_deps$cluster)
+
+    edger$DEPs <- combined_deps
+    return(edger)
+  }
+
 }
 
 
@@ -204,7 +234,10 @@ FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir
 #'
 #' @param edgeR_output A list containing outputs from edgeR analysis (from FindAllDEPs()). This includes pseudo-bulked counts and DEPs.
 #' @param n A numeric integer that defines the number of UP and DOWN regulated peaks to plot (default = 25).
-#' @param FDR_threshold An integer that defines the FDR_threshold to use for defining most significant results (default = 0.05).
+#' @param only.pos Boolean indicating if only positive markers should be returned (default = FALSE).
+#' @param FDR.threshold Numeric value that defines the FDR threshold to use for defining most significant results (default = 0.05).
+#' @param logfc.threshold Numeric value that defines the logFC threshold to use for filtering significant results (default = 0.5).
+#' @param order.by Character string defining which parameter to order markers by, options are either 'FDR' or 'logFC' (default = "FDR").
 #' @param scale A character string indicating if the values should be centered and scaled in either the row direction or the column direction, or none. Corresponding values are "row", "column" and "none"
 #' @param color A vector of colors used in heatmap (default = grDevices::colorRampPalette(c("navy", "white", "red"))(50)).
 #' @param cluster_cols Boolean value determining if columns should be clustered or hclust object (default = F).
@@ -226,54 +259,100 @@ FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir
 #' # DEPs <- FindAllDEPs(SeuratObj, "sample")
 #'
 #' # DEPsHeatmap(DEPs)
-DEPsHeatmap <- function(edgeR_output,
-                        n = 25,
-                        FDR_threshold = 0.05,
-                        scale ="row",
-                        color = grDevices::colorRampPalette(c("navy", "white", "red"))(50),
-                        cluster_cols = F,
-                        cluster_rows = T,
-                        fontsize_row = 15,
-                        fontsize_col = 15,
-                        cutree_cols = 9,
-                        silent = TRUE,
-                        plot_annotations_column = NULL,
-                        save_to_path = NULL,
-                        plot.save.width = 20,
-                        plot.save.height = 20,
-                        nlabels.to.show = NULL){
+DEPsHeatmapX <- function(edgeR_output,
+                         n = 5,
+                         only.pos = FALSE,
+                         FDR.threshold = 0.05,
+                         logfc.threshold = 0.5,
+                         order.by = "FDR",
+                         scale ="row",
+                         color = grDevices::colorRampPalette(c("navy", "white", "red"))(50),
+                         cluster_cols = F,
+                         cluster_rows = T,
+                         fontsize_row = 15,
+                         fontsize_col = 15,
+                         cutree_cols = 9,
+                         silent = TRUE,
+                         plot_annotations_column = NULL,
+                         save_to_path = NULL,
+                         plot.save.width = 20,
+                         plot.save.height = 20,
+                         nlabels.to.show = NULL){
+
 
   degs <- edgeR_output$DEPs
-  degs$gene <- rownames(degs)
-  degs <- subset(degs, FDR < FDR_threshold)
-  degs <- degs[order(degs$logFC),]
-  top <- utils::head(degs, n=n)
-  bot <- utils::tail(degs, n=n)
-  degs <- merge(x = top, y = bot, all = TRUE)
-  degs <- subset(degs, FDR < FDR_threshold)
-  rownames(degs) <- degs$gene
+  degs <- subset(degs, FDR < FDR.threshold)
+
+  if (order.by == "FDR"){
+
+    grouped_pos<- degs %>%
+      group_by(cluster) %>%
+      filter( logFC > logfc.threshold) %>%
+      arrange(desc(regulate)) %>%
+      slice_head(n = n)
+
+
+    if (only.pos) {
+      grouped_neg <- NULL
+
+    } else {
+      grouped_neg <- degs %>%
+        group_by(cluster) %>%
+        filter(logFC < - logfc.threshold) %>%
+        arrange(regulate) %>%
+        slice_head(n = n)
+    }
+    df <- do.call(rbind, list(grouped_pos,grouped_neg))
+    df <- df[order(df$cluster, desc(df$regulate)), ]
+
+  } else {
+    if ( order.by != "logFC"){
+      warning("order.by has invalid argument. Must be either 'FDR' or 'logFC'. Heatmap defaulting to order by logFC")
+    }
+
+    grouped_pos<- degs %>%
+      group_by(cluster) %>%
+      filter(logFC > logfc.threshold) %>%
+      arrange(-logFC) %>%
+      slice_head(n = n)
+
+
+    if (only.pos) {
+      grouped_neg <- NULL
+    } else {
+      grouped_neg <- degs %>%
+        group_by(cluster) %>%
+        filter(logFC < - logfc.threshold) %>%
+        arrange(logFC) %>%
+        slice_head(n = n)
+    }
+    df <- do.call(rbind, list(grouped_pos,grouped_neg))
+    df <- df[order(df$cluster, -df$logFC), ]
+  }
+
+
 
   col_annot <- data.frame(sample = edgeR_output$samples$ident)
   row.names(col_annot) <- colnames(as.data.frame(edgeR::cpm(edgeR_output,log=TRUE)))
 
-  mtx <- as.matrix(as.data.frame(edgeR::cpm(edgeR_output,log=TRUE))[rownames(degs),])
+  mtx <- as.matrix(as.data.frame(edgeR::cpm(edgeR_output,log=TRUE))[unique(df$gene),])
   if (!(is.null(plot_annotations_column))){
     if (is.null(edgeR_output$DEPs[[plot_annotations_column]])){
       warning("There are no annotations present in the edgeR_output object. Run 'annotate.SeuratMALDI()' prior to 'FindAllDEPs' and set annotations = TRUE .....\n Heatmap will plot default m/z values ... ")
     } else{
       if (!is.null(nlabels.to.show)){
-        degs[[plot_annotations_column]] <- labels_to_show(degs[[plot_annotations_column]], n = nlabels.to.show)
+        def[[plot_annotations_column]] <- labels_to_show(df[[plot_annotations_column]], n = nlabels.to.show)
       }
-      rownames(mtx) <- degs[[plot_annotations_column]]
+      rownames(mtx) <- df[[plot_annotations_column]]
     }
   }
 
   p <- pheatmap::pheatmap(mtx,scale=scale,color=color,cluster_cols = cluster_cols, annotation_col=col_annot, cluster_rows = cluster_rows,
-                fontsize_row = fontsize_row, fontsize_col = fontsize_col, cutree_cols = cutree_cols, silent = silent)
+                          fontsize_row = fontsize_row, fontsize_col = fontsize_col, cutree_cols = cutree_cols, silent = silent)
 
-  if (!(is.null(save_to_path))){
-    save_pheatmap_as_pdf(pheatmap = p, filename = save_to_path, width = plot.save.width, height = plot.save.height)
-  }
+   if (!(is.null(save_to_path))){
+     save_pheatmap_as_pdf(pheatmap = p, filename = save_to_path, width = plot.save.width, height = plot.save.height)
+   }
 
   return(p)
 }

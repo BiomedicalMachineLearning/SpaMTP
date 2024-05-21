@@ -15,6 +15,7 @@ run_DE(
   logFC_threshold,
   annotation.column,
   assay,
+  return.individual = FALSE,
   verbose = TRUE
 )
 }
@@ -37,10 +38,12 @@ run_DE(
 
 \item{assay}{A character string defining the assay where the mz count data and annotations are stored (default = "Spatial").}
 
+\item{return.individual}{Boolean value defining whether to return a list of individual edgeR objects for each designated ident. If FALSE, one merged edgeR object will be returned (default = FALSE).}
+
 \item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).}
 }
 \value{
-A list which contains the relative output requested by the "to_return" variable
+A modified edgeR object which contains the relative pseudo-bulking analysis outputs, including a DEPs data.frame with a list of differential expressed m/z peaks
 }
 \description{
 Runs EdgeR analysis for pooled data

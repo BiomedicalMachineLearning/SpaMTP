@@ -9,31 +9,6 @@ library(matter)
 #### SpaMTP Cardinal to Seurat Functions ###############################################################################################################################################################################
 
 
-#' Loads in spatial metabolomic data directly to a SpaMTP Seurat Object
-#'
-#' @param name Character string of the object name. This should match the filename.
-#' @param path Character string defining the directory path of the file. This should not include the file name.
-#' @param mass.range Vector of numeric values indicating the mass range to use for the imported data (default = NULL).
-#' @param resolution Numeric value defining the the accuracy to which the m/z values will be binned after reading. This value can be in either "ppm" or "mz" depending on the units type specified (default = 10).
-#' @param units Character string defining the resolution value unit type, either c("ppm", "mz") (default = "ppm")
-#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE)
-#' @param assay Character string describing the name of the new assay which stores the imported data (default = "Spatial").
-#' @param ... Additional arguments passed to the \code{readMSIData} function.
-#'
-#' @return A new SpaMTP Seurat object contain the imported spatial metabolic intensity values
-#' @export
-#'
-#' @examples
-#' # data <-loadSM(name = "run1", path = "/Documents/SpaMTP_test_data/", mass.range = c(160,1500), resolution = 10, assay = "Spatial")
-loadSM <- function (name, path, mass.range = NULL, resolution = 10, units = "ppm", verbose = TRUE, assay = "Spatial", ...){
-  data <- Cardinal::readImzML(name,folder = path, mass.range =  mass.range, resolution = resolution, ...)
-  data <- CardinalToSeurat(data, name, verbose = verbose, assay = assay)
-  return(data)
-}
-
-
-
-
 #' Converts a Cardinal Object into a Seurat Object
 #'
 #' @param data A Cardinal Object that is being converted into a Seurat Object.

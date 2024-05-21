@@ -184,6 +184,8 @@ add_backslashes_to_specialfeatures <- function(input_string) {
   # Use gsub to replace ( with \\( and ) with \\)
   result_string <- gsub("\\(", "\\\\(", input_string)
   result_string <- gsub("\\)", "\\\\)", result_string)
+  result_string <- gsub("\\[", "\\\\[", result_string)
+  result_string <- gsub("\\]", "\\\\]", result_string)
   result_string <- gsub("\\+", "\\\\+", result_string)
   result_string <- gsub(" ", "[ ]", result_string)
 
