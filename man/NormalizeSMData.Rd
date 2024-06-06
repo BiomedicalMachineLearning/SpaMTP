@@ -9,7 +9,8 @@ NormalizeSMData(
   normalisation.type = "TIC",
   scale.factor = NULL,
   assay = "Spatial",
-  slot = "counts"
+  slot = "counts",
+  verbose = TRUE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ NormalizeSMData(
 \item{assay}{Character string defining the name of the Seurat Object assay to pull the corresponding intensity data from (default = "Spatial").}
 
 \item{slot}{Character string defining the name of the slot within the Seurat Object assay to pull the corresponding intensity data from (default = "counts").}
+
+\item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).}
 }
 \value{
 A Seurat Object with intensity values normalized. Normalized data is stored in the $data slot of the specified assay

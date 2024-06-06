@@ -22,19 +22,24 @@ Imports:
     ggridges,
     graphics,
     grDevices,
+    imager,
     limma,
     magrittr,
     Matrix,
     matter,
     pheatmap,
     RANN,
+    RColorBrewer,
     scater,
     Seurat,
     SeuratObject,
+    shiny,
+    shinyjs,
     SingleCellExperiment,
     stringr,
     tidyr,
-    utils
+    utils,
+    zeallot
 URL: https://github.com/agc888/SpaMTP
 BugReports: https://github.com/agc888/SpaMTP/issues
 Depends: 

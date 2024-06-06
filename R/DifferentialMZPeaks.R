@@ -259,7 +259,7 @@ FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir
 #' # DEPs <- FindAllDEPs(SeuratObj, "sample")
 #'
 #' # DEPsHeatmap(DEPs)
-DEPsHeatmapX <- function(edgeR_output,
+DEPsHeatmap <- function(edgeR_output,
                          n = 5,
                          only.pos = FALSE,
                          FDR.threshold = 0.05,

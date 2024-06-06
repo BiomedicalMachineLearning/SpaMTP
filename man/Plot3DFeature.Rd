@@ -12,13 +12,16 @@ Plot3DFeature(
   between.layer.height = 100,
   names = NULL,
   size = 3,
+  col.palette = "Reds",
   x.axis.label = "x",
   y.axis.label = "y",
   z.axis.label = "z",
   show.x.ticks = FALSE,
   show.y.ticks = FALSE,
   show.z.ticks = FALSE,
-  show.image = FALSE
+  show.image = FALSE,
+  plot.height = 800,
+  plot.width = 1500
 )
 }
 \arguments{
@@ -36,6 +39,8 @@ Plot3DFeature(
 
 \item{size}{A numeric value specifying the size of markers in the plot (default = 3).}
 
+\item{col.palette}{Character string defining the colour palette to use for plotting. Possible palettes to use are: Blackbody,Bluered,Blues,Cividis,Earth,Electric,Greens,Greys,Hot,Jet,Picnic,Portland,Rainbow,RdBu,Reds,Viridis,YlGnBu,YlOrRd (default = "Reds").}
+
 \item{x.axis.label}{A character string specifying the label for the x-axis (default = "x").}
 
 \item{y.axis.label}{A character string specifying the label for the y-axis (default = "y").}
@@ -49,6 +54,10 @@ Plot3DFeature(
 \item{show.z.ticks}{A logical value specifying whether to show ticks on the z-axis (default = FALSE).}
 
 \item{show.image}{A logical value specifying whether to overlay an image on the plot (default = FALSE).}
+
+\item{plot.height}{Numeric value defining the height of the returned plot (default = 800).}
+
+\item{plot.width}{Numeric value defining the width of the returned plot (default = 1500).}
 }
 \value{
 A 3D Plotly plot

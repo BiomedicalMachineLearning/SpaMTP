@@ -1183,6 +1183,56 @@ MassIntensityPlot <- function (data,
 
 
 
+#' Checks the alignment of two spatial datasets by plotting their relative coordinates on the same graph
+#'
+#' @param SM.data SpaMTP Seurat object containing SM data
+#' @param ST.data SpaMTP Seurat object containing ST data
+#' @param image.res Character string defining the Visium image resolution to use. This is required for the correct scale.factor to be applied (default = NULL).
+#' @param cols Vector of colors used for plotting (default = NULL).
+#' @param image.slice Character string matching the image slice name within the ST SpaMTP Seurat object (default = "slice1").
+#' @param size Numeric value indicating the point size to plot (default = 0.5).
+#'
+#' @return A 2D scatter plot showing the relative spatial locations of the ST and SM data points
+#' @export
+#'
+#' @examples
+#' # CheckAlignment(SM.data, ST.data)
+CheckAlignment <- function(SM.data, ST.data, image.res = NULL, cols = NULL, image.slice = "slice1", size = 0.5){
+
+  if (is.null(image.res)){
+    scale.factor <- 1
+  } else {
+    if (image.res %in% c("hires", "lowres")){
+      scale.factor <- ST.data@images[[image.slice]]@scale.factors[[image.res]]
+    } else {
+      stop("invalid input for image.res! image.res must be either 'hires' or 'lowres'")
+    }
+  }
+
+  df <- ST.data@images[[image.slice]]@coordinates[c("imagerow", "imagecol")] * scale.factor
+  df$sample <- "RNA"
+
+  df2 <- GetTissueCoordinates(SM.data)
+  df2$imagecol <- df2$y * scale.factor
+  df2$imagerow <- df2$x * scale.factor
+
+  df2 <- df2[c("imagerow", "imagecol")]
+  df2$sample <- "MSI"
+
+  df1 <- rbind(df,df2)
+
+  if (is.null(cols)){
+    cols <- c("#F8766D", "#00BFC4")
+  } else {
+    cols <- cols
+  }
+
+  p <- ggplot(df1, aes(imagerow, imagecol,color = sample)) +
+    geom_point(size = size) + theme_void() +  scale_color_manual(values = cols)
+  return(p)
+
+}
+
 
 
 
@@ -1195,6 +1245,7 @@ MassIntensityPlot <- function (data,
 #' @param between.layer.height A numeric value specifying the height between layers (default = 100).
 #' @param names A character vector specifying custom names for the features. If NULL will use feature names (default = NULL).
 #' @param size A numeric value specifying the size of markers in the plot (default = 3).
+#' @param col.palette Character string defining the colour palette to use for plotting. Possible palettes to use are: Blackbody,Bluered,Blues,Cividis,Earth,Electric,Greens,Greys,Hot,Jet,Picnic,Portland,Rainbow,RdBu,Reds,Viridis,YlGnBu,YlOrRd (default = "Reds").
 #' @param x.axis.label A character string specifying the label for the x-axis (default = "x").
 #' @param y.axis.label A character string specifying the label for the y-axis (default = "y").
 #' @param z.axis.label A character string specifying the label for the z-axis (default = "z").
@@ -1202,6 +1253,8 @@ MassIntensityPlot <- function (data,
 #' @param show.y.ticks A logical value specifying whether to show ticks on the y-axis (default = FALSE).
 #' @param show.z.ticks A logical value specifying whether to show ticks on the z-axis (default = FALSE).
 #' @param show.image A logical value specifying whether to overlay an image on the plot (default = FALSE).
+#' @param plot.height Numeric value defining the height of the returned plot (default = 800).
+#' @param plot.width Numeric value defining the width of the returned plot (default = 1500).
 #'
 #'
 #' @return A 3D Plotly plot
@@ -1216,13 +1269,17 @@ Plot3DFeature <- function(data,
                           between.layer.height = 100,
                           names= NULL,
                           size = 3,
+                          col.palette = "Reds",
                           x.axis.label = "x",
                           y.axis.label = "y",
                           z.axis.label = "z",
                           show.x.ticks = FALSE,
                           show.y.ticks = FALSE,
                           show.z.ticks = FALSE,
-                          show.image = FALSE){
+                          show.image = FALSE,
+                          plot.height = 800,
+                          plot.width = 1500
+                          ){
 
   ## handeling of inncorect input legnths
   if (length(features) < 1 | length(features) > 2){
@@ -1259,7 +1316,7 @@ Plot3DFeature <- function(data,
     } else {
       if (length(assays) != 0){
 
-        feature_data[[i]] <- tryCatch({test_aligned[[assays[i]]][slots[i]][feature,]},
+        feature_data[[i]] <- tryCatch({data[[assays[i]]][slots[i]][feature,]},
                                       error = function(err){
                                         stop("The feature provided does not exist in the ", assays[i],": ",slots[i], " object. Please provide a value feature")})
       } else {
@@ -1286,6 +1343,8 @@ Plot3DFeature <- function(data,
             z = rep(0 + between.layer.height, times = dim(GetTissueCoordinates(data))[1]),
             type = "scatter3d",
             mode = "markers",
+            height = plot.height,
+            width = plot.width,
             name = default_names[1],
             marker = list(color = feature_data[[1]],
                           coloraxis = 'coloraxis', size = size)) %>%
@@ -1304,7 +1363,7 @@ Plot3DFeature <- function(data,
                                 name = default_names[2],
                                 marker = list(color = feature_data[[2]],
                                               coloraxis = 'coloraxis2')) %>%
-    layout(
+    layout(autosize = F,
       scene = list(
         aspectmode = "data",
         xaxis = list(title = x.axis.label, showticklabels = show.x.ticks),
@@ -1313,15 +1372,19 @@ Plot3DFeature <- function(data,
       coloraxis = list(colorbar = list(orientation = "v",
                                        xanchor ="right",
                                        x = 0,
+                                       len = 0.5,
                                        title = list( side = "top",
                                                      text = default_names[1]
-                                       ))),
+                                       )),
+                       colorscale = col.palette),
       coloraxis2 = list(colorbar = list(orientation = "v",
                                         xanchor ="left",
+                                        len = 0.5,
                                         x = 0,
                                         title = list( side = "top",
                                                       text = default_names[2]
-                                        )))
+                                        )),
+                        colorscale = col.palette)
 
     )
 

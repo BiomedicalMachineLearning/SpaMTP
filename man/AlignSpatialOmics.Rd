@@ -2,67 +2,51 @@
 % Please edit documentation in R/SpatialMultiomicAlignment.R
 \name{AlignSpatialOmics}
 \alias{AlignSpatialOmics}
-\title{Converts and aggregates Spatial Metabolomic (MALDI) data to corresponding Spatial Transcriptomics (Visium) spots.
-\itemize{
-\item This function uses generate_new_SM_counts() and increase_SM_res()
-}}
+\title{Shiny app allowing for manual alignment of SM and ST data coordinates}
 \usage{
 AlignSpatialOmics(
-  SM.data,
-  ST.data,
-  res_increase = NULL,
-  annotations = FALSE,
-  assay = "Spatial",
-  slots = c("counts"),
-  img_res = "hires",
-  slice = "slice1",
-  new_SpM.assay = "SPM",
-  add.ST = TRUE,
-  ST.assay = "Spatial",
-  ST.layers = c("counts"),
-  new_SpT.assay = "SPT",
-  verbose = TRUE
+  sm.data,
+  st.data,
+  msi.pixel.multiplier = 20,
+  image.res = "lowres",
+  continous_cols = NULL,
+  catagorical_cols = "black",
+  fov = "fov",
+  image.slice = "slice1",
+  shiny.host = "0.0.0.0",
+  shiny.port = 4698,
+  verbose = FALSE
 )
 }
 \arguments{
-\item{SM.data}{A Seurat object representing the Spatial Metabolomics data.}
+\item{sm.data}{SpaMTP Seurat Object containing SM data}
 
-\item{ST.data}{A Seurat object representing the Visium Spatial Transcriptomics data.}
+\item{st.data}{SpaMTP Seurat Object containing ST data}
 
-\item{res_increase}{Integer value defining the factor by which the resolution of MALDI spots should be increased before assignment. It should be either 4 or 9, see increase_SM_res() documentation for specifics (Default = NULL).}
+\item{msi.pixel.multiplier}{Numeric value defining a scale.factor to multiple each SM pixel coordinates by (default = 20).}
 
-\item{annotations}{Boolean value indicating if the Spatial Metabolomics (MALDI) Seurat object contains annotations assigned to m/z values (default = FALSE).}
+\item{image.res}{Character string of the corresponding ST image scale factor to use (default = "lowres").}
 
-\item{assay}{Character string defining the Seurat assay that contains the annotated counts and metadata corresponding to the m/z values (default = "Spatial").}
+\item{continous_cols}{Vector of colours to use for plotting continuous data. If NULL, the colour map "Reds" will be used (default = NULL).}
 
-\item{slots}{Vector of character strings describing which slots from the Spatial Metabolomic Seurat object to adjust for the new overlayed object (default = c("counts", "data")).}
+\item{catagorical_cols}{Vector of colours to use for plotting categorical data (default = "black").}
 
-\item{img_res}{Character string defining the image resolution associated with the Visium image pixel data (default = "hires").}
+\item{fov}{Character string matching the name of the SM FOV to use for plotting (default = "fov").}
 
-\item{slice}{Character string of the image slice name in the Visium object (default = "slice1").}
+\item{image.slice}{Character string matching the ST image slice name to use for plotting (default = "slice1").}
 
-\item{new_SpM.assay}{Character string defining the assay name of the new overlayed Seurat object containing all updated metabolomic data (default = "SPM").}
+\item{shiny.host}{Character string of the shiny host network interface that the Shiny application will listen on when run (default = "0.0.0.0").}
 
-\item{add.ST}{Boolean indicating whether to add the Spatial Metabolomic data from the Seurat Visium Object to the new updated Seruat Object (default = TRUE).}
+\item{shiny.port}{Numeric 4 digit number defining the port that the Shiny application will listen to when run (default = 4698).}
 
-\item{ST.assay}{Character string specifying the current assay to use to extract transcriptional data from (default = "Spatial").}
-
-\item{ST.layers}{Vector of character strings defining the relative slots to extract from the initial Visium object, to add to the new Seurat Object if ST.assay == TRUE (default = c("counts", "data")).}
-
-\item{new_SpT.assay}{Character string defining the assay name of the new overlayed Seurat object containing all updated transcriptomics data (default = "SPT").}
-
-\item{verbose}{Boolean value indicating whether to print pregression update messages and progress bar (default = TRUE).}
+\item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = FALSE).}
 }
 \value{
-A Seurat object with the Spatial Metabolomic data assigned to equivalent Spatial Transcripomics (Visium) spots.
+A SpaMTP Seurat Object containing SM data with transformed coordinated to match the aligned ST data
 }
 \description{
-Converts and aggregates Spatial Metabolomic (MALDI) data to corresponding Spatial Transcriptomics (Visium) spots.
-\itemize{
-\item This function uses generate_new_SM_counts() and increase_SM_res()
-}
+Shiny app allowing for manual alignment of SM and ST data coordinates
 }
 \examples{
-## Convert MALDI data to equivalent Visium spots
-# convert_MALDI_to_visium_like_adata(VisiumObj, SeuratObj, img_res = "hires", new_library_id = "MALDI", res_increase = NULL)
+# SM_Transformed <- AlignSpatialOmics(SM.data, ST.data)
 }

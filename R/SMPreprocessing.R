@@ -15,13 +15,14 @@ library(tidyr)
 #' @param scale.factor Numeric value that sets the scale factor for pixel/spot level normalization. Following normalization the total intensity value across each pixel will equal this value. If scale.factor = NULL, TIC normalization will use a scale factor = number of m/z and Log Normalisation will use a scale factor = 10000 (default = NULL).
 #' @param assay Character string defining the name of the Seurat Object assay to pull the corresponding intensity data from (default = "Spatial").
 #' @param slot  Character string defining the name of the slot within the Seurat Object assay to pull the corresponding intensity data from (default = "counts").
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
 #'
 #' @return A Seurat Object with intensity values normalized. Normalized data is stored in the $data slot of the specified assay
 #' @export
 #'
 #' @examples
 #' # normalised_data <- NormalizeSMData(SeuratObject)
-NormalizeSMData <- function(data, normalisation.type = 'TIC', scale.factor = NULL, assay = "Spatial", slot = "counts") {
+NormalizeSMData <- function(data, normalisation.type = 'TIC', scale.factor = NULL, assay = "Spatial", slot = "counts", verbose = TRUE) {
 
   if (is.null(normalisation.type)) {
     stop("Error: no normalisation.type is select. Please enter either 'LogNormalize' or 'TIC'")
@@ -41,7 +42,7 @@ NormalizeSMData <- function(data, normalisation.type = 'TIC', scale.factor = NUL
     normalisation.type <- "RC"
   }
 
-  normalised.data <- Seurat::NormalizeData(data, normalization.method = normalisation.type, scale.factor = scale.factor)
+  normalised.data <- Seurat::NormalizeData(data, normalization.method = normalisation.type, scale.factor = scale.factor, verbose = verbose)
 
   return(normalised.data)
 

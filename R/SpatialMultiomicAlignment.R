@@ -3,6 +3,13 @@ library(RANN)
 library(stats)
 library(utils)
 library(graphics)
+library(imager)
+library(shiny)
+library(shinyjs)
+library(magrittr)
+library(zeallot)
+library(RColorBrewer)
+
 
 
 #### SpaMTP MALDI to Visium Spot Merging Functions  ####################################################################################################################################################################
@@ -113,7 +120,7 @@ increase_SM_res <- function(SM.data, res_increase = 4, verbose = TRUE) {
 
   verbose_message(message_text = "Increasing the resolution of MALDI Pixel Data ...\n", verbose = verbose)
 
-  # Assuming SM.data$obs has columns 'x_coord' and 'y_coord'
+  # Assuming SM.data@meta.data has columns 'x_coord' and 'y_coord'
 
   # Randomly sample 1000 indices
   sampled_indices <- sample(1:(nrow(SM.data@meta.data) - 1), size = 1000, replace = TRUE)
@@ -251,11 +258,20 @@ generate_new_SM_counts <- function(original_SM, obs_x, assay, slots, verbose = T
 #'
 #' @examples
 #' ## Convert MALDI data to equivalent Visium spots
-#' # convert_MALDI_to_visium_like_adata(VisiumObj, SeuratObj, img_res = "hires", new_library_id = "MALDI", res_increase = NULL)
-AlignSpatialOmics <- function(SM.data, ST.data, res_increase = NULL, annotations = FALSE, assay = "Spatial", slots = c("counts"), img_res = "hires", slice = "slice1", new_SpM.assay = "SPM", add.ST = TRUE, ST.assay = "Spatial", ST.layers = c("counts"), new_SpT.assay = "SPT", verbose = TRUE) {
+#' # MapSpatialOmics(VisiumObj, SeuratObj, img_res = "hires", new_library_id = "MALDI", res_increase = NULL)
+MapSpatialOmics <- function(SM.data, ST.data, res_increase = NULL, annotations = FALSE, assay = "Spatial", slots = c("counts"), img_res = "hires", slice = "slice1", new_SpM.assay = "SPM", add.ST = TRUE, ST.assay = "Spatial", ST.layers = c("counts"), new_SpT.assay = "SPT", verbose = TRUE) {
 
+  SM.coords <- GetTissueCoordinates(SM.data)
 
-  new_SM_metadata <- SM.data@meta.data
+  scale.factor <- ST.data@images[[slice]]@scale.factors[[img_res]]
+
+  SM.metadata <- SM.data@meta.data
+  SM.metadata$x_coord <- SM.coords[,"x"] * scale.factor
+  SM.metadata$y_coord <- SM.coords[,"y"] * scale.factor
+
+  SM.data@meta.data[c("x_coord", "y_coord")] <- SM.metadata[c("x_coord", "y_coord")]
+
+  new_SM_metadata <- SM.metadata
 
   ## Increases resolution of the SM data (This will shift the centroid position close to each Visium spot)
   if (!is.null(res_increase)) {
@@ -264,6 +280,10 @@ AlignSpatialOmics <- function(SM.data, ST.data, res_increase = NULL, annotations
     } else {
       stop("Error: res_increase must be either 4 or 9\n")
     }
+  } else {
+    new_SM_metadata$new_x_coord <- new_SM_metadata$x_coord
+    new_SM_metadata$new_y_coord <- new_SM_metadata$y_coord
+    new_SM_metadata$old_barcode <- rownames(new_SM_metadata)
   }
 
   verbose_message(message_text = "Assigning MALDI to Visium Spots ... \n", verbose = verbose)
@@ -272,17 +292,17 @@ AlignSpatialOmics <- function(SM.data, ST.data, res_increase = NULL, annotations
   img <- ST.data@images[[slice]]
 
   image_data <- ST.data@images[[slice]]@coordinates
-  image_data$imagerow_sf <- image_data$imagerow * ST.data@images[[slice]]@scale.factors[[img_res]]
-  image_data$imagecol_sf <- image_data$imagecol * ST.data@images[[slice]]@scale.factors[[img_res]]
+  image_data$imagerow_sf <- image_data$imagerow * scale.factor
+  image_data$imagecol_sf <- image_data$imagecol * scale.factor
 
   ## Find average distance between the spot coordinates and their true coordinates in pixels
-  dis <- abs((stats::lm(image_data$imagerow_sf ~image_data$col))$coefficients[[2]])
+  dis <- abs((stats::lm(image_data$imagerow_sf ~image_data$row))$coefficients[[2]])
 
   radius <- 2 * dis / 100 * 55 / 2 #radius is used to determine the area for each spot to bin pixel data to
 
 
   ## find which pixels fall into each spot radius
-  new_coords <- as.matrix(new_SM_metadata[, c("new_y_coord", "new_x_coord")])
+  new_coords <- as.matrix(new_SM_metadata[, c("new_x_coord", "new_y_coord")])
   query_coords <- as.matrix(image_data[, c("imagerow_sf", "imagecol_sf")])
   v_points <- RANN::nn2(new_coords,query_coords, treetype = "kd",searchtype = "radius", radius = radius)$nn.idx
 
@@ -290,7 +310,7 @@ AlignSpatialOmics <- function(SM.data, ST.data, res_increase = NULL, annotations
   ## Constructing a df to store new metadata based on binned pixels
   obs_ <- data.frame(
     index = rownames(new_SM_metadata),
-    nFeature_Spatial = new_SM_metadata$nFeature_Spatial,
+    nFeature_Spatial = new_SM_metadata[[paste0("nFeature_",assay)]] ,
     old_barcode = new_SM_metadata$old_barcode,
     Visium_spot = "Not_assigned")
 
@@ -316,7 +336,7 @@ AlignSpatialOmics <- function(SM.data, ST.data, res_increase = NULL, annotations
   )
 
   ## Tidying up df to create Seurat object
-  obs_x <- obs_[, c("Visium_spot", "nFeature_Spatial", "old_barcode")]
+  obs_x <- obs_[, c("Visium_spot", paste0("nFeature_",assay), "old_barcode")]
 
   obs_x <- obs_x %>%
     dplyr::group_by(Visium_spot) %>%
@@ -383,5 +403,738 @@ AlignSpatialOmics <- function(SM.data, ST.data, res_increase = NULL, annotations
 
 
 ########################################################################################################################################################################################################################
+
+
+
+
+#### SpaMTP Manual Alignment of ST and SM data ####################################################################################################################################################################
+# Code below and some function have been modified from STUtility: https://github.com/jbergenstrahle/STUtility/tree/master
+
+
+#' Shiny app allowing for manual alignment of SM and ST data coordinates
+#'
+#' @param sm.data SpaMTP Seurat Object containing SM data
+#' @param st.data SpaMTP Seurat Object containing ST data
+#' @param msi.pixel.multiplier Numeric value defining a scale.factor to multiple each SM pixel coordinates by (default = 20).
+#' @param image.res Character string of the corresponding ST image scale factor to use (default = "lowres").
+#' @param continous_cols Vector of colours to use for plotting continuous data. If NULL, the colour map "Reds" will be used (default = NULL).
+#' @param catagorical_cols Vector of colours to use for plotting categorical data (default = "black").
+#' @param fov Character string matching the name of the SM FOV to use for plotting (default = "fov").
+#' @param image.slice Character string matching the ST image slice name to use for plotting (default = "slice1").
+#' @param shiny.host Character string of the shiny host network interface that the Shiny application will listen on when run (default = "0.0.0.0").
+#' @param shiny.port Numeric 4 digit number defining the port that the Shiny application will listen to when run (default = 4698).
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = FALSE).
+#'
+#' @return A SpaMTP Seurat Object containing SM data with transformed coordinated to match the aligned ST data
+#' @export
+#'
+#' @examples
+#' # SM_Transformed <- AlignSpatialOmics(SM.data, ST.data)
+AlignSpatialOmics <- function (
+    sm.data,
+    st.data,
+    msi.pixel.multiplier = 20,
+    image.res = "lowres",
+    continous_cols = NULL,
+    catagorical_cols = "black",
+    fov = "fov",
+    image.slice = "slice1",
+    shiny.host = "0.0.0.0",
+    shiny.port = 4698,
+    verbose = FALSE
+
+) {
+
+  options(shiny.host = shiny.host)
+  options(shiny.port = shiny.port)
+
+  #Get tissue coordinates from Seurat Objects
+
+  ## ST cooridnates
+  df <- st.data@images[["slice1"]]@coordinates[c("imagerow", "imagecol")] * st.data@images[[image.slice]]@scale.factors[[image.res]]
+
+  ## SM Coordinates
+  df2 <- GetTissueCoordinates(sm.data)[c("x", "y")]
+  df2$imagecol <- df2$x * msi.pixel.multiplier / (st.data@images[["slice1"]]@scale.factors[["hires"]]/st.data@images[[image.slice]]@scale.factors[[image.res]])
+  df2$imagerow <- df2$y * msi.pixel.multiplier / (st.data@images[["slice1"]]@scale.factors[["hires"]]/st.data@images[[image.slice]]@scale.factors[[image.res]])
+  df2 <- df2[c("imagerow", "imagecol")]
+
+  # Calculate scatter for plotting
+  df$pixel_x <- df$imagerow
+  df$pixel_y <- df$imagecol
+  df$x <- df$imagerow
+  df$y <- df$imagecol
+
+  sc1 <- df[c("x", "y")]
+  rownames(sc1) <- NULL
+  coords1 <- df[c("pixel_x", "pixel_y")]
+
+  df2$pixel_x <- df2$imagerow
+  df2$pixel_y <- df2$imagecol
+  df2$x <- df2$imagerow
+  df2$y <- df2$imagecol
+
+  sc2 <- df2[c("x", "y")]
+  rownames(sc2) <- NULL
+  coords2<- df2[c("pixel_x", "pixel_y")]
+
+  sc <- list("1" = list("scatter" = sc1, "coords" = coords1),
+             "2" = list("scatter" = sc2, "coords" = coords2))
+
+
+  arr <- GetImage(st.data, mode = "raw")
+  rotated_array <- aperm(arr, c(2, 1, 3))
+  rotated_array <- rotated_array[ nrow(rotated_array):1, ,]
+  color_matrix <- (as.raster(rotated_array))
+
+
+  reference.index = 1
+  scatters <- sc
+  fixed.scatter <- scatters[[reference.index]]$scatter
+  counter <- NULL
+  coords.ls <- NULL
+  transformations <-  list(diag(c(1, 1, 1)), diag(c(1, 1, 1)))
+  tr.matrices <- lapply(transformations, function(x) diag(c(1, 1, 1)))
+
+  id <- list("1" = dim(color_matrix), "2" = dim(color_matrix))
+  image.dims <- id
+
+
+  ui <- fluidPage(
+    useShinyjs(),
+    fluidRow(
+      column(4,
+             shiny::hr(),
+             actionButton(inputId = "info", label = "Instructions"),
+             shiny::hr(),
+             fluidRow(
+               column(width = 6, sliderInput(
+                 inputId = "angle",
+                 label = "Rotation angle",
+                 value = 0, min = -120, max = 120, step = 0.1
+               ))
+             ),
+             fluidRow(
+               column(width = 6, sliderInput(
+                 inputId = "shift_x",
+                 label = "Move along x axis",
+                 value = 0, min = -round(dim(color_matrix)[2]*(3/4)), max = round(dim(color_matrix)[2]*(3/4)), step = 1
+               )),
+               column(width = 6, sliderInput(
+                 inputId = "shift_y",
+                 label = "Move along y axis",
+                 value = 0, min = -round(dim(color_matrix)[2]*(3/4)), max = round(dim(color_matrix)[2]*(3/4)), step = 1
+               ))
+             ),
+             h4("stretch along blue axis:"),
+             fluidRow(
+               column(width = 6, sliderInput(
+                 inputId = "stretch_angle1",
+                 label = "angle",
+                 value = 0, min = -180, max = 180, step = 0.1
+               )),
+               column(width = 6, sliderInput(
+                 inputId = "stretch_factor1",
+                 label = "stretch/squeeze",
+                 value = 1, min = 0.1, max = 2, step = 0.01
+               ))
+             ),
+             h4("stretch along red axis:"),
+             fluidRow(
+               column(width = 6, sliderInput(
+                 inputId = "stretch_angle2",
+                 label = "angle",
+                 value = 0, min = -180, max = 180, step = 0.1
+               )),
+               column(width = 6, sliderInput(
+                 inputId = "stretch_factor2",
+                 label = "stretch/squeeze",
+                 value = 1, min = 0.1, max = 2, step = 0.01
+               ))
+             ),
+             fluidRow(
+               column(4, numericInput(
+                 inputId = "size_spot",
+                 label = "SM spot size",
+                 value = 0.5, min = 0, max = 5, step = 0.1
+               )),
+               column(4, numericInput(
+                 inputId = "size_target",
+                 label = "ST point size",
+                 value = 0.3, min = 0, max = 5, step = 0.05
+               )),
+               column(4, selectInput(
+                 inputId = "spot_shape",
+                 label = "spot shape",
+                 choices =   c("spot" = "circle",
+                               "pixel" = "square")
+               )),
+               column(4, selectInput(
+                 inputId = "sm_plot",
+                 label = "SM plot feature",
+                 choices =   setNames(colnames(sm.data@meta.data), colnames(sm.data@meta.data))
+               )),
+               column(4, selectInput(
+                 inputId = "st_plot",
+                 label = "ST plot feature",
+                 choices =   setNames(colnames(st.data@meta.data), colnames(st.data@meta.data))
+               ))
+             ),
+             fluidRow(
+               column(4,  checkboxInput(inputId = "flip_x",
+                                        label = "mirror along x axis",
+                                        value = FALSE)
+               ),
+               column(4,  checkboxInput(inputId = "flip_y",
+                                        label = "mirror along y axis",
+                                        value = FALSE)
+               ),
+               column(4,  checkboxInput(inputId = "show_ST_spots",
+                                        label = "show ST spots",
+                                        value = FALSE)
+               ),
+               column(4,  checkboxInput(inputId = "show_ST_img",
+                                        label = "show image",
+                                        value = TRUE)
+               ),
+               column(4,  checkboxInput(inputId = "show_SM_spots",
+                                        label = "show SM spots",
+                                        value = TRUE)
+               )
+
+             ),
+             selectInput(inputId = "sample", choices = (1:length(scatters))[-reference.index],
+
+                         label = "Select sample", selected = reference.index),
+             actionButton("myBtn", "Return aligned data")
+      ),
+
+      column(7, plotOutput("scatter")
+      )
+    )
+  )
+
+  server <- function(input, output) {
+
+    rotation_angle <- reactive({
+      rot_angle <- input$angle
+      return(rot_angle)
+    })
+
+    translation_xy <- reactive({
+      trxy <- c(input$shift_x, input$shift_y)
+      return(trxy)
+    })
+
+    mirror_xy <- reactive({
+      mirrxy <- c(input$flip_x, input$flip_y)
+      return(mirrxy)
+    })
+
+    stretch_angle1 <- reactive({
+      str_angle1 <- input$stretch_angle1
+      return(str_angle1)
+    })
+
+    stretch_factor1 <- reactive({
+      str_factor1 <- input$stretch_factor1
+      return(str_factor1)
+    })
+
+    stretch_angle2 <- reactive({
+      str_angle2 <- input$stretch_angle2
+      return(str_angle2)
+    })
+
+    stretch_factor2 <- reactive({
+      str_factor2 <- input$stretch_factor2
+      return(str_factor2)
+    })
+
+
+    pt_size <- reactive({
+      input$size_spot
+    })
+
+    st_feature_plot <- reactive({
+      input$st_plot
+    })
+
+    sm_feature_plot <- reactive({
+      input$sm_plot
+    })
+
+    pt_shape <- reactive({
+      if (input$spot_shape == "square"){
+        return(15)
+      } else{
+        return(19)
+      }
+    })
+
+    pt_size_target <- reactive({
+      input$size_target
+    })
+
+
+    pt_st_points <- reactive({
+      input$show_ST_spots
+    })
+
+    pt_sm_points <- reactive({
+      input$show_SM_spots
+    })
+
+    pt_st_img <- reactive({
+      input$show_ST_img
+    })
+
+
+
+    coords_list <- reactive({
+
+      # Obtain point set and spot pixel coordinates
+      ls <- scatter.coords()
+      scatter.t <- ls[[1]]; coords.t <- ls[[2]]
+
+      # Set transformation parameters
+      xt.yt <- translation_xy()
+      xy.alpha <- rotation_angle()
+      mirrxy <-  mirror_xy()
+      str.alpha1 <- stretch_angle1()
+      str.factor1 <- stretch_factor1()
+      str.alpha2 <- stretch_angle2()
+      str.factor2 <- stretch_factor2()
+
+      # Apply reflections
+      center <- apply(scatter.t, 2, mean)
+      tr.mirror <- mirror(mirror.x = mirrxy[1], mirror.y = mirrxy[2], center.cur = center)
+
+      # Apply rotation
+      tr.rotate <- rotate(angle = -xy.alpha, center.cur = center)
+
+      # Apply translation
+      tr.translate <- translate(translate.x = xt.yt[1], translate.y = -xt.yt[2])
+
+      # Apply stretch
+      tr.stretch1 <- stretch(r = str.factor1, alpha = -str.alpha1, center.cur = center)
+      tr.stretch2 <- stretch(r = str.factor2, alpha = -(str.alpha2 + 90), center.cur = center)
+
+      # Combine transformations
+      tr <- tr.stretch2%*%tr.stretch1%*%tr.translate%*%tr.rotate%*%tr.mirror
+
+
+      # Apply transformations
+      scatter.t <- t(tr%*%rbind(t(scatter.t), 1))[, 1:2]
+      coords.t <- t(tr%*%rbind(t(coords.t), 1))[, 1:2]
+
+      return(list(scatter = scatter.t, coords = coords.t, tr = tr, xylimits = image.dims[[input$sample]]))
+    })
+
+    output$scatter <- renderPlot({
+
+      coords.ls <<- coords_list()
+      c(scatter.t, coords.t, tr, xylimit) %<-% coords.ls
+
+      d <- round((sqrt(xylimit[1]^2 + xylimit[2]^2) - xylimit[2])/2)
+
+      center <- apply(coords.t[, 1:2], 2, mean)
+
+      arrows.1 <- function(x0, y0, length.ar, angle.ar, ...){
+
+        angle.ar <- 2*pi*(-angle.ar/360)
+        ab <- cos(angle.ar) * length.ar
+        bc <- sign(sin(angle.ar)) * sqrt(length.ar^2 - ab^2)
+
+        x1 <- x0 + ab
+        y1 <- y0 + bc
+
+        arrows(x0, y0, x1, y1, ...)
+      }
+
+
+      if (!is.null(continous_cols)){
+        cont_pal <- continous_cols
+      } else {
+        cont_pal  <- RColorBrewer::brewer.pal("Reds", n = 9)
+      }
+
+      if (!is.null(catagorical_cols)){
+        cat_pal <- catagorical_cols
+      } else {
+        cat_pal <- RColorBrewer::brewer.pal("Paired", n = 10)
+      }
+
+
+      if (is.numeric(sm.data@meta.data[[sm_feature_plot()]])){
+        sm_cols <- cont_pal[as.numeric(cut(sm.data@meta.data[[sm_feature_plot()]],breaks = 9))]
+      } else {
+        sm_cols <- cat_pal[as.factor(sm.data@meta.data[[sm_feature_plot()]])]
+      }
+
+      if (is.numeric(st.data@meta.data[[st_feature_plot()]])){
+        st_cols <- cont_pal[as.numeric(cut(st.data@meta.data[[st_feature_plot()]],breaks = 9))]
+      } else {
+        st_cols <- cat_pal[as.factor(st.data@meta.data[[st_feature_plot()]])]
+      }
+
+
+      if (pt_st_img()){
+        plot(color_matrix)
+      } else{
+
+        plot(NULL, NULL, col = "white", xlim = c(0, dim(color_matrix)[1]), ylim = c(0, dim(color_matrix)[2]), xaxt = 'n', yaxt = 'n', ann = FALSE, bty = "n")
+        #plot(fixed.scatter[, 1], fixed.scatter[, 2], col = st_cols, pch = as.numeric(pt_shape()), cex = pt_size_target(), xlim = c(0, dim(color_matrix)[1]), ylim = c(0, dim(color_matrix)[2]), xaxt = 'n', yaxt = 'n', ann = FALSE, bty = "n")
+      }
+
+      if (pt_st_points()){
+        points(fixed.scatter[, 1], fixed.scatter[, 2], col = st_cols, pch = as.numeric(pt_shape()), cex = pt_size_target())
+      }
+
+      if (pt_sm_points()){
+        points(coords.t[, 1], coords.t[, 2], col = sm_cols, pch = as.numeric(pt_shape()), cex = pt_size())
+        arrows.1(x0 = center[1], y0 = center[2], angle.ar = stretch_angle1(), length.ar = 100*stretch_factor1(), lwd = 4, col = "blue")
+        arrows.1(x0 = center[1], y0 = center[2], angle.ar = 90 + stretch_angle2(), length.ar = 100*stretch_factor2(), lwd = 4, col = "red")
+      }
+
+    }, height = 800, width = 800)
+
+    scatter.coords <- eventReactive(input$sample, {
+      reset("angle"); reset("shift_x"); reset("shift_y"); reset("flip_x"); reset("flip_y"); reset("stretch_factor1"); reset("stretch_factor2"); reset("stretch_angle1"); reset("stretch_angle2")
+      if (!is.null(counter)) {
+        scatters[[counter]] <<- coords.ls[c(1, 2)]
+        if (!is.null(tr.matrices[[counter]])) {
+          tr.matrices[[counter]] <<- coords.ls[[3]]%*%tr.matrices[[counter]]
+        } else {
+          tr.matrices[[counter]] <<- coords.ls[[3]]
+        }
+      }
+      scatter <- scatters[[as.numeric(input$sample)]]$scatter
+      coords <- scatters[[as.numeric(input$sample)]]$coords
+      counter <<- as.numeric(input$sample)
+      return(list(scatter, coords))
+    })
+
+    observe({
+      if(input$myBtn > 0){
+        if (!is.null(counter)) {
+          scatters[[counter]] <<- coords.ls[c(1, 2)]
+          if (!is.null(tr.matrices[[counter]])) {
+            tr.matrices[[counter]] <<- coords.ls[[3]]%*%tr.matrices[[counter]]
+            cat("Sample:", counter, "\n",  tr.matrices[[counter]][1, ], "\n", tr.matrices[[counter]][2, ], "\n", tr.matrices[[counter]][3, ], "\n\n")
+          } else {
+            tr.matrices[[counter]] <<- coords.ls[[3]]
+          }
+        }
+        stopApp(tr.matrices)
+      }
+    })
+
+    observeEvent(input$info, {
+      showModal(modalDialog(
+        title = "Instructions",
+        HTML("The selected sample is highlighted by its coordinates under the tissue <br>",
+             "highlighted in red. only rigid transformations are allowed, meaning <br>",
+             "rotation, shifts along x/y-axes and reflections.<br><br>",
+             "1. Select sample that you want to align to a reference [default: 2]<br>",
+             "2. Adjust transformation parameters to fit the sample image to the reference<br>",
+             "3. Repeat 1-4 until all samples are aligned<br>",
+             "4. Press the 'return aligned data' button to return results"),
+        easyClose = TRUE,
+        footer = NULL
+      ))
+    })
+  }
+
+  # Returned transformation matrices
+  alignment.matrices <- runApp(list(ui = ui, server = server))
+  alignment.matrices <- lapply(alignment.matrices, function(tr) {
+    tr <- solve(tr)
+    return(tr)
+  })
+
+  if (verbose) cat(paste("Finished image alignment. \n\n"))
+  processed.ids <- which(unlist(lapply(alignment.matrices, function(tr) {!all(tr == diag(c(1, 1, 1)))})))
+
+  # Raise error if none of the samples were processed
+  if (length(processed.ids) == 0) stop("None of the samples were processed", call. = FALSE)
+
+  # Obtain alignment matrix
+  tr <- alignment.matrices[[processed.ids]]
+  transformations[[processed.ids]] <- tr%*%transformations[[processed.ids]]
+
+  map.rot.backward <- generate.map.affine(tr)
+  map.rot.forward <- generate.map.affine(tr, forward = TRUE)
+
+
+  # Warp pixels
+  if (verbose) cat(paste0("Warping pixel coordinates for SM sample", " ... \n"))
+  warped_xy <- sapply(setNames(as.data.frame(do.call(cbind, map.rot.forward(coords2$pixel_x, coords2$pixel_y))), nm = c("warped_x", "warped_y")), round, digits = 1)
+
+  warped_mtx <- as.matrix(warped_xy)
+
+  sm.data[[fov]][["centroids"]]@coords[,"x"] <- warped_mtx[,"warped_x"]  / st.data@images[[image.slice]]@scale.factors[[image.res]]
+  sm.data[[fov]][["centroids"]]@coords[,"y"] <- warped_mtx[,"warped_y"]  / st.data@images[[image.slice]]@scale.factors[[image.res]]
+
+  return(sm.data)
+}
+
+rotate <- function (
+    angle,
+    center.cur
+) {
+  alpha <- 2*pi*(angle/360)
+  #center.cur <- c(center.cur, 0)
+  #points(center.cur[1], center.cur[2], col = "red")
+  tr <- rigid.transl(-center.cur[1], -center.cur[2])
+  tr <- rigid.transf(center.cur[1], center.cur[2], alpha)%*%tr
+  return(tr)
+}
+
+
+#' Creates a transformation matrix that translates an object
+#' in 2D
+#'
+#' @param translate.x,translate.y translation of x, y coordinates
+
+translate <- function (
+    translate.x,
+    translate.y
+) {
+  tr <- rigid.transl(translate.x, translate.y)
+  return(tr)
+}
+
+
+#' Creates a transformation matrix that mirrors an object
+#' in 2D along either the x axis or y axis around its
+#' center of mass
+#'
+#' @param mirror.x,mirror.y Logical specifying whether or not an
+#' object should be reflected
+#' @param center.cur Coordinates of the current center of mass
+#'
+
+mirror <- function (
+    mirror.x = FALSE,
+    mirror.y = FALSE,
+    center.cur
+) {
+  center.cur <- c(center.cur, 0)
+  tr <- rigid.transl(-center.cur[1], -center.cur[2])
+  tr <- rigid.refl(mirror.x, mirror.y)%*%tr
+  tr <- rigid.transl(center.cur[1], center.cur[2])%*%tr
+  return(tr)
+}
+
+
+#' Stretch along angle
+#'
+#' Creates a transformation matrix that stretches an object
+#' along a specific axis
+#'
+#' @param r stretching factor
+#' @param alpha angle
+#' @param center.cur Coordinates of the current center of mass
+#'
+
+stretch <- function(r, alpha, center.cur) {
+  center.cur <- c(center.cur, 0)
+  tr <- rigid.transl(-center.cur[1], -center.cur[2])
+  tr <- rigid.rot(alpha, forward = TRUE)%*%tr
+  tr <- rigid.stretch(r)%*%tr
+  tr <- rigid.rot(alpha, forward = FALSE)%*%tr
+  tr <- rigid.transl(center.cur[1], center.cur[2])%*%tr
+  return(tr)
+}
+
+
+#' Creates a transformation matrix for rotation
+#'
+#' Creates a transformation matrix for clockwise rotation by 'alpha' degrees
+#'
+#' @param alpha rotation angle
+#' @param forward should the rotation be done in forward direction?
+#'
+
+rigid.rot <- function (
+    alpha = 0,
+    forward = TRUE
+) {
+  alpha <- 2*pi*(alpha/360)
+  tr <- matrix(c(cos(alpha), ifelse(forward, -sin(alpha), sin(alpha)), 0, ifelse(forward, sin(alpha), -sin(alpha)), cos(alpha), 0, 0, 0, 1), nrow = 3)
+  return(tr)
+}
+
+
+#' Creates a transformation matrix for rotation and translation
+#'
+#' Creates a transformation matrix for clockwise rotation by 'alpha' degrees
+#' followed by a translation with an offset of (h, k). Points are assumed to be
+#' centered at (0, 0).
+#'
+#' @param h Numeric: offset along x axis
+#' @param k Numeric: offset along y axis
+#' @param alpha rotation angle
+#'
+
+rigid.transf <- function (
+    h = 0,
+    k = 0,
+    alpha = 0
+) {
+  tr <- matrix(c(cos(alpha), -sin(alpha), 0, sin(alpha), cos(alpha), 0, h, k, 1), nrow = 3)
+  return(tr)
+}
+
+#' Creates a transformation matrix for translation with an offset of (h, k)
+#'
+#' @param h Numeric: offset along x axis
+#' @param k Numeric: offset along y axis
+#'
+
+rigid.transl <- function (
+    h = 0,
+    k = 0
+) {
+  tr <-  matrix(c(1, 0, 0, 0, 1, 0, h, k, 1), nrow = 3)
+  return(tr)
+}
+
+#' Creates a transformation matrix for reflection
+#'
+#' Creates a transformation matrix for reflection where mirror.x will reflect the
+#' points along the x axis and mirror.y will reflect thepoints along the y axis.
+#' Points are assumed to be centered at (0, 0)
+#'
+#' @param mirror.x,mirror.y Logical: mirrors x or y axis if set to TRUE
+
+rigid.refl <- function (
+    mirror.x,
+    mirror.y
+) {
+  tr <- diag(c(1, 1, 1))
+  if (mirror.x) {
+    tr[1, 1] <- - tr[1, 1]
+  }
+  if (mirror.y) {
+    tr[2, 2] <- - tr[2, 2]
+  }
+  return(tr)
+}
+
+#' Creates a transformation matrix for stretching
+#'
+#' Creates a transformation matrix for stretching by a factor of r
+#' along the x axis.
+#'
+#' @param r stretching factor
+
+rigid.stretch <- function (
+    r
+) {
+  tr <- matrix(c(r, 0, 0, 0, 1, 0, 0, 0, 1), ncol = 3)
+}
+
+
+#' Combines rigid tranformation matrices
+#'
+#' Combines rigid tranformation matrices in the following order:
+#' translation of points to origin (0, 0) -> reflection of points
+#' -> rotation by alpha degrees and translation of points to new center
+#'
+#' @param center.cur (x, y) image pixel coordinates specifying the current center of the tissue (stored in slot "tools" as "centers")
+#' @param center.new (x, y) image pixel coordinates specifying the new center (image center)
+#' @param alpha Rotation angle
+#'
+#' @inheritParams rigid.transf
+#' @inheritParams rigid.transl
+#' @inheritParams rigid.refl
+#'
+#' @examples
+#' \dontrun{
+#' library(imager)
+#' library(tidyverse)
+#' im <- load.image("https://upload.wikimedia.org/wikipedia/commons/thumb/f/fd/Aster_Tataricus.JPG/1024px-Aster_Tataricus.JPG")
+#' d <- sRGBtoLab(im) %>% as.data.frame(wide="c")%>%
+#'   dplyr::select(-x,-y)
+#'
+#' km <- kmeans(d, 2)
+#'
+#' # Run a segmentation to extract flower
+#' seg <- as.cimg(abs(km$cluster - 2), dim = c(dim(im)[1:2], 1, 1))
+#' plot(seg); highlight(seg == 1)
+#'
+#' # Detect edges
+#' dx <- imgradient(seg, "x")
+#' dy <- imgradient(seg, "y")
+#' grad.mag <- sqrt(dx^2 + dy^2)
+#' plot(grad.mag)
+#'
+#' # Extract points at edges
+#' edges.px <- which(grad.mag > max(grad.mag[, , 1, 1])/2, arr.ind = TRUE)
+#' points(edges.px, col = "green", cex = 0.1)
+#'
+#' # Apply transformations to point set
+#' tr1 <- combine.tr(center.cur = apply(edges.px[, 1:2], 2, mean),
+#'                   center.new = c(1200, 1200), alpha = 90)
+#' tr2 <- combine.tr(center.cur = apply(edges.px[, 1:2], 2, mean),
+#'                   center.new = c(500, 1200), mirror.x = T, alpha = 30)
+#' tr3 <- combine.tr(center.cur = apply(edges.px[, 1:2], 2, mean),
+#'                   center.new = c(1200, 500), mirror.y = T, alpha = 270)
+#' plot(edges.px, xlim = c(0, 1700), ylim = c(0, 1700), cex = 0.1)
+#' points(t(tr1%*%t(edges.px[, 1:3])), cex = 0.1, col = "red")
+#' points(t(tr2%*%t(edges.px[, 1:3])), cex = 0.1, col = "yellow")
+#' points(t(tr3%*%t(edges.px[, 1:3])), cex = 0.1, col = "blue")
+#' }
+#'
+#' @export
+
+combine.tr <- function (
+    center.cur,
+    center.new,
+    alpha,
+    mirror.x = FALSE,
+    mirror.y = FALSE
+) {
+
+  alpha <- 2*pi*(alpha/360)
+  center.cur <- c(center.cur, 0)
+  tr <- rigid.transl(-center.cur[1], -center.cur[2])
+
+  # reflect
+  tr <- rigid.refl(mirror.x, mirror.y)%*%tr
+
+  # rotate and translate to new center
+  tr <- rigid.transf(center.new[1], center.new[2], alpha)%*%tr
+}
+
+
+
+generate.map.affine <- function (
+    tr, #icps,
+    forward = FALSE
+) {
+  #icps <- find.optimal.transform(set2, set1, xdim, ydim)
+  if (forward) {
+    map.affine <- function (x, y) {
+      p <- cbind(x, y)
+      #os <- icps$os
+      #xy <- apply.transform(map = solve(tr), p)
+      #xy <- t(abs(t(xy) - os))
+      xy <- t(solve(tr)%*%t(cbind(p, 1)))
+      list(x = xy[, 1], y = xy[, 2])
+    }
+  } else {
+    map.affine <- function (x, y) {
+      p <- cbind(x, y)
+      #p <- t(abs(t(p) - icps$os))
+      #xy <- apply.transform(map = tr, p)
+      xy <- t(tr%*%t(cbind(p, 1)))
+      list(x = xy[, 1], y = xy[, 2])
+    }
+  }
+  return(map.affine)
+}
 
 
