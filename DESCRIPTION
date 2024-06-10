@@ -30,6 +30,7 @@ Imports:
     pheatmap,
     RANN,
     RColorBrewer,
+    rgoslin,
     scater,
     Seurat,
     SeuratObject,
