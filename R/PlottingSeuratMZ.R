@@ -962,7 +962,7 @@ MassIntensityPlot <- function (data,
 
   if (!(is.null(annotation.column))){
     if (!(annotation.column %in% colnames(data[[assay]]@meta.data))){
-      warning(paste("'",annotation.column," column not in object metadata. If data object does not have annotations set annotation.column = FALSE"))
+      warning(paste("'",annotation.column," column not in object metadata. If data object does not have annotations set annotation.column = NULL"))
       stop("annotation.column does not exist")
     } else {
       if (!is.null(nlabels.to.show)){
