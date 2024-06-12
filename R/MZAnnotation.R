@@ -409,7 +409,7 @@ is_formula_valid <- function(formula,allowed_elements) {
 formula_filter <- function(df, elements = NULL) {
   if (is.null(elements)) {
     elements <- c("H", "C", "N", "O", "S", "Cl", "Br",
-                  "F", "Na", "P", "I")
+                  "F", "Na", "P", "I","Si")
   }
 
   # Elements to allow
