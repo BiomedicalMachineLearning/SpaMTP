@@ -21,6 +21,7 @@ Metabolomic based software) and Seurat (Spatial Transcriptomic based
 software) functions.
 
 <img src="inst/figures/SpaMTPSumFig.png" height="400" alt="" style="background-color: white;" />
+
 ## Another development version of the github is below
 https://github.com/BCRL-tylu/SpaMTP
 
