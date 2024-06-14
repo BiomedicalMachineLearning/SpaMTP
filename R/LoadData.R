@@ -107,13 +107,12 @@ ReadSM_mtx <- function(mtx.file, assay = "Spatial", verbose = TRUE, feature.star
   cents <- SeuratObject::CreateCentroids(data.frame(x = coords[["x_coord"]], y = coords[["y_coord"]], cell = rownames(coords)))
 
   segmentations.data <- list(
-    "centroids" = cents,
-    "segmentation" = NULL
+    "centroids" = cents
   )
 
   coords <- SeuratObject::CreateFOV(
     coords = segmentations.data,
-    type = c("segmentation", "centroids"),
+    type = c("centroids"),
     molecules = NULL,
     assay = assay
   )
