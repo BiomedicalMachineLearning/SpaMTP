@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# SpaMTP <img src="man/figures/logo.png" align="right" height="150" alt="" />
+# SpaMTP <img src="man/figures/logo.png" align="right" height="100" alt="" />
 
 <!-- badges: start -->
 <br>
