@@ -36,8 +36,10 @@ You can install the development version of SpaMTP from
 [GitHub](https://github.com/) with:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("agc888/SpaMTP")
+if (!require("devtools", quietly = TRUE))
+    install.packages("devtools")
+
+devtools::install_github("BiomedicalMachineLearning/SpaMTP")
 ```
 
 Below is an example of how to set up SpaMTP using a conda environment
@@ -51,10 +53,6 @@ Within the SpaMTP environment open *R* and install ***SpaMTP***
 packages
 
 ``` r
-
-if (!require("devtools", quietly = TRUE))
-    install.packages("devtools")
-
 devtools::install_github("BiomedicalMachineLearning/SpaMTP")
 ```
 
@@ -95,6 +93,22 @@ fftwtools.c:28:9: fatal error: fftw3.h: No such file or directory
 
 If EBImage failed to installed it ist most likely due to an issue with the installation of *fftwtools*
 
+Try:
+
+``` console
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+
+conda install r-fftwtools
+```
+
+Else try:
+
+``` console
+conda install bioconda::r-fftwtools
+conda install conda-forge::fftw
+```
+
 Try in *R*:
 
 ```r
@@ -106,20 +120,18 @@ BiocManager::install("fftwtools")
 
 ```
 
-Else try:
-
-``` console
-conda install bioconda::r-fftwtools
-conda install conda-forge::fftw
-```
-
-If *install.packages(“fftwtools”)* still fails then try this:
+If none of the above methods resolve instiallation issues, install *Cardinal* directly through *conda*:
 
 ``` console
 conda install bioconda::bioconductor-cardinal  
 ```
 
 For other issue please flag on github under *Issues*
+
+
+
+
+
 
 ## SpaMTP Vignette
 
