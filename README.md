@@ -4,13 +4,13 @@
 # SpaMTP <img src="man/figures/logo.png" align="right" height="150" alt="" />
 
 <!-- badges: start -->
-
-## New *R*-based User-Frendly Spatial Metabolomic, Transcriptomic and Proteomic Data Analysis Tool
-
 <br>
- 
-
+## New *R*-based User-Friendly Spatial Metabolomic, Transcriptomic, and Proteomic Data Analysis Tool
+<br>
 <!-- badges: end -->
+
+
+
 
 The goal of SpaMTP is to integrate tools previously designed for
 analysing different spatial metabolomic, transcriptomic and proteomic
