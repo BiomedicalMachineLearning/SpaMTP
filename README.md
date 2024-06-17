@@ -13,8 +13,6 @@
 <!-- badges: end -->
 
 
-
-
 The goal of SpaMTP is to integrate tools previously designed for
 analysing different spatial metabolomic, transcriptomic and proteomic
 data together into a user-freindly package. This will allow users to
