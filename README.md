@@ -3,7 +3,6 @@
 
 # SpaMTP <img src="man/figures/logo.png" align="right" height="150" alt="" />
 
-<br>
 <!-- badges: start -->
 
 ## New *R*-based User-Frendly Spatial Metabolomic, Transcriptomic and Proteomic Data Analysis Tool
