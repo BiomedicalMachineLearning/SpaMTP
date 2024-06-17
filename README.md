@@ -1,12 +1,12 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# SpaMTP 
+# SpaMTP <img src="man/figures/logo.png" align="right" height="150" alt="" />
+
+<br>
 <!-- badges: start -->
 
-<img src="man/figures/logo.png" align="right" height="200" alt="" />
-
-
+<!-- badges: end -->
 
 ## New *R*-based User-Frendly Spatial Metabolomic, Transcriptomic and Proteomic Data Analysis Tool
 
