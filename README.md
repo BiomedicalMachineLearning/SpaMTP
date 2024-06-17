@@ -8,7 +8,7 @@
 ## New *R*-based User-Frendly Spatial Metabolomic, Transcriptomic and Proteomic Data Analysis Tool
 
 <br>
-<br>
+ 
 
 <!-- badges: end -->
 
