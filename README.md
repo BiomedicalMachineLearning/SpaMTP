@@ -38,37 +38,19 @@ devtools::install_github("agc888/SpaMTP")
 Below is an example of how to set up SpaMTP using a conda environment
 
 ``` console
-conda create -n SpaMTP -c conda-forge r-base r-essentials r-devtools python==3.9.12
+conda create -n SpaMTP -c conda-forge r-base=4.3.3 r-essentials r-devtools
 conda activate SpaMTP
 ```
 
-Within the SpaMTP environment open *R* and install these dependency
+Within the SpaMTP environment open *R* and install ***SpaMTP***
 packages
 
 ``` r
-# intall various dependency packages
 
-install.packages("BiocManager")
-install.packages("pheatmap")
+if (!require("devtools", quietly = TRUE))
+    install.packages("devtools")
 
-
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-    
-BiocManager::install("edgeR")
-BiocManager::install("SingleCellExperiment")
-BiocManager::install("scater")
-BiocManager::install("Cardinal")
-BiocManager::install("DropletUtils")
-
-
-if (!require("remotes", quietly = TRUE))
-    install.packages("remotes")
-    
-remotes::install_github("satijalab/seurat", "seurat5", quiet = TRUE)
-
-# install.packages("devtools")
-devtools::install_github("agc888/SpaMTP")
+devtools::install_github("BiomedicalMachineLearning/SpaMTP")
 ```
 
 ### Possible Installiation Errors
@@ -85,13 +67,6 @@ ERROR: configuration failed for package ‘Cairo’
 check these libraries exist:
 
 ``` console
-conda install conda-forge::cairo
-conda install conda-forge::xorg-libxt
-```
-
-Then try:
-
-``` console
 conda install conda-forge::r-cairo
 ```
 
@@ -101,7 +76,7 @@ This should resolve any issues. Rerun:
 BiocManager::install("scater")
 ```
 
-#### Cardinal Failed ot install
+#### Cardinal Failed to install
 
 ``` console
 ERROR: dependency ‘EBImage’ is not available for package ‘Cardinal’
@@ -113,7 +88,20 @@ fftwtools.c:28:9: fatal error: fftw3.h: No such file or directory
       |         ^~~~~~~~~
 ```
 
-Try:
+If EBImage failed to installed it ist most likely due to an issue with the installation of *fftwtools*
+
+Try in *R*:
+
+```r
+
+if (!require("BiocManager", quietly = TRUE)) #Check if BiocManager is installed
+    install.packages("BiocManager")
+
+BiocManager::install("fftwtools")
+
+```
+
+Else try:
 
 ``` console
 conda install bioconda::r-fftwtools
