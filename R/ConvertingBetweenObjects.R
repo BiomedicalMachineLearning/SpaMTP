@@ -83,13 +83,12 @@ CardinalToSeurat <- function(data,run_name, seurat.coord = NULL, assay = "Spatia
 
 
   segmentations.data <- list(
-    "centroids" = cents,
-    "segmentation" = NULL
+    "centroids" = cents
   )
 
   coords <- SeuratObject::CreateFOV(
     coords = segmentations.data,
-    type = c("segmentation", "centroids"),
+    type = c("centroids"),
     molecules = NULL,
     assay = "Spatial"
   )
