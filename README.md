@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# SpaMTP <img src="man/figures/logo.png" align="right" height="100" alt="" />
+# SpaMTP !UNDER DEVELOPMENT! <img src="man/figures/logo.png" align="right" height="100" alt="" />
 
 <!-- badges: start -->
 <br>
@@ -13,11 +13,7 @@
 <!-- badges: end -->
 
 
-The goal of SpaMTP is to integrate tools previously designed for
-analysing different spatial metabolomic, transcriptomic and proteomic
-data together into a user-freindly package. This will allow users to
-seamlessly transition, integrate and co-analyse multimodality datasets
-in particularly focusing on metabolomic/transcriptomics integration.
+SpaMTP is an *R* based wrapper package for [*Seurat*](https://satijalab.org/seurat/) for the analysis of spatial metabolomic data. This user-freindly package contains various function for the analysis, integration and visalisation of multi-modal datasets, in particularly focusing on metabolomic/transcriptomics integration.
 This package includes various functions to preform pre-processing,
 spatial visualisation, various down-stream biological centered analyses,
 data integration and data export of Spatial Metabolomic data. In
@@ -32,7 +28,7 @@ https://github.com/BCRL-tylu/SpaMTP
 
 ## Installation
 
-You can install the development version of SpaMTP from
+You can install the current version of SpaMTP from
 [GitHub](https://github.com/) with:
 
 ``` r
@@ -41,6 +37,8 @@ if (!require("devtools", quietly = TRUE))
 
 devtools::install_github("BiomedicalMachineLearning/SpaMTP")
 ```
+
+## Installing with conda
 
 Below is an example of how to set up SpaMTP using a conda environment
 
@@ -126,10 +124,19 @@ If none of the above methods resolve instiallation issues, install *Cardinal* di
 conda install bioconda::bioconductor-cardinal  
 ```
 
+#### *rgoslin* Failed to install
+
+If rgoslin fails to install please head to their [github](https://github.com/lifs-tools/rgoslin). Alternative, you can try installing through BiocManager or mamba shown below:
+
+```r
+BiocManager::install("rgoslin")
+```
+or
+```console
+mamba install bioconductor-rgoslin
+```
+
 For other issue please flag on github under *Issues*
-
-
-
 
 
 
