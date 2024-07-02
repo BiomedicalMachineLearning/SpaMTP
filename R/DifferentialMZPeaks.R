@@ -341,9 +341,9 @@ DEPsHeatmap <- function(edgeR_output,
       warning("There are no annotations present in the edgeR_output object. Run 'annotate.SeuratMALDI()' prior to 'FindAllDEPs' and set annotations = TRUE .....\n Heatmap will plot default m/z values ... ")
     } else{
       if (!is.null(nlabels.to.show)){
-        def[[plot_annotations_column]] <- labels_to_show(df[[plot_annotations_column]], n = nlabels.to.show)
+        df[[plot_annotations_column]] <- labels_to_show(df[[plot_annotations_column]], n = nlabels.to.show)
       }
-      rownames(mtx) <- df[[plot_annotations_column]]
+      rownames(mtx) <- unique(df[[plot_annotations_column]])
     }
   }
 
