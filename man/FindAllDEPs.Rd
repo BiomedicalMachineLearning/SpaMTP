@@ -15,6 +15,7 @@ FindAllDEPs(
   annotation.column = NULL,
   assay = "Spatial",
   slot = "counts",
+  return.individual = FALSE,
   verbose = TRUE
 )
 }
@@ -36,6 +37,8 @@ FindAllDEPs(
 \item{assay}{A character string defining the assay where the mz count data and annotations are stored (default = "Spatial").}
 
 \item{slot}{Character string defining the assay storage slot to pull the relative mz intensity values from. Note: EdgeR requires raw counts, all values must be positive (default = "counts").}
+
+\item{return.individual}{Boolean value defining whether to return a list of individual edgeR objects for each designated ident. If FALSE, one merged edgeR object will be returned (default = FALSE).}
 
 \item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).}
 }

@@ -1,17 +1,18 @@
-library(Seurat)
-library(ggplot2)
-library(dplyr)
-library(stringr)
-library(SingleCellExperiment)
-library(scater)
-library(edgeR)
-library(pheatmap)
-library(limma)
-library(utils)
-library(stats)
-library(grDevices)
+#library(Seurat)
+#library(ggplot2)
+#library(dplyr)
+#library(stringr)
+#library(SingleCellExperiment)
+#library(scater)
+#library(edgeR)
+#library(pheatmap)
+#library(limma)
+#library(utils)
+#library(stats)
+#library(grDevices)
 
 #### SpaMTP Differential Peaks Analysis Functions ########################################################################################################################################################################################
+
 
 
 #' Runs pooling of a merged Seurat Dataset to generate pseudo-replicates for each sample
@@ -197,6 +198,7 @@ run_DE <- function(pooled_data, seurat_data, ident, output_dir, run_name, n, log
 #' @param annotation.column Character string defining the column where annotation information is stored in the assay metadata. This requires AnnotateSeuratMALDI() to be run where the default column to store annotations is "all_IsomerNames" (default = "None").
 #' @param assay A character string defining the assay where the mz count data and annotations are stored (default = "Spatial").
 #' @param slot Character string defining the assay storage slot to pull the relative mz intensity values from. Note: EdgeR requires raw counts, all values must be positive (default = "counts").
+#' @param return.individual Boolean value defining whether to return a list of individual edgeR objects for each designated ident. If FALSE, one merged edgeR object will be returned (default = FALSE).
 #' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
 #'
 #' @returns Returns an list() contains the EdgeR DE results. Pseudo-bulk counts are stored in $counts and DEPs are in $DEPs.
@@ -204,7 +206,7 @@ run_DE <- function(pooled_data, seurat_data, ident, output_dir, run_name, n, log
 #'
 #' @examples
 #' # FindAllDEPs(SeuratObj, "sample",DE_output_dir = "~/Documents/DE_output/", annotations = TRUE)
-FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir = NULL, run_name = "FindAllDEPs", annotation.column = NULL, assay = "Spatial", slot = "counts", verbose = TRUE){
+FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir = NULL, run_name = "FindAllDEPs", annotation.column = NULL, assay = "Spatial", slot = "counts", return.individual = FALSE, verbose = TRUE){
 
   if (!(is.null(DE_output_dir))){
     if (dir.exists(DE_output_dir)){
@@ -219,7 +221,7 @@ FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir
   pooled_data <- run_pooling(data,ident, n = n, assay = assay, slot = slot, verbose = verbose)
 
   #Step 2: Run EdgeR to calculate differentially expressed m/z peaks
-  DEP_results <- run_DE(pooled_data, data, ident = ident, output_dir = DE_output_dir, run_name = run_name, n=n, logFC_threshold=logFC_threshold, annotation.column = annotation.column, assay = assay, verbose = verbose)
+  DEP_results <- run_DE(pooled_data, data, ident = ident, output_dir = DE_output_dir, run_name = run_name, n=n, logFC_threshold=logFC_threshold, annotation.column = annotation.column, assay = assay, verbose = verbose, return.individual = return.individual)
 
   # Returns an EDGEr object which contains the pseudo-bulk counts in $counts and DEPs in $DEPs
   return(DEP_results)
@@ -254,6 +256,8 @@ FindAllDEPs <- function(data, ident, n = 3, logFC_threshold = 1.2, DE_output_dir
 #'
 #' @returns A heatmap plot of significantly differentially expressed peaks defined in the edgeR ouput object.
 #' @export
+#'
+#' @import dplyr
 #'
 #' @examples
 #' # DEPs <- FindAllDEPs(SeuratObj, "sample")

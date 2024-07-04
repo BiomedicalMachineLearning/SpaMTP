@@ -451,28 +451,24 @@ AlignSpatialOmics <- function (
   #Get tissue coordinates from Seurat Objects
 
   ## ST cooridnates
-  df <- st.data@images[["slice1"]]@coordinates[c("imagerow", "imagecol")] * st.data@images[[image.slice]]@scale.factors[[image.res]]
+  df <- GetTissueCoordinates(st.data)[c("x", "y")] * st.data@images[[image.slice]]@scale.factors[[image.res]]
 
   ## SM Coordinates
   df2 <- GetTissueCoordinates(sm.data)[c("x", "y")]
-  df2$imagecol <- df2$x * msi.pixel.multiplier / (st.data@images[["slice1"]]@scale.factors[["hires"]]/st.data@images[[image.slice]]@scale.factors[[image.res]])
-  df2$imagerow <- df2$y * msi.pixel.multiplier / (st.data@images[["slice1"]]@scale.factors[["hires"]]/st.data@images[[image.slice]]@scale.factors[[image.res]])
-  df2 <- df2[c("imagerow", "imagecol")]
+  df2$x <- df2$x * msi.pixel.multiplier / (st.data@images[[image.slice]]@scale.factors[["hires"]]/st.data@images[[image.slice]]@scale.factors[[image.res]])
+  df2$y <- df2$y * msi.pixel.multiplier / (st.data@images[[image.slice]]@scale.factors[["hires"]]/st.data@images[[image.slice]]@scale.factors[[image.res]])
+  df2 <- df2[c("x", "y")]
 
   # Calculate scatter for plotting
-  df$pixel_x <- df$imagerow
-  df$pixel_y <- df$imagecol
-  df$x <- df$imagerow
-  df$y <- df$imagecol
+  df$pixel_x <- df$x
+  df$pixel_y <- df$y
 
   sc1 <- df[c("x", "y")]
   rownames(sc1) <- NULL
   coords1 <- df[c("pixel_x", "pixel_y")]
 
-  df2$pixel_x <- df2$imagerow
-  df2$pixel_y <- df2$imagecol
-  df2$x <- df2$imagerow
-  df2$y <- df2$imagecol
+  df2$pixel_x <- df2$x
+  df2$pixel_y <- df2$y
 
   sc2 <- df2[c("x", "y")]
   rownames(sc2) <- NULL
@@ -482,7 +478,7 @@ AlignSpatialOmics <- function (
              "2" = list("scatter" = sc2, "coords" = coords2))
 
 
-  arr <- GetImage(st.data, mode = "raw")
+  arr <- st.data@images[[image.slice]]@image
   rotated_array <- aperm(arr, c(2, 1, 3))
   rotated_array <- rotated_array[ nrow(rotated_array):1, ,]
   color_matrix <- (as.raster(rotated_array))
@@ -498,6 +494,7 @@ AlignSpatialOmics <- function (
 
   id <- list("1" = dim(color_matrix), "2" = dim(color_matrix))
   image.dims <- id
+
 
 
   ui <- fluidPage(

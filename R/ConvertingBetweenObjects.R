@@ -1,9 +1,9 @@
-library(Cardinal)
-library(Seurat)
-library(SeuratObject)
-library(Matrix)
-library(stringr)
-library(matter)
+#library(Cardinal)
+#library(Seurat)
+#library(SeuratObject)
+#library(Matrix)
+#library(stringr)
+#library(matter)
 
 
 #### SpaMTP Cardinal to Seurat Functions ###############################################################################################################################################################################
