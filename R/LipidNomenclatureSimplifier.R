@@ -1,4 +1,3 @@
-library(rgoslin)
 
 #### SpaMTP Lipid Simplifier Functions #################################################################################################################################################################################
 
@@ -33,7 +32,7 @@ RefineLipids <- function(data, annotation.column = "annotations", database = "HM
     annotations <- strsplit(row, "; ")[[1]]
 
     suppressMessages({
-      lipid.df <- parseLipidNames(annotations, grammar = database)
+      lipid.df <- rgoslin::parseLipidNames(annotations, grammar = database)
     })
 
     if (all(!add_infomation %in% colnames(lipid.df))){
