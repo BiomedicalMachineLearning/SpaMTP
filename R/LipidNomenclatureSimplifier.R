@@ -6,15 +6,20 @@
 #' @param data data.frame containing a column with lipid annotations
 #' @param annotation.column Character string matching the column name containing the lipid annotations in the provided df (default = "annotations").
 #' @param database Character string defining the database matching the lipid annotations. Possible entries include c('Shorthand2020','Goslin','FattyAcids','LipidMaps','SwissLipids','HMDB') (default = "HMDB").
-#' @param add_infomation Vector of character strings defining what information to return for each lipid. Please visit https://bioconductor.org/packages/release/bioc/vignettes/rgoslin/inst/doc/introduction.html for possible inputs (default = c("Lipid.Maps.Category", "Lipid.Maps.Main.Class", "Species.Name")).
+#' @param add_infomation Character string defining what information to return for each lipid. Options are either "all" or "simple". "Simple" returns a smaller, simplified list of annotations for each lipid. Please visit https://bioconductor.org/packages/release/bioc/vignettes/rgoslin/inst/doc/introduction.html to see all possible outputs (default = "simple")).
 #'
 #' @return Data.frame containing additional columns with simplified lipid names
 #' @export
 #'
 #' @examples
 #' # RefineLipids(DEPs_df)
-RefineLipids <- function(data, annotation.column = "annotations", database = "HMDB", add_infomation = c("Lipid.Maps.Category", "Lipid.Maps.Main.Class", "Species.Name")){
+RefineLipids <- function(data, annotation.column = "annotations", database = "HMDB", lipid_info = "simple"){
 
+
+  if (!(lipid_info %in% c("simple", "all"))){
+    warning("Invalid input for 'lipid_info'!... Must be either 'all' or 'simple'. Will use default == 'simple'")
+    lipid_info <- "simple"
+  }
 
   rows_list <- list()
 
@@ -35,29 +40,41 @@ RefineLipids <- function(data, annotation.column = "annotations", database = "HM
       lipid.df <- rgoslin::parseLipidNames(annotations, grammar = database)
     })
 
-    if (all(!add_infomation %in% colnames(lipid.df))){
+    if (lipid_info == "all"){
+      add_infomation <- c(colnames(lipid.df), "Species.Name.Simple")
+    } else {
+      add_infomation <- c("Lipid.Maps.Category", "Lipid.Maps.Main.Class", "Species.Name", "Species.Name.Simple")
+    }
 
+    pass <- unique(lipid.df$Grammar)
+
+    if (length(pass) == 1 && pass == "NOT_PARSEABLE"){
       empty_df <- data.frame(matrix(NA, ncol = length(add_infomation), nrow = 1))
       colnames(empty_df) <- add_infomation
-
       rows_list[[row_name]] <- empty_df
-    } else{
+    } else {
+      lipid.df$Species.Name.Simple <- ifelse(
+        is.na(lipid.df$Lipid.Maps.Main.Class) | is.na(lipid.df$Total.C) | is.na(lipid.df$Total.DB),
+        NA,
+        paste0(lipid.df$Lipid.Maps.Main.Class, "(", lipid.df$Total.C, ":", lipid.df$Total.DB, ")"))
 
       lipid.df  <- lipid.df[add_infomation]
       new.row.data <- data.frame(lapply(lipid.df, function(col) paste(unique(col), collapse = "; ")))
       rows_list[[row_name]] <- new.row.data
     }
+
     utils::setTxtProgressBar(pb, idx)
   }
 
   close(pb)
 
+
   final_df <- dplyr::bind_rows(rows_list)
   data[colnames(final_df)] <- final_df
 
-
-  data <- data %>%
-    dplyr::mutate(across(all_of(add_infomation), ~ ., .names = "All.{.col}"))
+  # For Returning columns with NA's
+  #data <- data %>%
+  #  dplyr::mutate(across(all_of(add_infomation), ~ ., .names = "All.{.col}"))
 
   data <- data %>%
     dplyr::mutate_at(vars(add_infomation), ~ stringr::str_replace_all(., "\\bNA\\b", ""))
