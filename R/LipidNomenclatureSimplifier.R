@@ -79,7 +79,7 @@ RefineLipids <- function(data, annotation.column = "annotations", database = "HM
   data <- data %>%
     dplyr::mutate_at(vars(add_infomation), ~ stringr::str_replace_all(., "\\bNA\\b", ""))
 
-  for (col in colnames(data)) {
+  for (col in add_infomation) {
 
     data[[col]] <- gsub("(^|\\W)\\;\\s+|\\s+\\;($|\\W)", "\\1\\2", data[[col]])
     data[[col]] <- gsub("\\;\\s+$", "", data[[col]])
