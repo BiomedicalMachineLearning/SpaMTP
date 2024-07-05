@@ -83,11 +83,13 @@ RefineLipids <- function(data, annotation.column = "annotations", database = "HM
 
     data[[col]] <- gsub("(^|\\W)\\;\\s+|\\s+\\;($|\\W)", "\\1\\2", data[[col]])
 
+    data[[col]] <- gsub("\\;\\s+$", "", data[[col]])
+
     if (col == "Species.Name.Simple"){
-      data[[col]] <- result <- gsub("\\)", "); ", data[[col]])
+      data[[col]] <- gsub("\\)", "); ", data[[col]])
+      data[[col]] <- sub(";\\z", "", data[[col]])
     }
 
-    data[[col]] <- gsub("\\;\\s+$", "", data[[col]])
   }
 
   data <-data %>%
