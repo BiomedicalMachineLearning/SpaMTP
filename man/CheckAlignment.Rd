@@ -8,6 +8,7 @@ CheckAlignment(
   SM.data,
   ST.data,
   image.res = NULL,
+  names = c("SM", "ST"),
   cols = NULL,
   image.slice = "slice1",
   size = 0.5
@@ -20,7 +21,9 @@ CheckAlignment(
 
 \item{image.res}{Character string defining the Visium image resolution to use. This is required for the correct scale.factor to be applied (default = NULL).}
 
-\item{cols}{Vector of colors used for plotting (default = NULL).}
+\item{names}{Vector of 2 character strings used to define each dataset being plotted (default = c("SM", "ST")).}
+
+\item{cols}{Vector of 2 colors used for plotting (default = NULL).}
 
 \item{image.slice}{Character string matching the image slice name within the ST SpaMTP Seurat object (default = "slice1").}
 

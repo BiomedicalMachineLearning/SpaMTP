@@ -1188,7 +1188,8 @@ MassIntensityPlot <- function (data,
 #' @param SM.data SpaMTP Seurat object containing SM data
 #' @param ST.data SpaMTP Seurat object containing ST data
 #' @param image.res Character string defining the Visium image resolution to use. This is required for the correct scale.factor to be applied (default = NULL).
-#' @param cols Vector of colors used for plotting (default = NULL).
+#' @param names Vector of 2 character strings used to define each dataset being plotted (default = c("SM", "ST")).
+#' @param cols Vector of 2 colors used for plotting (default = NULL).
 #' @param image.slice Character string matching the image slice name within the ST SpaMTP Seurat object (default = "slice1").
 #' @param size Numeric value indicating the point size to plot (default = 0.5).
 #'
@@ -1197,7 +1198,7 @@ MassIntensityPlot <- function (data,
 #'
 #' @examples
 #' # CheckAlignment(SM.data, ST.data)
-CheckAlignment <- function(SM.data, ST.data, image.res = NULL, cols = NULL, image.slice = "slice1", size = 0.5){
+CheckAlignment <- function(SM.data, ST.data, image.res = NULL, names = c("SM", "ST"), cols = NULL, image.slice = "slice1", size = 0.5){
 
   if (is.null(image.res)){
     scale.factor <- 1
@@ -1209,15 +1210,11 @@ CheckAlignment <- function(SM.data, ST.data, image.res = NULL, cols = NULL, imag
     }
   }
 
-  df <- ST.data@images[[image.slice]]@coordinates[c("imagerow", "imagecol")] * scale.factor
-  df$sample <- "RNA"
+  df <- GetTissueCoordinates(ST.data)[c("x", "y")] * scale.factor
+  df$sample <- names[2]
 
-  df2 <- GetTissueCoordinates(SM.data)
-  df2$imagecol <- df2$y * scale.factor
-  df2$imagerow <- df2$x * scale.factor
-
-  df2 <- df2[c("imagerow", "imagecol")]
-  df2$sample <- "MSI"
+  df2 <- GetTissueCoordinates(SM.data)[c("x", "y")] * scale.factor
+  df2$sample <- names[1]
 
   df1 <- rbind(df,df2)
 
