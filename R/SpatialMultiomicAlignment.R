@@ -289,20 +289,14 @@ MapSpatialOmics <- function(SM.data, ST.data, res_increase = NULL, annotations =
   verbose_message(message_text = "Assigning MALDI to Visium Spots ... \n", verbose = verbose)
 
   ## Get coordinates of ST data
+  image_data <- data.frame(ST.data@images[[slice]]$centroids@coords) * scale.factor
 
-  image_data <- data.frame(ST.data@images[[slice]]$centroids@coords)
-  image_data$imagerow_sf <- image_data$x * scale.factor
-  image_data$imagecol_sf <- image_data$y * scale.factor
-
-  ## Find average distance between the spot coordinates and their true coordinates in pixels
-  dis <- abs((stats::lm(image_data$imagerow_sf ~image_data$x))$coefficients[[2]])
-
-  radius <- 2 * dis / 100 * 55 / 2 #radius is used to determine the area for each spot to bin pixel data to
-
+  ## gets radius of visium spot in pixels size
+  radius <- ST.data@images[[slice]]$centroids@radius * scale.factor
 
   ## find which pixels fall into each spot radius
   new_coords <- as.matrix(new_SM_metadata[, c("new_x_coord", "new_y_coord")])
-  query_coords <- as.matrix(image_data[, c("imagerow_sf", "imagecol_sf")])
+  query_coords <- as.matrix(image_data[, c("x", "y")])
   v_points <- RANN::nn2(new_coords,query_coords, treetype = "kd",searchtype = "radius", radius = radius)$nn.idx
 
 
