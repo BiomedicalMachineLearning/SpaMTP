@@ -42,8 +42,8 @@ Imports:
     tidyr,
     utils,
     zeallot
-URL: https://github.com/agc888/SpaMTP
-BugReports: https://github.com/agc888/SpaMTP/issues
+URL: https://github.com/BiomedicalMachineLearning/SpaMTP
+BugReports: https://github.com/BiomedicalMachineLearning/SpaMTP/issues
 Depends: 
     R (>= 2.10)
 LazyData: true
