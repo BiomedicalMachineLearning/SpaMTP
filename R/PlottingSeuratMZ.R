@@ -1224,7 +1224,7 @@ CheckAlignment <- function(SM.data, ST.data, image.res = NULL, names = c("SM", "
     cols <- cols
   }
 
-  p <- ggplot(df1, aes(imagerow, imagecol,color = sample)) +
+  p <- ggplot(df1, aes(x, y,color = sample)) +
     geom_point(size = size) + theme_void() +  scale_color_manual(values = cols)
   return(p)
 
