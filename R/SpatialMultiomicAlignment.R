@@ -428,6 +428,12 @@ MapSpatialOmics <- function(SM.data, ST.data, res_increase = NULL, annotations =
 #' @return A SpaMTP Seurat Object containing SM data with transformed coordinated to match the aligned ST data
 #' @export
 #'
+#' @importFrom shiny runApp fluidPage modalDialog fluidRow column sliderInput checkboxInput selectInput actionButton plotOutput reactive
+#' renderPlot eventReactive observe stopApp h4 numericInput HTML showModal
+#' @importFrom shinyjs useShinyjs reset
+#' @importFrom zeallot %<-%
+#'
+#'
 #' @examples
 #' # SM_Transformed <- AlignSpatialOmics(SM.data, ST.data)
 AlignSpatialOmics <- function (
@@ -1109,24 +1115,19 @@ combine.tr <- function (
 
 
 generate.map.affine <- function (
-    tr, #icps,
+    tr,
     forward = FALSE
 ) {
-  #icps <- find.optimal.transform(set2, set1, xdim, ydim)
+
   if (forward) {
     map.affine <- function (x, y) {
       p <- cbind(x, y)
-      #os <- icps$os
-      #xy <- apply.transform(map = solve(tr), p)
-      #xy <- t(abs(t(xy) - os))
       xy <- t(solve(tr)%*%t(cbind(p, 1)))
       list(x = xy[, 1], y = xy[, 2])
     }
   } else {
     map.affine <- function (x, y) {
       p <- cbind(x, y)
-      #p <- t(abs(t(p) - icps$os))
-      #xy <- apply.transform(map = tr, p)
       xy <- t(tr%*%t(cbind(p, 1)))
       list(x = xy[, 1], y = xy[, 2])
     }
