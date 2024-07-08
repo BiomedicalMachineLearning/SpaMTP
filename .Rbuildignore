@@ -2,8 +2,3 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^README\.Rmd$
-.readthedocs.yaml
-^docs/
-^_pkgdown\.yml$
-^docs$
-^pkgdown$
