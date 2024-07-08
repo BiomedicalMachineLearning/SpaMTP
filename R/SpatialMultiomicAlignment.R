@@ -290,7 +290,7 @@ MapSpatialOmics <- function(SM.data, ST.data, res_increase = NULL, annotations =
 
   ## Get coordinates of ST data
 
-  image_data <- ST.data@images[[slice]]$centroids@coords
+  image_data <- data.frame(ST.data@images[[slice]]$centroids@coords)
   image_data$imagerow_sf <- image_data$x * scale.factor
   image_data$imagecol_sf <- image_data$y * scale.factor
 
