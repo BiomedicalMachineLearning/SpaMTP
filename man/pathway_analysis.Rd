@@ -13,7 +13,7 @@ pathway_analysis(seurat, polarity, SP.assay = "SPM", ST.assay = NULL, ...)
 
 \item{SP.assay}{Character string defining the SpaMTP assay that contains m/z values (default = "SPM").}
 
-\item{ST.assay}{Character string defining the SpaMTP assay that contains gene names (default = "SPM").}
+\item{ST.assay}{Character string defining the SpaMTP assay that contains gene names (default = NULL).}
 
 \item{...}{The arguments pass to FisherexactTest}
 }

@@ -4,12 +4,12 @@
 \alias{find_index}
 \title{Finds the index values of the m/z values with their respective GSEA result}
 \usage{
-find_index(lsst, value)
+find_index(lst, value)
 }
 \arguments{
-\item{value}{Value returned based on the GSEA results}
-
 \item{lst}{List containing relative mz analytes and pathways}
+
+\item{value}{Value returned based on the GSEA results}
 }
 \value{
 returns a vector of indices that match the relative GSEA results to the m/z list

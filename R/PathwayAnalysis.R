@@ -4,7 +4,7 @@
 #' @param seurat A seurat object contains spatial metabolomics/transcriptomics features or both.
 #' @param polarity The polarity of the MALDI experiment
 #' @param SP.assay Character string defining the SpaMTP assay that contains m/z values (default = "SPM").
-#' @param ST.assay Character string defining the SpaMTP assay that contains gene names (default = "SPM").
+#' @param ST.assay Character string defining the SpaMTP assay that contains gene names (default = NULL).
 #' @param ... The arguments pass to FisherexactTest
 #'
 #' @return A dataframe with the relevant pathway information
@@ -558,7 +558,7 @@ principal_component_pathway_analysis = function(seurat,
   tryCatch({
     input_mz = data.frame(cbind(
       row_id = 1:ncol(resampled_mat),
-      mz = as.numeric(str_extract(row.names(seurat@assays[["SPM"]]@features), pattern = "\\d+\\.?\\d*"))
+      mz = as.numeric(str_extract(row.names(seurat[[assay]]@features), pattern = "\\d+\\.?\\d*"))
     ))
   },
   error = function(cond) {
@@ -1483,7 +1483,7 @@ list_to_pprcomp <- function(lst) {
 #'
 #' @examples
 #' #HELPER FUNCTION
-find_index <- function(lsst, value) {
+find_index <- function(lst, value) {
   indices <- which(sapply(lst, function(x) value %in% x))
   if (length(indices) == 0) {
     return(NULL)  # If value not found, return NULL
