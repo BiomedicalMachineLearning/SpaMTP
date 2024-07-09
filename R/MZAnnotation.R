@@ -90,7 +90,7 @@ AnnotateSM <- function(data, db, feature.metadata.assay = "Spatial", feature.met
   # 1) Filter DB by adduct.
   verbose_message(message_text = paste0("Filtering '", db_name, "' database by ", paste0(test_add_pos, collapse = ", "), " adduct/s"), verbose = verbose)
 
-  db_1 <- db_adduct_filter(db, test_add_pos, polarity = "pos")
+  db_1 <- db_adduct_filter(db, test_add_pos, polarity = "pos", verbose = verbose)
 
   # 2) only select natural elements
   db_2 <- formula_filter(db_1)
@@ -258,24 +258,24 @@ FindDuplicateAnnotations <- function (data, assay = "Spatial"){
 
 #' Checks if the complete adduct is in the data base, else returns a truncated adduct
 #'
-#' @param adduct Character string defining the adduct to be checked
-#' @param db DataFrame of the current reference database
+#' @param adduct Character string defining the adduct to be checked.
+#' @param db DataFrame of the current reference database.
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
 #'
 #' @return Character string of the complete or truncated adduct
 #'
 #' @examples
 #' # HMDB_db <- load("data/HMDB_1_names.rds")
 #' # check_and_truncate_adduct_vector(c("M+H"), HMDB_db)
-check_and_truncate_adduct_vector <- function(adduct, db) {
+check_and_truncate_adduct_vector <- function(adduct, db, verbose = TRUE) {
   element_exists <- adduct %in% colnames(db)
   missing_elements <- adduct[!element_exists]
   if (length(missing_elements) > 0) {
     for (missing_element in missing_elements) {
-      cat(
-        "Adduct",
-        missing_element,
-        "is not in the DB, it has been removed from the search.\n"
-      )
+      verbose_message(message_text =  paste0("Adduct",
+                      missing_element,
+                      "is not in the DB, it has been removed from the search.\n"), verbose = verbose)
+
     }
     truncated_adduct <- adduct[element_exists]
     return(truncated_adduct)
@@ -292,13 +292,14 @@ check_and_truncate_adduct_vector <- function(adduct, db) {
 #' @param adduct Character string defining the adduct to be checked.
 #' @param db DataFrame of the current reference database.
 #' @param polarity Character string defining the polarity of the adducts (default = "neg").
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
 #'
 #' @return A filtered reference metabolomic database DataFrame
 #'
 #' @examples
 #' # HMDB_db <- load("data/HMDB_1_names.rds")
 #' # db_adduct_filter(HMDB_db,c("M+H"), polarity = "pos")
-db_adduct_filter <- function(db, adduct, polarity = "neg") {
+db_adduct_filter <- function(db, adduct, polarity = "neg", verbose = TRUE) {
   # only include adducts from either neg or pos polarity
   if (polarity == "neg") {
     neg_adducts_1 <-
@@ -359,7 +360,7 @@ db_adduct_filter <- function(db, adduct, polarity = "neg") {
   # in adduct entry
   adduct <- gsub(" ", "", adduct)
 
-  adduct <- check_and_truncate_adduct_vector(adduct, db)
+  adduct <- check_and_truncate_adduct_vector(adduct, db, verbose = verbose)
 
   db_filtered <- db %>%
     dplyr::select(formula,

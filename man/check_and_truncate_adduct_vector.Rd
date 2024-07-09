@@ -4,12 +4,14 @@
 \alias{check_and_truncate_adduct_vector}
 \title{Checks if the complete adduct is in the data base, else returns a truncated adduct}
 \usage{
-check_and_truncate_adduct_vector(adduct, db)
+check_and_truncate_adduct_vector(adduct, db, verbose = TRUE)
 }
 \arguments{
-\item{adduct}{Character string defining the adduct to be checked}
+\item{adduct}{Character string defining the adduct to be checked.}
 
-\item{db}{DataFrame of the current reference database}
+\item{db}{DataFrame of the current reference database.}
+
+\item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).}
 }
 \value{
 Character string of the complete or truncated adduct

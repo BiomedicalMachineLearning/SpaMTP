@@ -142,12 +142,12 @@ FisherexactTest <- function (Analyte,
       test_add_pos <- adduct_file$adduct_name[which(adduct_file$charge > 0)]
       # Using Chris' pipeline for annotation
       # 1) Filter DB by adduct.
-      db_1 <- db_adduct_filter(db, test_add_pos, polarity = "pos")
+      db_1 <- db_adduct_filter(db, test_add_pos, polarity = "pos", verbose = verbose)
     } else if (polarity == "Negative") {
       test_add_neg <- adduct_file$adduct_name[which(adduct_file$charge < 0)]
       # Using Chris' pipeline for annotation
       # 1) Filter DB by adduct.
-      db_1 <- db_adduct_filter(db, test_add_neg, polarity = "neg")
+      db_1 <- db_adduct_filter(db, test_add_neg, polarity = "neg", verbose = verbose)
     } else if (polarity == "Neutral") {
       # Using Chris' pipeline for annotation
       # 1) Filter DB by adduct.
@@ -418,7 +418,7 @@ principal_component_pathway_analysis = function(seurat,
     new.width = as.integer(width / resampling_factor)
     new.height = as.integer(height / resampling_factor)
 
-    resampled_mat = matrix(nrow =  new.height * new.width)
+    resampled_mat = Matrix::matrix(nrow =  new.height * new.width)
     for (i in 1:ncol(mass_matrix)) {
       temp_mz_matrix = matrix(mass_matrix[, i],
                               ncol = width,
@@ -597,7 +597,7 @@ principal_component_pathway_analysis = function(seurat,
   # Using Chris' pipeline for annotation
   # 1) Filter DB by adduct.
   db_1 = db_adduct_filter(db, test_add, polarity = ifelse(ion_mode == "positive",
-                                                          "pos", "neg"))
+                                                          "pos", "neg"), verbose = verbose)
 
   # 2) only select natural elements
   db_2 = formula_filter(db_1)
