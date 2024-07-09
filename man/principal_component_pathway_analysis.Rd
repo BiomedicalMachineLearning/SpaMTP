@@ -10,7 +10,6 @@ principal_component_pathway_analysis(
   ppm_error = NULL,
   ion_mode = NULL,
   tof_resolution = 30000,
-  polarity = "positive",
   num_retained_component = NULL,
   variance_explained_threshold = 0.9,
   resampling_factor = 2,
@@ -22,17 +21,15 @@ principal_component_pathway_analysis(
 )
 }
 \arguments{
-\item{seurat}{is a Seurat object that contains spatial metabolic information}
+\item{seurat}{SpaMTP Seurat class object that contains spatial metabolic information.}
 
-\item{path}{is the output path for the visualization.}
+\item{path}{Character string defining the output path for the visualization (default = getwd()).}
 
 \item{ppm_error}{is the parts-per-million error tolerance of matching m/z value with potential metabolites}
 
-\item{ion_mode}{is only needed when ppm_error is not specified, goes to function estimate_mz_resolution_error will be used to access the ppm_error}
+\item{ion_mode}{is only needed when ppm_error is not specified, used to access the ppm_error based on polarity. Inputs must be either 'positive' or 'negative'(default = NULL).}
 
 \item{tof_resolution}{is the tof resolution of the instrument used for MALDI run, calculated by ion (ion mass,m/z)/(Full width at half height)}
-
-\item{polarity}{The polarity of the MALDI experiment. Inputs must be either 'positive' or 'negative'(default = "positive").}
 
 \item{num_retained_component}{is an integer value to indicated preferred number of PCs to retain}
 
