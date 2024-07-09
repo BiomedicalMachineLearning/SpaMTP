@@ -4,12 +4,18 @@
 \alias{pathway_analysis}
 \title{This the function used to compute the exact fisher test for over-representation based pathway analysis}
 \usage{
-pathway_analysis(seurat, polarity, SP.assay = "SPM", ST.assay = NULL, ...)
+pathway_analysis(
+  seurat,
+  polarity = "positive",
+  SP.assay = "SPM",
+  ST.assay = NULL,
+  ...
+)
 }
 \arguments{
 \item{seurat}{A seurat object contains spatial metabolomics/transcriptomics features or both.}
 
-\item{polarity}{The polarity of the MALDI experiment}
+\item{polarity}{The polarity of the MALDI experiment. Inputs must be either NULL, 'positive' or 'negative'. If NULL, pathway analysis will run in neutral mode (default = NULL).}
 
 \item{SP.assay}{Character string defining the SpaMTP assay that contains m/z values (default = "SPM").}
 
@@ -24,5 +30,5 @@ A dataframe with the relevant pathway information
 This the function used to compute the exact fisher test for over-representation based pathway analysis
 }
 \examples{
-# pathway_analysis(Seurat.Obj, polarity = "pos")
+# pathway_analysis(Seurat.Obj, polarity = "positive")
 }

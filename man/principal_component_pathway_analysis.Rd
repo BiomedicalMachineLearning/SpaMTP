@@ -10,6 +10,7 @@ principal_component_pathway_analysis(
   ppm_error = NULL,
   ion_mode = NULL,
   tof_resolution = 30000,
+  polarity = "positive",
   num_retained_component = NULL,
   variance_explained_threshold = 0.9,
   resampling_factor = 2,
@@ -30,6 +31,8 @@ principal_component_pathway_analysis(
 \item{ion_mode}{is only needed when ppm_error is not specified, goes to function estimate_mz_resolution_error will be used to access the ppm_error}
 
 \item{tof_resolution}{is the tof resolution of the instrument used for MALDI run, calculated by ion (ion mass,m/z)/(Full width at half height)}
+
+\item{polarity}{The polarity of the MALDI experiment. Inputs must be either 'positive' or 'negative'(default = "positive").}
 
 \item{num_retained_component}{is an integer value to indicated preferred number of PCs to retain}
 

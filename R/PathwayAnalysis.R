@@ -2,7 +2,7 @@
 #' This the function used to compute the exact fisher test for over-representation based pathway analysis
 #'
 #' @param seurat A seurat object contains spatial metabolomics/transcriptomics features or both.
-#' @param polarity The polarity of the MALDI experiment
+#' @param polarity The polarity of the MALDI experiment. Inputs must be either NULL, 'positive' or 'negative'. If NULL, pathway analysis will run in neutral mode (default = NULL).
 #' @param SP.assay Character string defining the SpaMTP assay that contains m/z values (default = "SPM").
 #' @param ST.assay Character string defining the SpaMTP assay that contains gene names (default = NULL).
 #' @param ... The arguments pass to FisherexactTest
@@ -11,9 +11,9 @@
 #' @export
 #'
 #' @examples
-#' # pathway_analysis(Seurat.Obj, polarity = "pos")
+#' # pathway_analysis(Seurat.Obj, polarity = "positive")
 pathway_analysis <- function(seurat,
-                            polarity,
+                            polarity = "positive",
                             SP.assay = "SPM",
                             ST.assay = NULL,
                             ...){
@@ -39,7 +39,7 @@ pathway_analysis <- function(seurat,
 #' Supported gene data format including: "entrez:X", "gene_symbol:X", "uniprot:X", "ensembl:X", "hmdb:HMDBPX"
 #' Supported mz format: any string or numeric vector contains the m/z
 #' @param analyte_type = "metabolites" or "gene" or "mz", or a vector contains any combinations of them
-#' @param polarity The polarity of the MALDI test
+#' @param polarity The polarity of the MALDI experiment. Inputs must be either NULL, 'positive' or 'negative'. If NULL, pathway analysis will run in neutral mode (default = NULL).
 #' @param ppm_error Integer defining the ppm threshold that matched analytes must be between (default = 10).
 #' @param max_path_size The max number of metabolites in a specific pathway
 #' @param min_path_size The min number of metabolites in a specific pathway
@@ -367,6 +367,7 @@ FisherexactTest <- function (Analyte,
 #' @param ppm_error is the parts-per-million error tolerance of matching m/z value with potential metabolites
 #' @param ion_mode is only needed when ppm_error is not specified, goes to function estimate_mz_resolution_error will be used to access the ppm_error
 #' @param tof_resolution is the tof resolution of the instrument used for MALDI run, calculated by ion (ion mass,m/z)/(Full width at half height)
+#' @param polarity The polarity of the MALDI experiment. Inputs must be either 'positive' or 'negative'(default = "positive").
 #' @param num_retained_component is an integer value to indicated preferred number of PCs to retain
 #' @param variance_explained_threshold Numeric value defining the explained variance threshold (default = 0.9).
 #' @param resampling_factor is a numerical value >0, indicate how you want to resample the size of roginal matrix
@@ -386,6 +387,7 @@ principal_component_pathway_analysis = function(seurat,
                                                 ppm_error = NULL,
                                                 ion_mode = NULL,
                                                 tof_resolution = 30000,
+                                                polarity = "positive",
                                                 num_retained_component = NULL,
                                                 variance_explained_threshold = 0.9,
                                                 resampling_factor = 2,
