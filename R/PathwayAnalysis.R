@@ -558,7 +558,7 @@ principal_component_pathway_analysis = function(seurat,
   tryCatch({
     input_mz = data.frame(cbind(
       row_id = 1:ncol(resampled_mat),
-      mz = as.numeric(str_extract(row.names(seurat[[assay]]@features), pattern = "\\d+\\.?\\d*"))
+      mz = as.numeric(stringr::str_extract(row.names(seurat[[assay]]@features), pattern = "\\d+\\.?\\d*"))
     ))
   },
   error = function(cond) {
