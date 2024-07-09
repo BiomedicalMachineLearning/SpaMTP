@@ -26,6 +26,8 @@ Supported mz format: any string or numeric vector contains the m/z}
 
 \item{polarity}{The polarity of the MALDI test}
 
+\item{ppm_error}{Integer defining the ppm threshold that matched analytes must be between (default = 10).}
+
 \item{max_path_size}{The max number of metabolites in a specific pathway}
 
 \item{alternative}{The hypothesis of the fisher exact test}
@@ -41,4 +43,7 @@ a dataframe with the relevant pathway information
 }
 \description{
 Calculates Significant Metabolic Pathways using a Fisher Exact Test
+}
+\examples{
+# HELPER FUNCTION
 }

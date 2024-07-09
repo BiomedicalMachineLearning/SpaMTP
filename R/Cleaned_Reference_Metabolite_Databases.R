@@ -51,7 +51,7 @@
 #' @source <https://hmdb.ca/>
 #'
 #' @references Wishart DS, et al. (2018). HMDB 4.0: the human metabolome database for 2018. Nucleic Acids Res. 46(D1):D608-D617.
-HMDB_db <- load("data/HMDB_db.rda")
+"HMDB_db"
 
 
 
@@ -102,7 +102,7 @@ HMDB_db <- load("data/HMDB_db.rda")
 #' }
 #'
 #' @source <https://www.lipidmaps.org/>
-Lipidmaps_db <- load("data/Lipidmaps_db.rda")
+"Lipidmaps_db"
 
 
 
@@ -154,7 +154,7 @@ Lipidmaps_db <- load("data/Lipidmaps_db.rda")
 #' }
 #'
 #' @source <https://www.ebi.ac.uk/chebi/>
-Chebi_db <- load("data/Chebi_db.rda")
+"Chebi_db"
 
 
 #' @title GNPS_db: A cleaned database of metabolites from GNPS
@@ -204,5 +204,106 @@ Chebi_db <- load("data/Chebi_db.rda")
 #' }
 #'
 #' @source \url{https://gnps.ucsd.edu/: https://gnps.ucsd.edu/}
-GNPS_db <- load("data/GNPS_db.rda")
+"GNPS_db"
 
+
+
+#' @title adduct_file: A dataframe containing possible adducts used for pathway analysis
+#'
+#' @description This object contains a collection of adducts with their relative ion.mass, change and polarity
+#'
+#' @format ## A data frame with 47 rows and 6 variables:
+#' \describe{
+#'   \item{adduct_name}{Chemical formula of the adduct (character)}
+#'   \item{ion.mass}{Mass of the molecular ion formula (character)}
+#'   \item{charge}{Relative charge of the adduct (integer)}
+#'   \item{mult}{Multiplication factor based on the original molecule mass (double)}
+#'   \item{add_mass}{The true mass of the ion being added or reduced (double)}
+#'   \item{pol}{Polarity of the ion (reduced = negative, added = positive) (character)}
+#' }
+#'
+"adduct_file"
+
+
+#' @title analyte: A dataframe containing ID's of possible RAMP analytes
+#'
+#' @description This object contains a collection of Ramp_DB analytes, along with an annotation of their analyte type
+#'
+#' @format ## A data frame with 250,961 rows and 2 variables:
+#' \describe{
+#'   \item{rampId}{Ramp_DB analyte ID/Name (character)}
+#'   \item{type}{Analyte type (character)}
+#' }
+#'
+"analyte"
+
+
+#' @title analytehaspathway: A dataframe containing RAMP_pathway ID's
+#'
+#' @description This object contains a collection of RAMP_DB ID's, Pathway ID's and relative pathway database source
+#'
+#' @format ## A data frame with 819,103 rows and 3 variables:
+#' \describe{
+#'   \item{rampId}{Ramp_DB analyte ID/Name (character)}
+#'   \item{pathwayRampId}{Ramp_DB pathway ID (character)}
+#'   \item{pathwaySource}{Relative source database for the respective pathway (character)}
+#' }
+#'
+"analytehaspathway"
+
+
+#' @title chem_props: A database containing the chemical properties and metadata of each RAMP_DB analyte
+#'
+#' @description This object contains a collection of RAMP_DB analytes with their corresponding metadata including chemical structure key (smiles), isotop mass, common name and molecular fomular
+#'
+#' @format ## A data frame with 283,003 rows and 11 variables:
+#' \describe{
+#'   \item{rampId}{Ramp_DB analyte ID/Name (character)}
+#'   \item{chem_data_source}{Relative source database for the respective analyte (character)}
+#'   \item{chem_source_id}{Relative source database ID for analyste (character)}
+#'   \item{iso_smiles}{Smile structure for relative analyte (character)}
+#'   \item{inchi_key_prefix}{InChlKey prefix of Internation Chemical Identifier (InChl) (character)}
+#'   \item{inchi_key}{Full InChlKey for corresponding analyte (character)}
+#'   \item{inchi}{Full InChl identifier structure for analyte (character)}
+#'   \item{mw}{Molecular weight for analyte (double)}
+#'   \item{monoisotop_mass}{Relative monoisotopic mass for analyate (double)}
+#'   \item{common_name}{Analytes common name (character)}
+#'   \item{mol_formula}{Analytes simplified molecular fomula (character)}
+#' }
+#'
+"chem_props"
+
+
+#' @title pathway: A dataframe containing RAMP_DB pathways and their relative metadata
+#'
+#' @description This object contains a collection of RAMP_DB pathways, their source ID, pathway catagory and common name
+#'
+#' @format ## A data frame with 53,952 rows and 5 variables:
+#' \describe{
+#'   \item{pathwayRampId}{Relative source database ID for analyste (character)}
+#'   \item{rampId}{RAMP_DB pathway ID (character)}
+#'   \item{IDtype}{Relative source database for the respective pathway (character)}
+#'   \item{geneOrCompound}{Catagory grouping of respecitive pathway (character)}
+#'   \item{pathwayName}{Common name of pathway (character)}
+#' }
+#'
+"pathway"
+
+
+
+#' @title source: A dataframe containing source information about RAMP_ID analyte used for analysis
+#'
+#' @description This object contains a collection of RAMP_DB analytes, their source ID, common name and pathway count
+#'
+#' @format ## A data frame with 789,665 rows and 8 variables:
+#' \describe{
+#'   \item{sourceId}{Ramp_DB analyte ID(character)}
+#'   \item{sourceId}{Analyte source ID (character)}
+#'   \item{type}{Analyte type (character)}
+#'   \item{commonName}{Common name of analyte (character)}
+#'   \item{priorityHMDBStatus}{Priority level of the analyte (character)}
+#'   \item{dataSource}{Relative source databases where analyte is represented (character)}
+#'   \item{pathwayCount}{Number of pathways analyte is present in (integer)}
+#' }
+#'
+"source"

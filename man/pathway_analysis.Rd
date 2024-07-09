@@ -19,3 +19,6 @@ A dataframe with the relevant pathway information
 \description{
 This the function used to compute the exact fisher test for over-represntation based pathway analysis
 }
+\examples{
+# pathway_analysis(Seurat.Obj, polarity = "pos")
+}
