@@ -731,7 +731,7 @@ principal_component_pathway_analysis = function(seurat,
   # image(image_matrix)
   # Assign different colours to different layers
   return(resampled_mat)
-  image_matrix =  rowSums(resampled_mat)
+  image_matrix =  Matrix::rowSums(resampled_mat)
 
   quantiles <-
     quantile(as.numeric(as.vector(image_matrix)), probs = seq(0, 1, 0.2))
