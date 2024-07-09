@@ -713,7 +713,7 @@ principal_component_pathway_analysis = function(seurat,
     })
     setTxtProgressBar(pb_new, i)
     # Make sure sign of loading is positive to make it positively correlate with the PC
-    pca_sea_list = list.append(pca_sea_list,
+    pca_sea_list = rlist::list.append(pca_sea_list,
                                gsea_result)
   }
   close(pb_new)
