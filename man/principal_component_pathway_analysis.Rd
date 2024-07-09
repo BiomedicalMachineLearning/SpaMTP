@@ -14,7 +14,10 @@ principal_component_pathway_analysis(
   variance_explained_threshold = 0.9,
   resampling_factor = 2,
   p_val_threshold = 0.05,
-  byrow = T
+  byrow = T,
+  assay = "SPM",
+  slot = "counts",
+  verbose = TRUE
 )
 }
 \arguments{
@@ -37,6 +40,12 @@ principal_component_pathway_analysis(
 \item{p_val_threshold}{is the p value threshold for pathways to be significant}
 
 \item{byrow}{is a boolean to indicates whether each column of the matrix is built byrow or bycol.}
+
+\item{assay}{Character string defining the SpaMTP assay to extract intensity values from (default = "SPM").}
+
+\item{slot}{Character string defining the assay slot contatin ght intesity values (default = "counts").}
+
+\item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).}
 }
 \value{
 PCA's and pathway_enrichment_pc is the pathway enrichment results for each PC

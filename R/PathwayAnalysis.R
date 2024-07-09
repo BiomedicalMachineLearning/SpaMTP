@@ -341,6 +341,9 @@ FisherexactTest = function (Analyte,
 #' @param resampling_factor is a numerical value >0, indicate how you want to resample the size of roginal matrix
 #' @param p_val_threshold is the p value threshold for pathways to be significant
 #' @param byrow is a boolean to indicates whether each column of the matrix is built byrow or bycol.
+#' @param assay Character string defining the SpaMTP assay to extract intensity values from (default = "SPM").
+#' @param slot Character string defining the assay slot contatin ght intesity values (default = "counts").
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
 #'
 #' @return PCA's and pathway_enrichment_pc is the pathway enrichment results for each PC
 #' @export
@@ -356,16 +359,19 @@ principal_component_pathway_analysis = function(seurat,
                                                 variance_explained_threshold = 0.9,
                                                 resampling_factor = 2,
                                                 p_val_threshold = 0.05,
-                                                byrow = T) {
+                                                byrow = T,
+                                                assay = "SPM",
+                                                slot = "counts",
+                                                verbose = TRUE) {
   # PCA analysis
-  print("Scaling original matrix")
-  #mass_matrix = t(seurat@assays[["SPM"]]@layers[["counts"]])[,1:100]
-  mass_matrix = t(seurat@assays[["SPM"]]@layers[["counts"]])
-  mass_matrix_with_coord = cbind(x= seurat@images[["slice1"]]@coordinates[["row"]],
-                                 y = seurat@images[["slice1"]]@coordinates[["col"]],
+  verbose_message(message_text = "Scaling original matrix", verbose = verbose)
+
+  mass_matrix = t(seurat[[assay]][slot])
+
+  mass_matrix_with_coord = cbind(GetTissueCoordinates(seurat)[c("x", "y")],
                                  as.matrix(mass_matrix))
-  width = seurat@images[["slice1"]]@coordinates[["col"]]
-  height = seurat@images[["slice1"]]@coordinates[["row"]]
+  width = GetTissueCoordinates(seurat)[c("y")]
+  height = GetTissueCoordinates(seurat)[c("x")]
 
   if (!is.null(resampling_factor)) {
     print("Running matrix resampling")
