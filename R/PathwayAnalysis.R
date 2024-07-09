@@ -160,7 +160,8 @@ FisherexactTest <- function (Analyte,
     db_2 <- formula_filter(db_1)
 
     # 3) search db against mz df return results
-    print("search db against mz df return results")
+    verbose_message(message_text = "search db against mz df return results", verbose = verbose)
+
     input_mz = data.frame(cbind(
       row_id = 1:length(analytes_mz),
       mz = as.numeric(str_extract(analytes_mz, pattern = "\\d+\\.?\\d*"))
@@ -168,7 +169,9 @@ FisherexactTest <- function (Analyte,
     ppm_error <- ppm_error
     db_3 <- proc_db(data.frame(input_mz), db_2, ppm_error)
     # Expand the isomer entries
-    print("Expanding database to extract all potential metabolites")
+
+    verbose_message(message_text = "Expanding database to extract all potential metabolites", verbose = verbose)
+
     db_3list = pblapply(1:nrow(db_3), function(i){
       if (any(grepl(db_3[i, ], pattern = ";"))) {
         # Only take the first row
@@ -574,13 +577,13 @@ principal_component_pathway_analysis = function(seurat,
 
 
   #### Load the Cleaned and summarized DB ####
-  load(paste0(dirname(system.file(package = "SpaMTP")),"/data/Chebi_db.rda"))
-  load(paste0(dirname(system.file(package = "SpaMTP")),"/data/HMDB_db.rda"))
+  load(paste0(dirname(system.file(package = "SpaMTP")),"/SpaMTP/data/Chebi_db.rda"))
+  load(paste0(dirname(system.file(package = "SpaMTP")),"/SpaMTP/data/HMDB_db.rda"))
 
   # Set the db that you want to search against
   db = rbind(HMDB_db, Chebi_db)
   # set which adducts you want to search for
-  load(paste0(dirname(system.file(package = "SpaMTP")), "/data/adduct_file.rda"))
+  load(paste0(dirname(system.file(package = "SpaMTP")), "/SpaMTP/data/adduct_file.rda"))
 
   if (is.null(ion_mode)) {
     stop("Please enter correct polarity:'positive' or 'negative'")
@@ -606,7 +609,9 @@ principal_component_pathway_analysis = function(seurat,
   ppm_error = 1e6 / tof_resolution / sqrt(2 * log(2))
   db_3 = proc_db(input_mz, db_2, ppm_error) %>% mutate(entry = str_split(Isomers,
                                                                          pattern = "; "))
-  print("Query necessary data and establish pathway database")
+
+  verbose_message(message_text = "Query necessary data and establish pathway database" , verbose = verbose)
+
   input_id = lapply(db_3$entry, function(x) {
     x = unlist(x)
     index_hmdb = which(grepl(x, pattern = "HMDB"))
@@ -616,12 +621,14 @@ principal_component_pathway_analysis = function(seurat,
     return(x)
   })
 
-  load(paste0(dirname(system.file(package = "SpaMTP")), "/data/chem_props.rda"))
+  load(paste0(dirname(system.file(package = "SpaMTP")), "/SpaMTP/data/chem_props.rda"))
 
   db_3 = db_3 %>% mutate(inputid = input_id)
   rampid = c()
   chem_source_id = unique(chem_props$chem_source_id)
-  print("Query db for addtional matching")
+
+  verbose_message(message_text = "Query db for addtional matching" , verbose = verbose)
+
   pb2 = txtProgressBar(
     min = 0,
     max = nrow(db_3),
@@ -634,14 +641,18 @@ principal_component_pathway_analysis = function(seurat,
   }
   close(pb2)
   db_3 = cbind(db_3, rampid)
-  print("Query finished")
+
+  verbose_message(message_text = "Query finished!" , verbose = verbose)
+
   ####################################################################################################
 
   # get rank pathway database
-  print("Getting reference pathways")
-  readRDS(paste0(dirname(system.file(package = "SpaMTP")), "/data/analytehaspathway.rda"))
-  readRDS(paste0(dirname(system.file(package = "SpaMTP")), "/data/pathway.rda"))
-  readRDS(paste0(dirname(system.file(package = "SpaMTP")), "/data/source.rda"))
+
+  verbose_message(message_text = "Getting reference pathways...." , verbose = verbose)
+
+  load(paste0(dirname(system.file(package = "SpaMTP")), "/SpaMTP/data/analytehaspathway.rda"))
+  load(paste0(dirname(system.file(package = "SpaMTP")), "/SpaMTP/data/pathway.rda"))
+  load(paste0(dirname(system.file(package = "SpaMTP")), "/SpaMTP/data/source.rda"))
 
 
   pathway_db = get_analytes_db(unlist(input_id), analytehaspathway,
@@ -655,7 +666,7 @@ principal_component_pathway_analysis = function(seurat,
 
   #Set progress bar
 
-  print("Runing set enrichment analysis")
+  verbose_message(message_text = "Runing set enrichment analysis", verbose = verbose)
   pca_sea_list = list()
   pb_new = txtProgressBar(
     min = 0,
