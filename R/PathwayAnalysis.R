@@ -428,8 +428,8 @@ principal_component_pathway_analysis = function(seurat,
 
   # Runing PCA
 
-  resampled_mat_standardised = as.matrix(t(
-    t(resampled_mat) - Matrix::colSums(resampled_mat) / nrow(resampled_mat)
+  resampled_mat_standardised = as.matrix(Matrix::t(
+    Matrix::t(resampled_mat) - Matrix::colSums(resampled_mat) / nrow(resampled_mat)
   ))
 
   verbose_message(message_text = "Computing the covariance" , verbose = verbose)
