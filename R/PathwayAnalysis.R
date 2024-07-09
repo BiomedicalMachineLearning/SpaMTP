@@ -381,7 +381,7 @@ principal_component_pathway_analysis = function(seurat,
   # PCA analysis
   verbose_message(message_text = "Scaling original matrix", verbose = verbose)
 
-  mass_matrix = t(seurat[[assay]]@layers[[slot]])
+  mass_matrix = Matrix::t(seurat[[assay]]@layers[[slot]])
 
   mass_matrix_with_coord = cbind(GetTissueCoordinates(seurat)[c("x", "y")],
                                  as.matrix(mass_matrix))
