@@ -577,13 +577,13 @@ principal_component_pathway_analysis = function(seurat,
 
 
   #### Load the Cleaned and summarized DB ####
-  load(paste0(dirname(system.file(package = "SpaMTP")),"/SpaMTP/data/Chebi_db.rda"))
-  load(paste0(dirname(system.file(package = "SpaMTP")),"/SpaMTP/data/HMDB_db.rda"))
+  load("data/Chebi_db.rda")
+  load("data/HMDB_db.rda")
 
   # Set the db that you want to search against
   db = rbind(HMDB_db, Chebi_db)
   # set which adducts you want to search for
-  load(paste0(dirname(system.file(package = "SpaMTP")), "/SpaMTP/data/adduct_file.rda"))
+  load("data/adduct_file.rda")
 
   if (is.null(ion_mode)) {
     stop("Please enter correct polarity:'positive' or 'negative'")
@@ -621,7 +621,7 @@ principal_component_pathway_analysis = function(seurat,
     return(x)
   })
 
-  load(paste0(dirname(system.file(package = "SpaMTP")), "/SpaMTP/data/chem_props.rda"))
+  load("/data/chem_props.rda")
 
   db_3 = db_3 %>% mutate(inputid = input_id)
   rampid = c()
@@ -650,9 +650,9 @@ principal_component_pathway_analysis = function(seurat,
 
   verbose_message(message_text = "Getting reference pathways...." , verbose = verbose)
 
-  load(paste0(dirname(system.file(package = "SpaMTP")), "/SpaMTP/data/analytehaspathway.rda"))
-  load(paste0(dirname(system.file(package = "SpaMTP")), "/SpaMTP/data/pathway.rda"))
-  load(paste0(dirname(system.file(package = "SpaMTP")), "/SpaMTP/data/source.rda"))
+  load("data/analytehaspathway.rda")
+  load("data/pathway.rda")
+  load("data/source.rda")
 
 
   pathway_db = get_analytes_db(unlist(input_id), analytehaspathway,
