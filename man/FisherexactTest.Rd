@@ -13,7 +13,8 @@ FisherexactTest(
   alternative = "greater",
   min_path_size = 5,
   pathway_all_info = F,
-  pval_cutoff = 0.05
+  pval_cutoff = 0.05,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ Supported mz format: any string or numeric vector contains the m/z}
 \item{pathway_all_info}{Whether to included all genes/metabolites screened in the return}
 
 \item{pval_cutoff}{The cut off of raw p value to retain the pathways}
+
+\item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).}
 }
 \value{
 a dataframe with the relevant pathway information

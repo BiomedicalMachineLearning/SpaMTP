@@ -36,6 +36,7 @@ pathway_analysis = function(seurat,
 #' @param alternative The hypothesis of the fisher exact test
 #' @param pathway_all_info Whether to included all genes/metabolites screened in the return
 #' @param pval_cutoff The cut off of raw p value to retain the pathways
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
 #'
 #' @return a dataframe with the relevant pathway information
 #'
@@ -49,7 +50,8 @@ FisherexactTest = function (Analyte,
                             alternative = "greater",
                             min_path_size = 5,
                             pathway_all_info = F,
-                            pval_cutoff = 0.05)
+                            pval_cutoff = 0.05,
+                            verbose = TRUE)
 {
   require(dplyr)
   require(stringr)
@@ -60,7 +62,9 @@ FisherexactTest = function (Analyte,
     )
   }
   now <- proc.time()
-  print("Fisher Testing ......")
+
+  verbose_message(message_text = "Fisher Testing ......", verbose = verbose)
+
   pathwayRampId <- rampId <- c()
   # Get the RaMP ids for metabolites/genes
   convert_to_rows <- function(row,
@@ -81,7 +85,8 @@ FisherexactTest = function (Analyte,
                  identifiers))
   }
 
-  print("Loading files ......")
+  verbose_message(message_text = "Loading files ......", verbose = verbose)
+
   analytehaspathway = readRDS(paste0(dirname(system.file(package = "SpaMTP")), "/data/analytehaspathway.rds"))
   pathway = readRDS(paste0(dirname(system.file(package = "SpaMTP")), "/data/pathway.rds"))
   source = readRDS(paste0(dirname(system.file(package = "SpaMTP")), "/data/source.rds"))
@@ -89,7 +94,8 @@ FisherexactTest = function (Analyte,
   analyte = readRDS(paste0(dirname(system.file(package = "SpaMTP")), "/data/analyte.rds"))
   pathway = readRDS(paste0(dirname(system.file(package = "SpaMTP")), "/data/pathway.rds"))
 
-  print("Loading files finished!")
+  verbose_message(message_text = "Loading files finished!" , verbose = verbose)
+
 
   if ( "metabolites" %in% analyte_type) {
     analytes_met = Analyte[["metabolites"]]
@@ -167,7 +173,8 @@ FisherexactTest = function (Analyte,
     analytehaspathway_mz = analytehaspathway[which(grepl(analytehaspathway$rampId, pattern = "RAMP_C") == T),]
   }
 
-  print("Parsing the information of given analytes class")
+  verbose_message(message_text = "Parsing the information of given analytes class" , verbose = verbose)
+
   analyte_new = analytehaspathway_new = source_new =  data.frame()
   analytes_new = c()
   if("mz" %in% analyte_type){
@@ -211,7 +218,8 @@ FisherexactTest = function (Analyte,
   # Pathway enrichment
 
   ############ Metabolites pathway analysis ##############
-  print("Begin metabolic pathway analysis ......")
+  verbose_message(message_text = "Begin metabolic pathway analysis ......" , verbose = verbose)
+
   analytes_rampids = c()
   unique_analytes = unique(analytes_new)
   analytes_rampids = unique(source_new$rampId[which(tolower(source_new$sourceId) %in% tolower(unique_analytes))])
@@ -265,7 +273,8 @@ FisherexactTest = function (Analyte,
       return(return_df)
     })
   }else{
-    print("Merging datasets")
+    verbose_message(message_text = "Merging datasets" , verbose = verbose)
+
     enrichment_df = merge(pathway_rampids_count[which(!duplicated(pathway_rampids_count$pathwayRampId)),], analytehaspathway_full[which(!duplicated(analytehaspathway_full$pathwayRampId)),],
                           by = "pathwayRampId")
     #colnames(enrichment_df)[which(colnames(enrichment_df) == "count")] = "total_in_pathways"
@@ -279,11 +288,15 @@ FisherexactTest = function (Analyte,
   #              ananlytes_id_list,
   #              sort = T,
   #              name = "analytes_in_pathways")
-  print("Running test")
+
+  verbose_message(message_text = "Running test" , verbose = verbose)
+
   # (2) Conduct pathway enrichment
   total_analytes = length(unique(pathway_rampids_count$rampId))
   total_in_selected_pathways = length(unique(analytehaspathway_full$rampId))
-  print("Calculating p value......")
+
+  verbose_message(message_text = "Calculating p value......" , verbose = verbose)
+
 
   enrichment_df = enrichment_df %>% rowwise() %>% mutate(p_val = fisher.test(matrix(
     c(
@@ -304,14 +317,16 @@ FisherexactTest = function (Analyte,
   alternative = alternative)$p.value)
   enrichment_df = cbind(enrichment_df,
                         fdr = p.adjust(enrichment_df$p_val, method = "fdr")) %>% mutate(background_analytes_number = total_in_selected_pathways)
-  print("P value obtained")
+
+  verbose_message(message_text = "P value obtained" , verbose = verbose)
+
   # (5) Append pathway information to the original df
   gc()
   # (6) Append metabolites information to the original df
   # Paste back the original Ids
   # (7) Reduce the dataframe with respected to the User input pathway size
 
-  print("Done")
+  verbose_message(message_text = "Done" , verbose = verbose)
   rm(chem_props)
   gc()
   #return(enrichment_df_with_both_info %>% select(-c(
@@ -366,7 +381,7 @@ principal_component_pathway_analysis = function(seurat,
   # PCA analysis
   verbose_message(message_text = "Scaling original matrix", verbose = verbose)
 
-  mass_matrix = t(seurat[[assay]][slot])
+  mass_matrix = t(seurat[[assay]]@layers[[slot]])
 
   mass_matrix_with_coord = cbind(GetTissueCoordinates(seurat)[c("x", "y")],
                                  as.matrix(mass_matrix))
@@ -374,7 +389,7 @@ principal_component_pathway_analysis = function(seurat,
   height = GetTissueCoordinates(seurat)[c("x")]
 
   if (!is.null(resampling_factor)) {
-    print("Running matrix resampling")
+    verbose_message(message_text = "Running matrix resampling...." , verbose = verbose)
     pb = txtProgressBar(
       min = 0,
       max = ncol(mass_matrix),
@@ -401,27 +416,34 @@ principal_component_pathway_analysis = function(seurat,
     close(pb)
     resampled_mat = resampled_mat[,-1]
     colnames(resampled_mat) = colnames(mass_matrix)
-    print("Resampling finished!")
+
+    verbose_message(message_text = "Resampling finished!" , verbose = verbose)
+
     gc()
   }else{
     resampled_mat = mass_matrix
   }
-  print("Running the principal component analysis (can take some time)")
+
+  verbose_message(message_text = "Running the principal component analysis (can take some time)" , verbose = verbose)
+
   # Runing PCA
 
   resampled_mat_standardised = as.matrix(t(
     t(resampled_mat) - Matrix::colSums(resampled_mat) / nrow(resampled_mat)
   ))
-  print("Computing the covariance")
+
+  verbose_message(message_text = "Computing the covariance" , verbose = verbose)
   cov_mat <- cov(resampled_mat_standardised)
-  print("Computing the eigenvalue/eigenvectors")
+
+  verbose_message(message_text = "Computing the eigenvalue/eigenvectors", verbose = verbose)
   eigen_result <- eigen(cov_mat)
   gc()
   # Extract eigenvectors and eigenvalues
   eigenvectors <- eigen_result$vectors
   eigenvalues <- eigen_result$values
 
-  print("Computing PCA")
+  verbose_message(message_text = "Computing PCA", verbose = verbose)
+
   pc = pbapply::pblapply(1:ncol(resampled_mat_standardised), function(i) {
     temp = resampled_mat_standardised[, 1] * eigenvectors[1, i]
     for (j in 2:ncol(resampled_mat_standardised)) {
@@ -442,7 +464,9 @@ principal_component_pathway_analysis = function(seurat,
     x = pc
   )
   pca = list_to_pprcomp(pca)
-  print("PCA finished")
+
+  verbose_message(message_text = "PCA finished!", verbose = verbose)
+
   rm(mass_matrix)
   gc()
   eigenvalues = pca$sdev ^ 2
@@ -487,9 +511,9 @@ principal_component_pathway_analysis = function(seurat,
 
     } else{
       # if threshold not inputted, use Kaiser's criterion
-      print(
-        "Both variance_explained_threshold and num_retained_component not inputted, use Kaiser's criterion for determination"
-      )
+      verbose_message(message_text = "Both variance_explained_threshold and num_retained_component not inputted, use Kaiser's criterion for determination", verbose = verbose)
+
+
       plot(
         eigenvalues,
         type = 'b',
