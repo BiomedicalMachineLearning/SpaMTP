@@ -175,7 +175,7 @@ FisherexactTest <- function (Analyte,
     db_3list = pblapply(1:nrow(db_3), function(i){
       if (any(grepl(db_3[i, ], pattern = ";"))) {
         # Only take the first row
-        ids = unlist(str_split(db_3[i, ]$Isomers, pattern = ";"))
+        ids = unlist(stringr::str_split(db_3[i, ]$Isomers, pattern = ";"))
         ids[which(grepl(ids, pattern = "HMDB"))] = paste0("HMDB:",ids[which(grepl(ids, pattern = "HMDB"))])
         ids[which(grepl(ids, pattern = "LM"))] = paste0("LIPIDMAPS:",ids[which(grepl(ids, pattern = "LM"))])
         return()
@@ -362,12 +362,11 @@ FisherexactTest <- function (Analyte,
 
 #' PCA driven pathway analaysis
 #'
-#' @param seurat is a Seurat object that contains spatial metabolic information
-#' @param path is the output path for the visualization.
+#' @param seurat SpaMTP Seurat class object that contains spatial metabolic information.
+#' @param path Character string defining the output path for the visualization (default = getwd()).
 #' @param ppm_error is the parts-per-million error tolerance of matching m/z value with potential metabolites
-#' @param ion_mode is only needed when ppm_error is not specified, goes to function estimate_mz_resolution_error will be used to access the ppm_error
+#' @param ion_mode is only needed when ppm_error is not specified, used to access the ppm_error based on polarity. Inputs must be either 'positive' or 'negative'(default = NULL).
 #' @param tof_resolution is the tof resolution of the instrument used for MALDI run, calculated by ion (ion mass,m/z)/(Full width at half height)
-#' @param polarity The polarity of the MALDI experiment. Inputs must be either 'positive' or 'negative'(default = "positive").
 #' @param num_retained_component is an integer value to indicated preferred number of PCs to retain
 #' @param variance_explained_threshold Numeric value defining the explained variance threshold (default = 0.9).
 #' @param resampling_factor is a numerical value >0, indicate how you want to resample the size of roginal matrix
@@ -387,7 +386,6 @@ principal_component_pathway_analysis = function(seurat,
                                                 ppm_error = NULL,
                                                 ion_mode = NULL,
                                                 tof_resolution = 30000,
-                                                polarity = "positive",
                                                 num_retained_component = NULL,
                                                 variance_explained_threshold = 0.9,
                                                 resampling_factor = 2,
@@ -609,7 +607,7 @@ principal_component_pathway_analysis = function(seurat,
   # If ppm_error not specified, use function to estimate
   # Set error tolerance
   ppm_error = 1e6 / tof_resolution / sqrt(2 * log(2))
-  db_3 = proc_db(input_mz, db_2, ppm_error) %>% mutate(entry = str_split(Isomers,
+  db_3 = proc_db(input_mz, db_2, ppm_error) %>% mutate(entry = stringr::str_split(Isomers,
                                                                          pattern = "; "))
 
   verbose_message(message_text = "Query necessary data and establish pathway database" , verbose = verbose)
