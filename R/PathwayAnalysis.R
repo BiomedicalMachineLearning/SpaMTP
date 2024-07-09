@@ -1,8 +1,10 @@
 
-#' This the function used to compute the exact fisher test for over-represntation based pathway analysis
+#' This the function used to compute the exact fisher test for over-representation based pathway analysis
 #'
-#' @param seurat A seurat object contains spatial metabolomics/transcriptolomics features or both.
+#' @param seurat A seurat object contains spatial metabolomics/transcriptomics features or both.
 #' @param polarity The polarity of the MALDI experiment
+#' @param SP.assay Character string defining the SpaMTP assay that contains m/z values (default = "SPM").
+#' @param ST.assay Character string defining the SpaMTP assay that contains gene names (default = "SPM").
 #' @param ... The arguments pass to FisherexactTest
 #'
 #' @return A dataframe with the relevant pathway information
@@ -10,13 +12,21 @@
 #'
 #' @examples
 #' # pathway_analysis(Seurat.Obj, polarity = "pos")
-pathway_analysis = function(seurat,
+pathway_analysis <- function(seurat,
                             polarity,
+                            SP.assay = "SPM",
+                            ST.assay = NULL,
                             ...){
-  met_analytes = row.names(seurat@assays[["SPM"]]@features)
-  rna_analytes = row.names(seurat@assays[["SPT"]]@features)
-  analytes =  list(mz = met_analytes,
-                   genes = paste0("gene_symbol:",toupper(rna_analytes)))
+  met_analytes = row.names(seurat[[assay]]@features)
+
+  if (!is.null(ST.assay)){
+    rna_analytes = row.names(seurat@assays[[ST.assay]]@features)
+    analytes =  list(mz = met_analytes,
+                     genes = paste0("gene_symbol:",toupper(rna_analytes)))
+  } else {
+    analytes =  list(mz = met_analytes)
+  }
+
   result = FisherexactTest(analytes,
                            polarity = polarity,...)
   return(result)
@@ -42,7 +52,7 @@ pathway_analysis = function(seurat,
 #'
 #' @examples
 #' # HELPER FUNCTION
-FisherexactTest = function (Analyte,
+FisherexactTest <- function (Analyte,
                             analyte_type = c("mz","genes"),
                             polarity = NULL,
                             ppm_error = 10,
@@ -105,6 +115,9 @@ FisherexactTest = function (Analyte,
     adduct_file = readRDS(paste0(dirname(system.file(package = "SpaMTP")), "/data/adduct_file.rds"))
   }
   if ("genes" %in% analyte_type) {
+    if (!("genes" %in% names(Analyte))){
+      stop("Cannot find gene list not present in Analyte object .... Please provide SpaMTP assay containing gene names, or remove 'gene' from analyte_type input!")
+    }
     analytes_rna = Analyte[["genes"]]
     source_rna = source[which(grepl(source$rampId, pattern = "RAMP_G") == T),]
     analytehaspathway_rna = analytehaspathway[which(grepl(analytehaspathway$rampId, pattern = "RAMP_G") == T),]
@@ -1435,9 +1448,49 @@ get_analytes_db <- function(input_id,analytehaspathway,chem_props,pathway) {
   return(analytes_db)
 }
 
+######################################## HELPER FUNCTIONS ########################################
+
+#' Creates a pprcomp object based on an input list
+#'
+#' @param lst List containing PCA results
+#'
+#' @return A pprcomp object contating results from PCA analysis
+#'
+#' @examples
+#' #HELPER FUNCTION
+list_to_pprcomp <- function(lst) {
+  # Create an empty object with class pprcomp
+  obj <- structure(list(), class = "prcomp")
+  # Assign components from the list to the object
+  obj$sdev <- lst$sdev
+  obj$rotation <- lst$rotation
+  obj$center <- lst$center
+  obj$scale <- lst$scale
+  obj$x <- lst$x
+  # Add other components as needed
+
+  # Return the constructed pprcomp object
+  return(obj)
+}
 
 
-
+#' Finds the index values of the m/z values with their respective GSEA result
+#'
+#' @param lst List containing relative mz analytes and pathways
+#' @param value Value returned based on the GSEA results
+#'
+#' @return returns a vector of indices that match the relative GSEA results to the m/z list
+#'
+#' @examples
+#' #HELPER FUNCTION
+find_index <- function(lsst, value) {
+  indices <- which(sapply(lst, function(x) value %in% x))
+  if (length(indices) == 0) {
+    return(NULL)  # If value not found, return NULL
+  } else {
+    return(indices)
+  }
+}
 
 
 

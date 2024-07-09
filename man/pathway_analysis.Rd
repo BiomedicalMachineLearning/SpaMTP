@@ -2,14 +2,18 @@
 % Please edit documentation in R/PathwayAnalysis.R
 \name{pathway_analysis}
 \alias{pathway_analysis}
-\title{This the function used to compute the exact fisher test for over-represntation based pathway analysis}
+\title{This the function used to compute the exact fisher test for over-representation based pathway analysis}
 \usage{
-pathway_analysis(seurat, polarity, ...)
+pathway_analysis(seurat, polarity, SP.assay = "SPM", ST.assay = NULL, ...)
 }
 \arguments{
-\item{seurat}{A seurat object contains spatial metabolomics/transcriptolomics features or both.}
+\item{seurat}{A seurat object contains spatial metabolomics/transcriptomics features or both.}
 
 \item{polarity}{The polarity of the MALDI experiment}
+
+\item{SP.assay}{Character string defining the SpaMTP assay that contains m/z values (default = "SPM").}
+
+\item{ST.assay}{Character string defining the SpaMTP assay that contains gene names (default = "SPM").}
 
 \item{...}{The arguments pass to FisherexactTest}
 }
@@ -17,7 +21,7 @@ pathway_analysis(seurat, polarity, ...)
 A dataframe with the relevant pathway information
 }
 \description{
-This the function used to compute the exact fisher test for over-represntation based pathway analysis
+This the function used to compute the exact fisher test for over-representation based pathway analysis
 }
 \examples{
 # pathway_analysis(Seurat.Obj, polarity = "pos")
