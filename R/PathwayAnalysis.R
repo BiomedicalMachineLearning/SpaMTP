@@ -730,7 +730,7 @@ principal_component_pathway_analysis = function(seurat,
   # #      mass_matrix_with_coord[,2])
   # image(image_matrix)
   # Assign different colours to different layers
-  return(resampled_mat)
+
   image_matrix =  Matrix::rowSums(resampled_mat)
 
   quantiles <-
