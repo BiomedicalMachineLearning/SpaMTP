@@ -375,7 +375,9 @@ FisherexactTest <- function (Analyte,
 #' @param assay Character string defining the SpaMTP assay to extract intensity values from (default = "SPM").
 #' @param slot Character string defining the assay slot contatin ght intesity values (default = "counts").
 #' @param flip_plot Boolean defining whether to rotate the plot 90 degrees (default = FALSE).
+#' @param show_variance_plot Boolean indicating weather to display the variance plot output by this analysis (default = FALSE).
 #' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
+#'
 #'
 #' @return PCA's and pathway_enrichment_pc is the pathway enrichment results for each PC
 #' @export
@@ -395,6 +397,7 @@ principal_component_pathway_analysis = function(seurat,
                                                 assay = "SPM",
                                                 slot = "counts",
                                                 flip_plot = FALSE,
+                                                show_variance_plot= FALSE,
                                                 verbose = TRUE) {
   # PCA analysis
   verbose_message(message_text = "Scaling original matrix", verbose = verbose)
