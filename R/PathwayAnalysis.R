@@ -17,7 +17,7 @@ pathway_analysis <- function(seurat,
                             SP.assay = "SPM",
                             ST.assay = NULL,
                             ...){
-  met_analytes = row.names(seurat[[assay]]@features)
+  met_analytes = row.names(seurat[[SP.assay]]@features)
 
   if (!is.null(ST.assay)){
     rna_analytes = row.names(seurat@assays[[ST.assay]]@features)
