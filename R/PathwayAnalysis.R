@@ -1413,7 +1413,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </body>
 </html>')
   setwd(path)
-  gmm = readLines("js_data_files/dgmm_class.js")
+  gmm = readLines("js_data_files/gmm_class.js")
   writeLines(gmm,"gmm_class.js")
   kmean = readLines("js_data_files/kmeans.js")
   writeLines(kmean,"kmeans.js")
