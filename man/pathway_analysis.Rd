@@ -9,6 +9,7 @@ pathway_analysis(
   polarity = "positive",
   SP.assay = "SPM",
   ST.assay = NULL,
+  analyte_type = c("mz", "genes"),
   ...
 )
 }
@@ -21,7 +22,9 @@ pathway_analysis(
 
 \item{ST.assay}{Character string defining the SpaMTP assay that contains gene names (default = NULL).}
 
-\item{...}{The arguments pass to FisherexactTest}
+\item{analyte_type}{Vector of character string defining the annotations to use for pathway analysis. Options can be one or multiple of: "metabolites" or "gene" or "mz" (default = c("mz", "gene")).}
+
+\item{...}{Additional arguments to pass to FisherexactTest. Check FisherexactTest documentation for possible inputs.}
 }
 \value{
 A dataframe with the relevant pathway information

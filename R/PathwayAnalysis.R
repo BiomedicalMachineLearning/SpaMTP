@@ -5,7 +5,8 @@
 #' @param polarity The polarity of the MALDI experiment. Inputs must be either NULL, 'positive' or 'negative'. If NULL, pathway analysis will run in neutral mode (default = NULL).
 #' @param SP.assay Character string defining the SpaMTP assay that contains m/z values (default = "SPM").
 #' @param ST.assay Character string defining the SpaMTP assay that contains gene names (default = NULL).
-#' @param ... The arguments pass to FisherexactTest
+#' @param analyte_type Vector of character string defining the annotations to use for pathway analysis. Options can be one or multiple of: "metabolites" or "gene" or "mz" (default = c("mz", "gene")).
+#' @param ... Additional arguments to pass to FisherexactTest. Check FisherexactTest documentation for possible inputs.
 #'
 #' @return A dataframe with the relevant pathway information
 #' @export
@@ -16,7 +17,9 @@ pathway_analysis <- function(seurat,
                             polarity = "positive",
                             SP.assay = "SPM",
                             ST.assay = NULL,
+                            analyte_type = c("mz","genes"),
                             ...){
+
   met_analytes = row.names(seurat[[SP.assay]]@features)
 
   if (!is.null(ST.assay)){
@@ -28,7 +31,9 @@ pathway_analysis <- function(seurat,
   }
 
   result = FisherexactTest(analytes,
-                           polarity = polarity,...)
+                           polarity = polarity,
+                           analyte_type = analyte_type,
+                           ...)
   return(result)
 }
 
@@ -118,7 +123,6 @@ FisherexactTest <- function (Analyte,
 
   if ("mz" %in% analyte_type) {
     analytes_mz = Analyte[["mz"]]
-    adduct_file = readRDS(paste0(dirname(system.file(package = "SpaMTP")), "/data/adduct_file.rds"))
     #load(paste0(dirname(system.file(package = "SpaMTP")), "/data/Chebi_db.rda"))
     #load(paste0(dirname(system.file(package = "SpaMTP")), "/data/Lipidmaps_db.rda"))
     #load(paste0(dirname(system.file(package = "SpaMTP")), "/data/HMDB_db.rda"))
