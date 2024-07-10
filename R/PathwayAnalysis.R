@@ -1413,9 +1413,9 @@ document.addEventListener("DOMContentLoaded", function() {
 </body>
 </html>')
   setwd(path)
-  gmm = readLines(paste0(dirname(system.file(package = "SpaMTP")), "/data/gmm_class.js"))
+  gmm = readLines(paste0(dirname(system.file(package = "SpaMTP")), "/SpaMTP/js_data_files/dgmm_class.js"))
   writeLines(gmm,"gmm_class.js")
-  kmean = readLines(paste0(dirname(system.file(package = "SpaMTP")), "/data/kmeans.js"))
+  kmean = readLines(paste0(dirname(system.file(package = "SpaMTP")), "/SpaMTP/js_data_files/kmeans.js"))
   writeLines(kmean,"kmeans.js")
 
   writeLines(html_temp,"pca_analysis.html")
