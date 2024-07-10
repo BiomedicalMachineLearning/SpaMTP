@@ -505,22 +505,27 @@ principal_component_pathway_analysis = function(seurat,
     if (!is.null(variance_explained_threshold)) {
       tryCatch({
         cumulative_variance = cumsum(eigenvalues) / sum(eigenvalues)
-        par(mfrow = c(1, 1))
-        par(mar = c(2, 2, 1, 1))
-        # Plot cumulative proportion of variance explained
-        plot(
-          cumulative_variance,
-          type = 'b',
-          main = "Cumulative Variance Explained",
-          xlab = "Number of Principal Components",
-          ylab = "Cumulative Proportion of Variance Explained"
-        )
-
-        # Add a horizontal line at the desired threshold
         threshold = variance_explained_threshold  # Example threshold
-        abline(h = threshold,
-               col = "red",
-               lty = 2)
+
+        if (show_variance_plot){
+
+          par(mfrow = c(1, 1))
+          par(mar = c(2, 2, 1, 1))
+          # Plot cumulative proportion of variance explained
+          plot(
+            cumulative_variance,
+            type = 'b',
+            main = "Cumulative Variance Explained",
+            xlab = "Number of Principal Components",
+            ylab = "Cumulative Proportion of Variance Explained"
+          )
+
+          # Add a horizontal line at the desired threshold
+
+          abline(h = threshold,
+                 col = "red",
+                 lty = 2)
+        }
 
         # Find the number of principal components to retain based on the threshold
         retained =  which(cumulative_variance >= threshold)[1] - 1
