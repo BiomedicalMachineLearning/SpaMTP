@@ -97,13 +97,6 @@ FisherexactTest <- function (Analyte,
 
   verbose_message(message_text = "Loading files ......", verbose = verbose)
 
-  analytehaspathway = readRDS(paste0(dirname(system.file(package = "SpaMTP")), "/data/analytehaspathway.rds"))
-  pathway = readRDS(paste0(dirname(system.file(package = "SpaMTP")), "/data/pathway.rds"))
-  source = readRDS(paste0(dirname(system.file(package = "SpaMTP")), "/data/source.rds"))
-  chem_props = readRDS(paste0(dirname(system.file(package = "SpaMTP")), "/data/chem_props.rds"))
-  analyte = readRDS(paste0(dirname(system.file(package = "SpaMTP")), "/data/analyte.rds"))
-  pathway = readRDS(paste0(dirname(system.file(package = "SpaMTP")), "/data/pathway.rds"))
-
   verbose_message(message_text = "Loading files finished!" , verbose = verbose)
 
 
@@ -112,7 +105,6 @@ FisherexactTest <- function (Analyte,
     source_met = source[which(grepl(source$rampId, pattern = "RAMP_C") == T),]
     analytehaspathway_met = analytehaspathway[which(grepl(analytehaspathway$rampId, pattern = "RAMP_C") == T),]
     analyte_met = analyte[which(grepl(analyte$rampId, pattern = "RAMP_C") == T),]
-    adduct_file = readRDS(paste0(dirname(system.file(package = "SpaMTP")), "/data/adduct_file.rds"))
   }
   if ("genes" %in% analyte_type) {
     if (!("genes" %in% names(Analyte))){
@@ -248,8 +240,8 @@ FisherexactTest <- function (Analyte,
   # analytes_rampids = unique(na.omit(analytes_rampids))
   # (1) Get candidate pathways
   # Get all analytes and number of analytes within a specific pathway
-  pathway_db = readRDS(paste0(dirname(system.file(package = "SpaMTP")), "/data/pathway.rds"))
-  source_non_duplicated = source_new[which(!duplicated(source_new$rampId)&(source_new$rampId %in% analytes_rampids)),]
+
+    source_non_duplicated = source_new[which(!duplicated(source_new$rampId)&(source_new$rampId %in% analytes_rampids)),]
   # rampid = the subset of the database with our query data
   pathway_rampids = analytehaspathway_new[which(analytehaspathway_new$rampId %in% analytes_rampids),]
   pathway_rampids_count = pathway_rampids %>% group_by(pathwayRampId) %>% dplyr::mutate(analytes_in_pathways  = n())
@@ -670,11 +662,6 @@ principal_component_pathway_analysis = function(seurat,
   # get rank pathway database
 
   verbose_message(message_text = "Getting reference pathways...." , verbose = verbose)
-
-  #load("data/analytehaspathway.rda")
-  #load("data/pathway.rda")
-  #load("data/source.rda")
-
 
   pathway_db = get_analytes_db(unlist(input_id), analytehaspathway,
                                chem_props, pathway)
