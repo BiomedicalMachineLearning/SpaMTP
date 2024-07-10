@@ -274,7 +274,7 @@ check_and_truncate_adduct_vector <- function(adduct, db, verbose = TRUE) {
     for (missing_element in missing_elements) {
       verbose_message(message_text =  paste0("Adduct",
                       missing_element,
-                      "is not in the DB, it has been removed from the search.\n"), verbose = verbose)
+                      "is not in the DB, it has been removed from the search."), verbose = verbose)
 
     }
     truncated_adduct <- adduct[element_exists]

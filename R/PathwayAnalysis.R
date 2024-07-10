@@ -401,8 +401,8 @@ principal_component_pathway_analysis = function(seurat,
 
   mass_matrix_with_coord = cbind(GetTissueCoordinates(seurat)[c("x", "y")],
                                  as.matrix(mass_matrix))
-  width = GetTissueCoordinates(seurat)[c("y")]
-  height = GetTissueCoordinates(seurat)[c("x")]
+  width = max(GetTissueCoordinates(seurat)[c("y")])- min(GetTissueCoordinates(seurat)[c("y")])
+  height = max(GetTissueCoordinates(seurat)[c("x")]) - min(GetTissueCoordinates(seurat)[c("x")])
 
   if (!is.null(resampling_factor)) {
     verbose_message(message_text = "Running matrix resampling...." , verbose = verbose)
@@ -438,6 +438,8 @@ principal_component_pathway_analysis = function(seurat,
     gc()
   }else{
     resampled_mat = mass_matrix
+    new.width = as.integer(width)
+    new.height = as.integer(height)
   }
 
   verbose_message(message_text = "Running the principal component analysis (can take some time)" , verbose = verbose)
