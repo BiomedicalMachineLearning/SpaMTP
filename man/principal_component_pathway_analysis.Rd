@@ -17,6 +17,7 @@ principal_component_pathway_analysis(
   byrow = T,
   assay = "SPM",
   slot = "counts",
+  flip_plot = FALSE,
   verbose = TRUE
 )
 }
@@ -44,6 +45,8 @@ principal_component_pathway_analysis(
 \item{assay}{Character string defining the SpaMTP assay to extract intensity values from (default = "SPM").}
 
 \item{slot}{Character string defining the assay slot contatin ght intesity values (default = "counts").}
+
+\item{flip_plot}{Boolean defining whether to rotate the plot 90 degrees (default = FALSE).}
 
 \item{verbose}{Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).}
 }

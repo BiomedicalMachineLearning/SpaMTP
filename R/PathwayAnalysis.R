@@ -374,6 +374,7 @@ FisherexactTest <- function (Analyte,
 #' @param byrow is a boolean to indicates whether each column of the matrix is built byrow or bycol.
 #' @param assay Character string defining the SpaMTP assay to extract intensity values from (default = "SPM").
 #' @param slot Character string defining the assay slot contatin ght intesity values (default = "counts").
+#' @param flip_plot Boolean defining whether to rotate the plot 90 degrees (default = FALSE).
 #' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
 #'
 #' @return PCA's and pathway_enrichment_pc is the pathway enrichment results for each PC
@@ -393,16 +394,24 @@ principal_component_pathway_analysis = function(seurat,
                                                 byrow = T,
                                                 assay = "SPM",
                                                 slot = "counts",
+                                                flip_plot = FALSE,
                                                 verbose = TRUE) {
   # PCA analysis
   verbose_message(message_text = "Scaling original matrix", verbose = verbose)
 
   mass_matrix = Matrix::t(seurat[[assay]]@layers[[slot]])
 
-  mass_matrix_with_coord = cbind(GetTissueCoordinates(seurat)[c("x", "y")],
+  coords <- GetTissueCoordinates(seurat)[c("x", "y")]
+
+  if (flip_plot){
+    colnames(coords) <- c("y", "x")
+  }
+
+
+  mass_matrix_with_coord = cbind(coords,
                                  as.matrix(mass_matrix))
-  width = max(GetTissueCoordinates(seurat)[c("y")])- min(GetTissueCoordinates(seurat)[c("y")])
-  height = max(GetTissueCoordinates(seurat)[c("x")]) - min(GetTissueCoordinates(seurat)[c("x")])
+  width = max(coords[c("y")])- min(coords[c("y")])
+  height = max(coords[c("x")]) - min(coords[c("x")])
 
   if (!is.null(resampling_factor)) {
     verbose_message(message_text = "Running matrix resampling...." , verbose = verbose)
