@@ -9,7 +9,7 @@
 
 \describe{
 \item{sourceId}{Ramp_DB analyte ID(character)}
-\item{sourceId}{Analyte source ID (character)}
+\item{rampId}{Analyte source ID (character)}
 \item{type}{Analyte type (character)}
 \item{commonName}{Common name of analyte (character)}
 \item{priorityHMDBStatus}{Priority level of the analyte (character)}
