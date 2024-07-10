@@ -165,7 +165,7 @@ FisherexactTest <- function (Analyte,
 
     verbose_message(message_text = "Expanding database to extract all potential metabolites", verbose = verbose)
 
-    db_3list = pblapply(1:nrow(db_3), function(i){
+    db_3list = pbapply::pblapply(1:nrow(db_3), function(i){
       if (any(grepl(db_3[i, ], pattern = ";"))) {
         # Only take the first row
         ids = unlist(stringr::str_split(db_3[i, ]$Isomers, pattern = ";"))
@@ -253,7 +253,7 @@ FisherexactTest <- function (Analyte,
 
   # Generate a dataframe contains: the list of metabolites IDs, the list of metabolites names, the number of elements in pathway, the number of elements in our dataset, for each pathway
   if(pathway_all_info == T){
-    enrichment_df = pblapply(1:length(unique(pathway_rampids_count$pathwayRampId)), function(x){
+    enrichment_df = pbapply::pblapply(1:length(unique(pathway_rampids_count$pathwayRampId)), function(x){
       #ananlytes_id_df = analytehaspathway_new[which(analytehaspathway_new$pathwayRampId == unique(pathway_rampids$pathwayRampId)[x]),]
       pathway_id = unique(pathway_rampids_count$pathwayRampId)[x]
       pathway_info = pathway_db[which(pathway_db$pathwayRampId == pathway_id),]
