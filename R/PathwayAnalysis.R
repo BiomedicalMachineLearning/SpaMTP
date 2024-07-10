@@ -413,8 +413,8 @@ principal_component_pathway_analysis = function(seurat,
 
   mass_matrix_with_coord = cbind(coords,
                                  as.matrix(mass_matrix))
-  width = max(coords[c("y")])#- min(coords[c("y")])
-  height = max(coords[c("x")])# - min(coords[c("x")])
+  width = max(coords[c("y")]) #- min(coords[c("y")])
+  height = max(coords[c("x")]) # - min(coords[c("x")])
 
   if (!is.null(resampling_factor)) {
     verbose_message(message_text = "Running matrix resampling...." , verbose = verbose)
@@ -761,7 +761,7 @@ principal_component_pathway_analysis = function(seurat,
         breaks = quantiles,
         labels = FALSE)
 
-  library(jsonlite)
+
   colors <- c("red", "blue", "green", "yellow", "orange")
 
   # (1) Tissue image
