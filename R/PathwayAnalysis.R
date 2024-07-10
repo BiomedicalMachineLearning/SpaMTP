@@ -1524,5 +1524,57 @@ find_index <- function(lst, value) {
 }
 
 
+##########################################################################################################################################################
+### Bellow helper functions are sourced from https://stackoverflow.com/questions/11123152/function-for-resizing-matrices-in-r by Vyga.
+
+
+#' Helper function to rescale a sampled matrix
+#'
+#' @param x Vector defining new matrix coordinates
+#' @param newrange Vector defining range of old coordinates
+#'
+#' @return Vector containing rescaled coordinates
+#'
+#' @examples
+#' #HELPER FUNCTION
+rescale <- function(x, newrange=range(x)){
+  xrange <- range(x)
+  mfac <- (newrange[2]-newrange[1])/(xrange[2]-xrange[1])
+  newrange[1]+(x-xrange[1])*mfac
+}
+
+#' Helper function to resize a matrix back to its original layout after sampling
+#'
+#' @param mat matrix defining the sampled object
+#' @param ndim number of dimentions to resize the sampled matrix to (default = dim(mat)).
+#'
+#' @return Returns a resized sampled matrix to match the dimentions of the original
+#'
+#' @examples
+#' #HELPER FUNCTION
+ResizeMat <- function(mat, ndim=dim(mat)){
+  #if(!require(fields)) stop("`fields` required.")
+
+  # input object
+  odim <- dim(mat)
+  obj <- list(x= 1:odim[1], y=1:odim[2], z= mat)
+
+  # output object
+  ans <- matrix(NA, nrow=ndim[1], ncol=ndim[2])
+  ndim <- dim(ans)
+
+  # rescaling
+  ncord <- as.matrix(expand.grid(seq_len(ndim[1]), seq_len(ndim[2])))
+  loc <- ncord
+  loc[,1] = rescale(ncord[,1], c(1,odim[1]))
+  loc[,2] = rescale(ncord[,2], c(1,odim[2]))
+
+  # interpolation
+  ans[ncord] <- fields::interp.surface(obj, loc)
+
+  ans
+}
+
+
 
 
