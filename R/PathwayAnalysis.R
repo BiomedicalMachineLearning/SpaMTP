@@ -44,7 +44,7 @@ pathway_analysis <- function(seurat,
 #' Supported gene data format including: "entrez:X", "gene_symbol:X", "uniprot:X", "ensembl:X", "hmdb:HMDBPX"
 #' Supported mz format: any string or numeric vector contains the m/z
 #' @param analyte_type = "metabolites" or "gene" or "mz", or a vector contains any combinations of them
-#' @param polarity The polarity of the MALDI experiment. Inputs must be either NULL, 'positive' or 'negative'. If NULL, pathway analysis will run in neutral mode (default = NULL).
+#' @param polarity Character string defining the polarity of the MALDI experiment. Inputs must be either 'positive', 'negative' or 'neutral' (default = NULL).
 #' @param ppm_error Integer defining the ppm threshold that matched analytes must be between (default = 10).
 #' @param max_path_size The max number of metabolites in a specific pathway
 #' @param min_path_size The min number of metabolites in a specific pathway
@@ -54,6 +54,7 @@ pathway_analysis <- function(seurat,
 #' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
 #'
 #' @return a dataframe with the relevant pathway information
+#' @export
 #'
 #' @examples
 #' # HELPER FUNCTION
@@ -134,22 +135,22 @@ FisherexactTest <- function (Analyte,
     rm(Lipidmaps_db)
     rm(HMDB_db)
     gc()
-    if (polarity == "Positive") {
+    if (polarity == "positive") {
       test_add_pos <- adduct_file$adduct_name[which(adduct_file$charge > 0)]
       # Using Chris' pipeline for annotation
       # 1) Filter DB by adduct.
       db_1 <- db_adduct_filter(db, test_add_pos, polarity = "pos", verbose = verbose)
-    } else if (polarity == "Negative") {
+    } else if (polarity == "negative") {
       test_add_neg <- adduct_file$adduct_name[which(adduct_file$charge < 0)]
       # Using Chris' pipeline for annotation
       # 1) Filter DB by adduct.
       db_1 <- db_adduct_filter(db, test_add_neg, polarity = "neg", verbose = verbose)
-    } else if (polarity == "Neutral") {
+    } else if (polarity == "neutral") {
       # Using Chris' pipeline for annotation
       # 1) Filter DB by adduct.
       db_1 <- db %>% mutate("M" = `M-H ` + 1.007276)
     }else{
-      stop("Please enter correct polarity from: 'Positive', 'Negative', 'Neutral'")
+      stop("Please enter correct polarity from: 'positive', 'negative', 'neutral'")
     }
 
     # 2) only select natural elements

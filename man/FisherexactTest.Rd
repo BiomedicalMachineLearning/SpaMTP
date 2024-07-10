@@ -25,7 +25,7 @@ Supported mz format: any string or numeric vector contains the m/z}
 
 \item{analyte_type}{= "metabolites" or "gene" or "mz", or a vector contains any combinations of them}
 
-\item{polarity}{The polarity of the MALDI experiment. Inputs must be either NULL, 'positive' or 'negative'. If NULL, pathway analysis will run in neutral mode (default = NULL).}
+\item{polarity}{Character string defining the polarity of the MALDI experiment. Inputs must be either 'positive', 'negative' or 'neutral' (default = NULL).}
 
 \item{ppm_error}{Integer defining the ppm threshold that matched analytes must be between (default = 10).}
 
