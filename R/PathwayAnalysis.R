@@ -418,7 +418,7 @@ principal_component_pathway_analysis = function(seurat,
     new.width = as.integer(width / resampling_factor)
     new.height = as.integer(height / resampling_factor)
 
-    resampled_mat = Matrix::matrix(nrow =  new.height * new.width)
+    resampled_mat = matrix(nrow =  new.height * new.width)
     for (i in 1:ncol(mass_matrix)) {
       temp_mz_matrix = matrix(mass_matrix[, i],
                               ncol = width,
