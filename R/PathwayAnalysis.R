@@ -124,16 +124,12 @@ FisherexactTest <- function (Analyte,
 
   if ("mz" %in% analyte_type) {
     analytes_mz = Analyte[["mz"]]
-    #load(paste0(dirname(system.file(package = "SpaMTP")), "/data/Chebi_db.rda"))
-    #load(paste0(dirname(system.file(package = "SpaMTP")), "/data/Lipidmaps_db.rda"))
-    #load(paste0(dirname(system.file(package = "SpaMTP")), "/data/HMDB_db.rda"))
+
     # Since this file was tested in positive ion mode
     db = rbind(Chebi_db,
                Lipidmaps_db,
                HMDB_db)
-    rm(Chebi_db)
-    rm(Lipidmaps_db)
-    rm(HMDB_db)
+
     gc()
     if (polarity == "positive") {
       test_add_pos <- adduct_file$adduct_name[which(adduct_file$charge > 0)]
@@ -595,13 +591,10 @@ principal_component_pathway_analysis = function(seurat,
 
 
   #### Load the Cleaned and summarized DB ####
-  #load("data/Chebi_db.rda")
-  #load("data/HMDB_db.rda")
 
   # Set the db that you want to search against
   db = rbind(HMDB_db, Chebi_db)
   # set which adducts you want to search for
-  #load("data/adduct_file.rda")
 
   if (is.null(ion_mode)) {
     stop("Please enter correct polarity:'positive' or 'negative'")
