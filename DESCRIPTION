@@ -33,6 +33,7 @@ Imports:
     pheatmap,
     RANN,
     RColorBrewer,
+    reshape2,
     rgoslin,
     rlist,
     scater,

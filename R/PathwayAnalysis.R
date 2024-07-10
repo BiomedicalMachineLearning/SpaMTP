@@ -382,6 +382,8 @@ FisherexactTest <- function (Analyte,
 #' @return PCA's and pathway_enrichment_pc is the pathway enrichment results for each PC
 #' @export
 #'
+#' @import dplyr
+#'
 #' @examples
 #' #principal_component_pathway_analysis(mass_matrix = readRDS("~/mass_matrix.rds")[,1:150],width = 912,height = 853,ppm_error = NULL,ion_mode = "positive",tof_resolution = 30000,input_mz = NULL,num_retained_component = NULL,variance_explained_threshold = 0.9,resampling_factor = 2,p_val_threshold = 0.05)
 principal_component_pathway_analysis = function(seurat,
@@ -749,7 +751,7 @@ principal_component_pathway_analysis = function(seurat,
   # #      mass_matrix_with_coord[,2])
   # image(image_matrix)
   # Assign different colours to different layers
-  return(resampled_mat)
+
   image_matrix =  Matrix::rowSums(resampled_mat)
 
   quantiles <-
@@ -773,7 +775,8 @@ principal_component_pathway_analysis = function(seurat,
   col_index <-
     cut(t(image_matrix), breaks = quantiles, labels = FALSE)
 
-  matrix_data_melted = data.frame(cbind(mass_matrix_with_coord[,1:2],
+  matrix_data_melted = data.frame(cbind(x = reshape2::melt(t(image_matrix))[,1],
+                                        y = reshape2::melt(t(image_matrix))[,2],
                                         image_matrix)) %>%
     mutate(color = col_index)
 
