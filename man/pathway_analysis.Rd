@@ -6,8 +6,9 @@
 \usage{
 pathway_analysis(
   seurat,
+  group.by = NULL,
   polarity = "positive",
-  SP.assay = "SPM",
+  SM.assay = "SPM",
   ST.assay = NULL,
   analyte_type = c("mz", "genes"),
   ...
@@ -16,9 +17,11 @@ pathway_analysis(
 \arguments{
 \item{seurat}{A seurat object contains spatial metabolomics/transcriptomics features or both.}
 
+\item{group.by}{Character string defining the metadata column that contains the relative groupings. If NULL, will use whole sample as one group (default = NULL).}
+
 \item{polarity}{The polarity of the MALDI experiment. Inputs must be either NULL, 'positive' or 'negative'. If NULL, pathway analysis will run in neutral mode (default = NULL).}
 
-\item{SP.assay}{Character string defining the SpaMTP assay that contains m/z values (default = "SPM").}
+\item{SM.assay}{Character string defining the SpaMTP assay that contains m/z values (default = "SPM").}
 
 \item{ST.assay}{Character string defining the SpaMTP assay that contains gene names (default = NULL).}
 

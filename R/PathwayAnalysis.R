@@ -2,8 +2,9 @@
 #' This the function used to compute the exact fisher test for over-representation based pathway analysis
 #'
 #' @param seurat A seurat object contains spatial metabolomics/transcriptomics features or both.
+#' @param group.by Character string defining the metadata column that contains the relative groupings. If NULL, will use whole sample as one group (default = NULL).
 #' @param polarity The polarity of the MALDI experiment. Inputs must be either NULL, 'positive' or 'negative'. If NULL, pathway analysis will run in neutral mode (default = NULL).
-#' @param SP.assay Character string defining the SpaMTP assay that contains m/z values (default = "SPM").
+#' @param SM.assay Character string defining the SpaMTP assay that contains m/z values (default = "SPM").
 #' @param ST.assay Character string defining the SpaMTP assay that contains gene names (default = NULL).
 #' @param analyte_type Vector of character string defining the annotations to use for pathway analysis. Options can be one or multiple of: "metabolites" or "gene" or "mz" (default = c("mz", "gene")).
 #' @param ... Additional arguments to pass to FisherexactTest. Check FisherexactTest documentation for possible inputs.
@@ -14,28 +15,49 @@
 #' @examples
 #' # pathway_analysis(Seurat.Obj, polarity = "positive")
 pathway_analysis <- function(seurat,
+                             group.by = NULL,
                             polarity = "positive",
-                            SP.assay = "SPM",
+                            SM.assay = "SPM",
                             ST.assay = NULL,
                             analyte_type = c("mz","genes"),
                             ...){
 
-  met_analytes = row.names(seurat[[SP.assay]]@features)
+  if (is.null(ident)){
 
-  if (!is.null(ST.assay)){
-    rna_analytes = row.names(seurat@assays[[ST.assay]]@features)
-    analytes =  list(mz = met_analytes,
-                     genes = paste0("gene_symbol:",toupper(rna_analytes)))
-  } else {
-    analytes =  list(mz = met_analytes)
+    group.by <- "ident1"
+    seurat@meta.data[[group.by]] <- group.by
+
   }
 
-  result = FisherexactTest(analytes,
-                           polarity = polarity,
-                           analyte_type = analyte_type,
-                           ...)
-  return(result)
+  pathway_results <- dplyr::bind_rows(lapply(unique(seurat@meta.data[[group.by]]), function(cluster){
+
+    Idents(seurat) <- group.by # subsets object by ident of group.by column in the meta.data
+    suppressWarnings({
+      data_subset <- subset(seurat, idents = cluster)
+    })
+
+    met_analytes = row.names(data_subset[[SM.assay]]@features) # extracts m/z values from SM assay
+
+    if (!is.null(ST.assay)){
+      rna_analytes = row.names(data_subset[[ST.assay]]@features)
+      analytes =  list(mz = met_analytes,
+                       genes = paste0("gene_symbol:",toupper(rna_analytes)))
+    } else {
+      analytes =  list(mz = met_analytes)
+    }
+
+    results = FisherexactTest(analytes, # Runs FisherexactTest for pathways
+                              polarity = polarity,
+                              analyte_type = analyte_type,
+                              ...)
+
+    results$cluster <- cluster #adds group name to df
+    results
+  }))
+
+  return(pathway_results)
 }
+
 
 #' Calculates Significant Metabolic Pathways using a Fisher Exact Test
 #'
@@ -337,7 +359,7 @@ FisherexactTest <- function (Analyte,
   # (7) Reduce the dataframe with respected to the User input pathway size
 
   verbose_message(message_text = "Done" , verbose = verbose)
-  rm(chem_props)
+
   gc()
   #return(enrichment_df_with_both_info %>% select(-c(
   #  pathwayRampId,
