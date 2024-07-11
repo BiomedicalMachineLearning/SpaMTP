@@ -257,7 +257,7 @@ FisherexactTest <- function (Analyte,
     enrichment_df = pbapply::pblapply(1:length(unique(pathway_rampids_count$pathwayRampId)), function(x){
       #ananlytes_id_df = analytehaspathway_new[which(analytehaspathway_new$pathwayRampId == unique(pathway_rampids$pathwayRampId)[x]),]
       pathway_id = unique(pathway_rampids_count$pathwayRampId)[x]
-      pathway_info = pathway_db[which(pathway_db$pathwayRampId == pathway_id),]
+      pathway_info = pathway[which(pathway$pathwayRampId == pathway_id),]
       # get rampids associated with the pathway
       full_list = analytehaspathway_full[which(analytehaspathway_full$pathwayRampId == pathway_id),]
       screened_List = pathway_rampids_count[which(pathway_rampids_count$pathwayRampId == pathway_id),]
@@ -288,7 +288,7 @@ FisherexactTest <- function (Analyte,
     enrichment_df = merge(pathway_rampids_count[which(!duplicated(pathway_rampids_count$pathwayRampId)),], analytehaspathway_full[which(!duplicated(analytehaspathway_full$pathwayRampId)),],
                           by = "pathwayRampId")
     #colnames(enrichment_df)[which(colnames(enrichment_df) == "count")] = "total_in_pathways"
-    enrichment_df = merge(enrichment_df, pathway_db, by = "pathwayRampId")
+    enrichment_df = merge(enrichment_df, pathway, by = "pathwayRampId")
     enrichment_df = enrichment_df %>% filter(!duplicated(pathwayName))
   }
 
