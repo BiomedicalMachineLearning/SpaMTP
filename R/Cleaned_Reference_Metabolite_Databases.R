@@ -291,7 +291,7 @@
 
 
 
-#' @title source: A dataframe containing source information about RAMP_ID analyte used for analysis
+#' @title source_df: A dataframe containing source information about RAMP_ID analyte used for analysis
 #'
 #' @description This object contains a collection of RAMP_DB analytes, their source ID, common name and pathway count
 #'
@@ -306,4 +306,4 @@
 #'   \item{pathwayCount}{Number of pathways analyte is present in (integer)}
 #' }
 #'
-"source"
+"source_df"

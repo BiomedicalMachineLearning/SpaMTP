@@ -108,7 +108,7 @@ FisherexactTest <- function (Analyte,
 
   if ( "metabolites" %in% analyte_type) {
     analytes_met = Analyte[["metabolites"]]
-    source_met = source[which(grepl(source$rampId, pattern = "RAMP_C") == T),]
+    source_met = source_df[which(grepl(source_df$rampId, pattern = "RAMP_C") == T),]
     analytehaspathway_met = analytehaspathway[which(grepl(analytehaspathway$rampId, pattern = "RAMP_C") == T),]
     analyte_met = analyte[which(grepl(analyte$rampId, pattern = "RAMP_C") == T),]
   }
@@ -117,7 +117,7 @@ FisherexactTest <- function (Analyte,
       stop("Cannot find gene list not present in Analyte object .... Please provide SpaMTP assay containing gene names, or remove 'gene' from analyte_type input!")
     }
     analytes_rna = Analyte[["genes"]]
-    source_rna = source[which(grepl(source$rampId, pattern = "RAMP_G") == T),]
+    source_rna = source_df[which(grepl(source_df$rampId, pattern = "RAMP_G") == T),]
     analytehaspathway_rna = analytehaspathway[which(grepl(analytehaspathway$rampId, pattern = "RAMP_G") == T),]
     analyte_rna = analyte[which(grepl(analyte$rampId, pattern = "RAMP_G") == T),]
   }
@@ -179,7 +179,7 @@ FisherexactTest <- function (Analyte,
     expand_db3 = do.call(c,db_3list)
 
     analytes_mz = sub(" ", "", expand_db3)
-    source_mz = source[which(grepl(source$rampId, pattern = "RAMP_C") == T),]
+    source_mz = source_df[which(grepl(source_df$rampId, pattern = "RAMP_C") == T),]
     analytehaspathway_mz = analytehaspathway[which(grepl(analytehaspathway$rampId, pattern = "RAMP_C") == T),]
   }
 
