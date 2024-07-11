@@ -177,7 +177,7 @@ FisherexactTest <- function (Analyte,
       }
     })
     expand_db3 = do.call(c,db_3list)
-    return(expand_db3)
+
     analytes_mz = sub(" ", "", expand_db3)
     source_mz = source[which(grepl(source$rampId, pattern = "RAMP_C") == T),]
     analytehaspathway_mz = analytehaspathway[which(grepl(analytehaspathway$rampId, pattern = "RAMP_C") == T),]
