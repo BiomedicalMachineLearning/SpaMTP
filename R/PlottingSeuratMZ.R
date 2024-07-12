@@ -30,6 +30,28 @@ FindNearestMZ <- function(data, target_mz){
 }
 
 
+#' Sums the intensity values of multiple m/z values into one
+#'
+#' @param data SpaMTP Seurat class object containing m/z intensities.
+#' @param mzs Vector of m/z names to be binned together
+#' @param assay Character string indicating which Seurat object assay to pull data form (default = "Spatial").
+#' @param slot Character string indicating the assay slot to use to pull expression values form (default = "counts").
+#' @param bin_name Character string defining the name of the meta.data column that stores the data (default = "Binned_Metabolites").
+#'
+#' @return Binned intensity value stored in barcode meta.data slot
+#' @export
+#'
+#' @examples
+#' # SpaMPT.obj <- BinMetabolites(SpaMPT.obj, mz = c('mz-740.471557617188','mz-784.528564453125','mz-897.603637695312'), bin_name = "Lipids")
+BinMetabolites <- function(data, mzs, assay = "Spatial", slot = "data", bin_name = "Binned_Metabolites"){
+
+  binned_counts <- bin.mz(data, mz_list = mzs, assay = assay, slot = slot) # bins m/z masses
+
+  data[[bin_name]]<- binned_counts #adds to metadata
+
+  return(data)
+}
+
 #' Bins multiple m/z values into one.
 #'
 #' @param data Seurat Spatial Metabolomic object containing mz values
@@ -49,7 +71,7 @@ bin.mz <- function(data, mz_list, assay = "Spatial", slot = "counts", stored.in.
   if (stored.in.metadata){
     metadata_counts <- data_copy@meta.data[mz_list]
     if (length(colnames(metadata_counts)) < 2) {
-      stop("One or more genes not found in the assay counts.")
+      stop("One or more genes not found in the assay meta.data.")
     }
     binned.data <- Matrix::rowSums(metadata_counts)
 
@@ -1257,6 +1279,8 @@ CheckAlignment <- function(SM.data, ST.data, image.res = NULL, names = c("SM", "
 #' @return A 3D Plotly plot
 #' @export
 #'
+#' @import plotly
+#'
 #' @examples
 #' # Plot3DFeature(data = my_data, features = c("gene1", "gene2"), assays = c("SPT", "SPM"))
 Plot3DFeature <- function(data,
@@ -1335,8 +1359,8 @@ Plot3DFeature <- function(data,
   # Create scatter3d traces for each layer
   trace1 <-
     plot_ly(GetTissueCoordinates(data),
-            x = ~imagerow,
-            y = ~imagecol,
+            x = ~x,
+            y = ~y,
             z = rep(0 + between.layer.height, times = dim(GetTissueCoordinates(data))[1]),
             type = "scatter3d",
             mode = "markers",
@@ -1352,8 +1376,8 @@ Plot3DFeature <- function(data,
       zaxis = list(title = z.axis.label, showticklabels = show.z.ticks)))
 
   plot <-  trace1 %>% add_trace(GetTissueCoordinates(data),
-                                x = ~imagerow,
-                                y = ~imagecol,
+                                x = ~x,
+                                y = ~y,
                                 z = rep(0, times = dim(GetTissueCoordinates(data))[1]),
                                 type = "scatter3d",
                                 mode = "markers",

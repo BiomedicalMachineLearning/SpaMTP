@@ -31,6 +31,7 @@ Imports:
     Matrix,
     matter,
     pheatmap,
+    plotly,
     RANN,
     RColorBrewer,
     reshape2,
