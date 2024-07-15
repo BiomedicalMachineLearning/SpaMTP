@@ -64,3 +64,48 @@ GetSpatiallyVariableMetabolites <- function(object, assay = "SPM", n = 10){
 
   return(rownames(object[[assay]][["moransi.spatially.variable.rank"]]%>%arrange(moransi.spatially.variable.rank))[1:n])
 }
+
+
+
+#' Multi-Omic integration of Spatial Metabolomics and Transcriptomics data using Seurat's Weighted Nearest Neighbours function
+#'
+#' @param multiomic.data SpaMTP dataset contain Spatial Transcriptomics and Metabolomic datasets in two different assays
+#' @param weight.list List containing the relative weightings for each modality, matching the reduction order. If NULL, weights will be automatically calculated else, two values must add to 1 (default = NULL).
+#' @param reduction.list List containing character strings defining the reduction to use for each modality, in the order matching weight.list if applicable (default = list("spt.pca", "spm.pca")).
+#' @param dims.list List containing the numeric range of principle component dimension to include for each modality (default = list(1:30,1:30)).
+#' @param return.intermediate Boolean value indicating whether to store intermediate results in misc slot of SpaMTP Seurat class object (default = FALSE).
+#' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
+#' @param ... Additional arguments that can be parsed through Seurat's FindMultModalNeighbors function. For possible inputs please visit: https://www.rdocumentation.org/packages/Seurat/versions/5.0.3/topics/FindMultiModalNeighbors.
+#'
+#' @return SpaMTP Seurat class object containing a weighted nearest neighbours graph which integrates Metabolic and Transcriptomic modalities. This graph can be used for clustering.
+#' @export
+#'
+#' @examples
+#' # SpaMTP.obj <- MultiOmicIntegration(SpaMTP.obj, weight.list = list(0.5, 0.5), reduction.list =  list("spt.pca", "spm.pca"), dims.list = list(1:30, 1:30))
+MultiOmicIntegration <- function (multiomic.data, weight.list = NULL, reduction.list =  list("spt.pca", "spm.pca"), dims.list = list(1:30, 1:30), return.intermediate = FALSE, verbose = FALSE, ...){
+
+  if (is.null(weight.list)){
+    mm.integration <- Seurat::FindMultiModalNeighbors(
+      multiomic.data, reduction.list = reduction.list,
+      dims.list = dims.list, return.intermediate = return.intermediate,verbose = verbose, ...)
+  } else {
+    mm.integration <- Seurat::FindMultiModalNeighbors(
+      multiomic.data, reduction.list = reduction.list,
+      dims.list = dims.list, return.intermediate = TRUE, verbose = verbose, ...)
+
+    x <- rep(weight.list[[1]], length(names(mm.integration@misc$modality.weight@modality.weight.list[[reduction.list[[1]]]]))) ## Setting the SPM weights
+    names(x) <- names(mm.integration@misc$modality.weight@modality.weight.list[[reduction.list[[1]]]])
+    mm.integration@misc$modality.weight@modality.weight.list[[reduction.list[[1]]]] <- x
+
+    x <- rep(weight.list[[1]], length(names(mm.integration@misc$modality.weight@modality.weight.list[[reduction.list[[2]]]]))) ## Setting the SPM weights
+    names(x) <- names(mm.integration@misc$modality.weight@modality.weight.list[[reduction.list[[2]]]])
+    mm.integration@misc$modality.weight@modality.weight.list[[reduction.list[[2]]]] <- x
+
+    mm.integration <- Seurat::FindMultiModalNeighbors(
+      multiomic.data, reduction.list = reduction.list,
+      dims.list = dims.list, return.intermediate = return.intermediate, modality.weight = mm.integration@misc$modality.weight, verbose = verbose, ...)
+  }
+
+  return(mm.integration)
+}
+
