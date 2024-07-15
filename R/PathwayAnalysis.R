@@ -1,7 +1,7 @@
 
 #' This the function used to compute the exact fisher test for over-representation based pathway analysis
 #'
-#' @param seurat A seurat object contains spatial metabolomics/transcriptomics features or both.
+#' @param object A SpaMTP Seurat class object contains spatial metabolomics/transcriptomics features or both.
 #' @param group.by Character string defining the metadata column that contains the relative groupings. If NULL, will use whole sample as one group (default = NULL).
 #' @param polarity The polarity of the MALDI experiment. Inputs must be either NULL, 'positive' or 'negative'. If NULL, pathway analysis will run in neutral mode (default = NULL).
 #' @param SM.assay Character string defining the SpaMTP assay that contains m/z values (default = "SPM").
@@ -14,7 +14,7 @@
 #'
 #' @examples
 #' # pathway_analysis(Seurat.Obj, polarity = "positive")
-pathway_analysis <- function(seurat,
+pathway_analysis <- function(object,
                              group.by = NULL,
                             polarity = "positive",
                             SM.assay = "SPM",
@@ -25,15 +25,15 @@ pathway_analysis <- function(seurat,
   if (is.null(ident)){
 
     group.by <- "ident1"
-    seurat@meta.data[[group.by]] <- group.by
+    object@meta.data[[group.by]] <- group.by
 
   }
 
-  pathway_results <- dplyr::bind_rows(lapply(unique(seurat@meta.data[[group.by]]), function(cluster){
+  pathway_results <- dplyr::bind_rows(lapply(unique(object@meta.data[[group.by]]), function(cluster){
 
-    Idents(seurat) <- group.by # subsets object by ident of group.by column in the meta.data
+    Idents(object) <- group.by # subsets object by ident of group.by column in the meta.data
     suppressWarnings({
-      data_subset <- subset(seurat, idents = cluster)
+      data_subset <- subset(object, idents = cluster)
     })
 
     met_analytes = row.names(data_subset[[SM.assay]]@features) # extracts m/z values from SM assay
@@ -378,7 +378,7 @@ FisherexactTest <- function (Analyte,
 
 #' PCA driven pathway analaysis
 #'
-#' @param seurat SpaMTP Seurat class object that contains spatial metabolic information.
+#' @param object SpaMTP Seurat class object that contains spatial metabolic information.
 #' @param path Character string defining the output path for the visualization (default = getwd()).
 #' @param ppm_error is the parts-per-million error tolerance of matching m/z value with potential metabolites
 #' @param ion_mode is only needed when ppm_error is not specified, used to access the ppm_error based on polarity. Inputs must be either 'positive' or 'negative'(default = NULL).
@@ -402,7 +402,7 @@ FisherexactTest <- function (Analyte,
 #'
 #' @examples
 #' #principal_component_pathway_analysis(mass_matrix = readRDS("~/mass_matrix.rds")[,1:150],width = 912,height = 853,ppm_error = NULL,ion_mode = "positive",tof_resolution = 30000,input_mz = NULL,num_retained_component = NULL,variance_explained_threshold = 0.9,resampling_factor = 2,p_val_threshold = 0.05)
-principal_component_pathway_analysis = function(seurat,
+principal_component_pathway_analysis = function(object,
                                                 path = getwd(),
                                                 ppm_error = NULL,
                                                 ion_mode = NULL,
@@ -420,9 +420,9 @@ principal_component_pathway_analysis = function(seurat,
   # PCA analysis
   verbose_message(message_text = "Scaling original matrix", verbose = verbose)
 
-  mass_matrix = Matrix::t(seurat[[assay]]@layers[[slot]])
+  mass_matrix = Matrix::t(object[[assay]]@layers[[slot]])
 
-  coords <- GetTissueCoordinates(seurat)[c("x", "y")]
+  coords <- GetTissueCoordinates(object)[c("x", "y")]
 
   if (flip_plot){
     colnames(coords) <- c("y", "x")
@@ -598,7 +598,7 @@ principal_component_pathway_analysis = function(seurat,
   tryCatch({
     input_mz = data.frame(cbind(
       row_id = 1:ncol(resampled_mat),
-      mz = as.numeric(stringr::str_extract(row.names(seurat[[assay]]@features), pattern = "\\d+\\.?\\d*"))
+      mz = as.numeric(stringr::str_extract(row.names(object[[assay]]@features), pattern = "\\d+\\.?\\d*"))
     ))
   },
   error = function(cond) {
@@ -1447,8 +1447,19 @@ document.addEventListener("DOMContentLoaded", function() {
   writeLines(kmean,"kmeans.js")
 
   writeLines(html_temp,"pca_analysis.html")
-  return(list(seurat = seurat,
-              pca = pca,
+
+  ## Save PCA's in SpaMTP Seurat object slot
+
+  SpaMTP_pca <- pca
+
+  rownames(SpaMTP_pca$rotation) <- rownames(object[[assay]]@features)
+  rownames(SpaMTP_pca$x) <- rownames(object@meta.data)
+
+  SpaMTP_pcas <- CreateDimReducObject(embeddings = SpaMTP_pca$x, loadings = SpaMTP_pca$rotation, assay = assay, key = "pca_")
+
+  object[["pca"]] <- SpaMTP_pcas
+
+  return(list(object = object,
               pathway_enrichment_pc = pca_sea_list,
               new.width = as.integer(width/as.numeric(resampling_factor)),
               new.height = as.integer(height/as.numeric(resampling_factor))))

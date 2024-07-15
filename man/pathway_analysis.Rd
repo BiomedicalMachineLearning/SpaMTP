@@ -5,7 +5,7 @@
 \title{This the function used to compute the exact fisher test for over-representation based pathway analysis}
 \usage{
 pathway_analysis(
-  seurat,
+  object,
   group.by = NULL,
   polarity = "positive",
   SM.assay = "SPM",
@@ -15,7 +15,7 @@ pathway_analysis(
 )
 }
 \arguments{
-\item{seurat}{A seurat object contains spatial metabolomics/transcriptomics features or both.}
+\item{object}{A SpaMTP Seurat class object contains spatial metabolomics/transcriptomics features or both.}
 
 \item{group.by}{Character string defining the metadata column that contains the relative groupings. If NULL, will use whole sample as one group (default = NULL).}
 

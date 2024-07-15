@@ -1,6 +1,72 @@
-
 #### SpaMTP Spatial Analysis ##############################################################################################################################################################################
-## Code is manipulated from Seurat
+
+
+
+
+
+
+
+#' Find top features and metabolites that are strongly correlated with a given feature
+#'
+#' @param data SpaMTP Seurat class object containing both Spatial Transcriptomic and Metabolic data assays.
+#' @param mz Numeric value specifying the m/z to find correlated features for. One of `mz` or `gene` must be provided, alternatives must be `NULL` (default = NULL).
+#' @param gene Character value specifying the gene to find correlated features for. One of `mz` or `gene` must be provided, alternatives must be `NULL` (default = NULL).
+#' @param SM.assay Character value specifying the name of the assay containing the spatial metabolomics (SM) data (default = "SPM").
+#' @param ST.assay Character value specifying the name of the assay containing the spatial transcriptomics (ST) data (Default = "SPT").
+#' @param SM.slot Character value specifying the slot of the SM assay to use (default = "counts").
+#' @param ST.slot Character value specifying the slot of the ST assay to use (default = "counts").
+#' @param nfeatures Integer value specifying the number of top correlated features to return (default = 10).
+#'
+#' @return A data frame containing the top correlated features with columns for the feature names and their correlation values.
+#'
+#' @export
+#'
+#' @examples
+#' # result <- FindCorrelatedFeatures(data = SpaMTP, gene = "GeneX", nfeatures = 5)
+FindCorrelatedFeatures <- function(data, mz = NULL, gene = NULL, SM.assay = "SPM", ST.assay = "SPT", SM.slot = "counts", ST.slot = "counts", nfeatures = 10){
+  met_counts <- data[[SM.assay]][SM.slot]
+  tran_counts <- data[[ST.assay]][ST.slot]
+
+  gene_mappings <- data.frame(gene = rownames(tran_counts))
+
+  rownames(tran_counts) <- unlist(lapply(1:length(rownames(tran_counts)), function (x) {
+    paste0("mz-",(round(as.numeric(gsub("mz-", "", rownames(met_counts)[length(rownames(met_counts))],))) + 100), x)
+  }))
+
+  gene_mappings$mz <- rownames(tran_counts)
+  gene_mappings$raw_mz <- gsub("mz-", "", gene_mappings$mz)
+
+  data[["tmp"]] <- SeuratObject::CreateAssay5Object(counts = rbind(met_counts, tran_counts))
+
+  if (is.null(mz) & ! is.null(gene)){
+    idx <- which(gene_mappings$gene == gene)
+    mz <- as.numeric(gene_mappings$raw_mz[idx])
+
+  } else if (!is.null(mz) & is.null(gene)){
+    mz <- mz
+  } else {
+    stop("Invalid input for 'mz = ' and 'gene = '... Only one inupt can be provided. Either mz or gene, alternative must be set to NULL! Please check documentation ...")
+  }
+
+  data_cardinal <- ConvertSeuratToCardinal(data = data, assay = "tmp", slot = "counts")
+
+  result <- suppressWarnings(Cardinal::colocalized(data_cardinal, mz=mz, n = length(rownames(met_counts)) + length(rownames(tran_counts))))
+  result <- result[order(result$mz), ]
+  result$features <- c(rownames(met_counts),gene_mappings$gene)
+  result <- result[c("features", colnames(result)[!colnames(result) %in% c("mz", "features")])]
+  result <- result[order(-abs(result$correlation)), ]
+
+  if (!is.null(nfeatures)){
+    return(head(result, n = nfeatures))
+  } else{
+    return(result)
+  }
+}
+
+
+
+
+#### Code is manipulated from Seurat ###########################################################################################
 
 #' Compute the row variances for each m/z value
 #'

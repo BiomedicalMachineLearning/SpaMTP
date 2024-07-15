@@ -5,7 +5,7 @@
 \title{PCA driven pathway analaysis}
 \usage{
 principal_component_pathway_analysis(
-  seurat,
+  object,
   path = getwd(),
   ppm_error = NULL,
   ion_mode = NULL,
@@ -23,7 +23,7 @@ principal_component_pathway_analysis(
 )
 }
 \arguments{
-\item{seurat}{SpaMTP Seurat class object that contains spatial metabolic information.}
+\item{object}{SpaMTP Seurat class object that contains spatial metabolic information.}
 
 \item{path}{Character string defining the output path for the visualization (default = getwd()).}
 
