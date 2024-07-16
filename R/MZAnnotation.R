@@ -113,7 +113,10 @@ AnnotateSM <- function(data, db, feature.metadata.assay = "Spatial", feature.met
     dplyr::group_by(observed_mz) %>%
     dplyr::summarise(
       all_IsomerNames = paste(IsomerNames, collapse = "; "),
-      all_Isomers = paste(Isomers, collapse = "; ")
+      all_Isomers = paste(Isomers, collapse = "; "),
+      all_Adducts = paste(unique(Adduct), collapse = "; "),
+      all_Formulas = paste(unique(Formula), collapse = "; "),
+      all_Errors = paste(round(Error,4), collapse = "; ")
     )
   rownames(result_df) <- paste0("mz-",result_df$observed_mz)
 

@@ -1440,22 +1440,20 @@ Plot3DFeature <- function(data,
 
 
 
-#'@description Return a html contains the annotation/average intensity of peakbins/density of distribution of each peak
+
+#' Generates a 3D density plot for specific m/z values
 #'
 #' @param seurat A seurat object contains spatial metabolomics data in either "SPM" or "Spatial" entry
 #' @param db_selection The databased used for annoation, in a vector format, e.g. db_selection = c("Chebi_db","HMDB_db")
 #' @param polarity The polarity of MALDI run, selected from one of ("pos","neg")
 #' @param folder The folder to keep the output file, default in current working directory
 #' @param ... Arguments passed to SpaMTP::AnnotateSeuratMALDI()
-
-#'@description Return a html contains the annotation/average intensity of peakbins/density of distribution of each peak
 #'
-#' @param seurat A seurat object contains spatial metabolomics data in either "SPM" or "Spatial" entry
-#' @param db_selection The databased used for annoation, in a vector format, e.g. db_selection = c("Chebi_db","HMDB_db")
-#' @param polarity The polarity of MALDI run, selected from one of ("pos","neg")
-#' @param folder The folder to keep the output file, default in current working directory
-#' @param ... Arguments passed to SpaMTP::AnnotateSeuratMALDI()
-
+#' @return Return a html contains the annotation/average intensity of peakbins/density of distribution of each peak
+#' @export
+#'
+#' @examples
+#' # getdensitymap(SpaMTP.obj)
 getdensitymap = function(seurat, assay = "SPM", slot = "counts", folder = getwd(),...){
 
   annotated_seurat = seurat
