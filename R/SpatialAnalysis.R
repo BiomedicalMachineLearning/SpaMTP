@@ -1,11 +1,5 @@
 #### SpaMTP Spatial Analysis ##############################################################################################################################################################################
 
-
-
-
-
-
-
 #' Find top features and metabolites that are strongly correlated with a given feature
 #'
 #' @param data SpaMTP Seurat class object containing both Spatial Transcriptomic and Metabolic data assays.
@@ -53,6 +47,7 @@ FindCorrelatedFeatures <- function(data, mz = NULL, gene = NULL, SM.assay = "SPM
   result <- suppressWarnings(Cardinal::colocalized(data_cardinal, mz=mz, n = length(rownames(met_counts)) + length(rownames(tran_counts))))
   result <- result[order(result$mz), ]
   result$features <- c(rownames(met_counts),gene_mappings$gene)
+  result$modality <- c(rep("metabolite", length(rownames(met_counts))), c(rep("gene", n = length(gene_mappings$gene))))
   result <- result[c("features", colnames(result)[!colnames(result) %in% c("mz", "features")])]
   result <- result[order(-abs(result$correlation)), ]
 

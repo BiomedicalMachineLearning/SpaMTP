@@ -1,13 +1,13 @@
-library(Seurat)
-library(Cardinal)
-library(SeuratObject)
-library(ggplot2)
-library(Matrix)
-library(graphics)
-library(stringr)
-library(matter)
-library(plotly)
-library(dplyr)
+#library(Seurat)
+#library(Cardinal)
+#library(SeuratObject)
+#library(ggplot2)
+#library(Matrix)
+#library(graphics)
+#library(stringr)
+#library(matter)
+#library(plotly)
+#library(dplyr)
 
 
 #### SpaMTP Seurat Plotting Functions #################################################################################################################################################################################
@@ -1437,6 +1437,380 @@ Plot3DFeature <- function(data,
   return(plot)
 
 }
+
+
+
+#'@description Return a html contains the annotation/average intensity of peakbins/density of distribution of each peak
+#'
+#' @param seurat A seurat object contains spatial metabolomics data in either "SPM" or "Spatial" entry
+#' @param db_selection The databased used for annoation, in a vector format, e.g. db_selection = c("Chebi_db","HMDB_db")
+#' @param polarity The polarity of MALDI run, selected from one of ("pos","neg")
+#' @param folder The folder to keep the output file, default in current working directory
+#' @param ... Arguments passed to SpaMTP::AnnotateSeuratMALDI()
+
+#'@description Return a html contains the annotation/average intensity of peakbins/density of distribution of each peak
+#'
+#' @param seurat A seurat object contains spatial metabolomics data in either "SPM" or "Spatial" entry
+#' @param db_selection The databased used for annoation, in a vector format, e.g. db_selection = c("Chebi_db","HMDB_db")
+#' @param polarity The polarity of MALDI run, selected from one of ("pos","neg")
+#' @param folder The folder to keep the output file, default in current working directory
+#' @param ... Arguments passed to SpaMTP::AnnotateSeuratMALDI()
+
+getdensitymap = function(seurat, assay = "SPM", slot = "counts", folder = getwd(),...){
+
+  annotated_seurat = seurat
+  mass_matrix = t(annotated_seurat[[assay]][slot])
+  annotated_table = annotated_seurat[[assay]]@meta.data
+  indices =  GetTissueCoordinates(annotated_seurat)[c("x", "y")]
+  mzs =  annotated_table["raw_mz"]
+  annotated_json  = '['
+  for (i in 1:length(mzs)) {
+    annotated_json =
+      paste0(
+        annotated_json,
+        '[',
+        jsonlite::toJSON(annotated_table$raw_mz[i]),
+        ',',
+        jsonlite::toJSON(annotated_table$mz_names[i]),
+        ',',
+        jsonlite::toJSON(gsub(
+          "\\]",
+          "_",
+          gsub("\\[", "_", annotated_table$all_IsomerNames[i])
+        )),
+        ',',
+        jsonlite::toJSON(annotated_table$all_Isomers[i]),
+        '],',
+        collapse = ""
+      )
+  }
+  annotated_json  = paste0(annotated_json,
+                           ']')
+
+
+  # Histogram information, mz, mean_intensity, max_intensity
+
+  histogram_data_to_be_added  = ""
+  mean_intensity = colSums(mass_matrix) / nrow(mass_matrix)
+  for (i in 1:length(mzs)) {
+    histogram_data_to_be_added = paste0(histogram_data_to_be_added,
+                                        "{ mz:",
+                                        mzs[i],
+                                        ", mean:",
+                                        mean_intensity[i],
+                                        "},")
+  }
+
+  #KDE curve
+  data_points <-
+    rep(as.numeric(sub("mz-", "", mzs$raw_mz)), as.integer(mean_intensity / 5))
+
+  # Generate KDE
+  kde <- density(data_points, bw = 0.05)
+  kde$y <-  kde$y * max(mean_intensity) / max(kde$y)
+  kde_json = paste0("[", jsonlite::toJSON(kde$x), ",", jsonlite::toJSON(kde$y), "]")
+
+  # Initialize an empty character vector to store the elements - the density map required item
+  elements <- character(ncol(mass_matrix))
+  pb = txtProgressBar(
+    min = 0,
+    max = ncol(mass_matrix),
+    initial = 0,
+    style  =  3
+  )
+  # Loop through each column of mass_matrix
+  print("Parsing mass matrix information")
+  for (i in 1:ncol(mass_matrix)) {
+    # Combine row and column indices
+    element <- paste("[",
+                     indices[which(mass_matrix[, i] != 0), 1],
+                     ",",
+                     indices[which(mass_matrix[, i] != 0), 2],
+                     "]",
+                     sep = "" ,
+                     collapse = ",")
+
+    # Store the element in the vector
+    elements[i] <- paste("[", element, "]", sep = "")
+
+    setTxtProgressBar(pb, i)
+  }
+  close(pb)
+  # Combine all elements into a JSON array
+  json_array <-
+    paste("[", paste(elements, collapse = ","), "]", sep = "")
+
+  # Correct double commas
+  json_array <- sub("],]", "]]", json_array)
+
+  # Combine all elements into a JSON array
+  json_array <-
+    paste("[", paste(elements, collapse = ","), "]", sep = "")
+
+  # Correct double commas
+  json_array <- sub("],]", "]]", json_array)
+
+  #writeLines(json_array, paste0(file.path(folder),name,"/reconstuct_mz.json"))
+
+
+  javascript = paste0(
+    "
+<!DOCTYPE html>
+  <div id='Data'></div>
+    <html lang='en'>
+
+      <head>
+      <meta charset='UTF-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+          <title>Interactive Bar and Dot Plot</title>
+          <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+            <script src='https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.1.2/papaparse.min.js'></script>
+              <script src='https://d3js.org/d3.v7.min.js'></script>
+                  <script type='text/javascript' src='https://cdn.jsdelivr.net/gh/stdlib-js/stats-kde2d@umd/browser.js'></script>
+                    <script type='text/javascript' src='https://cdn.jsdelivr.net/gh/stdlib-js/ndarray@umd/browser.js'></script>
+                      </head>
+
+                      <body>
+                      <script type='text/javascript'>
+                        (function () {
+                          window.kde2d;
+                        })();
+                      </script>
+                        <script type='text/javascript'>
+                          (function () {
+                            window.ndarray;
+                          })();
+                        </script>
+
+    <style>
+      #container {
+          display: flex;
+          flex-direction: column;
+      }
+      #plots {
+          display: flex;
+      }
+      #barPlot, #secPlot {
+          width: 100%;
+          border: 0px solid black; /* Optional: to visualize the divs */
+          box-sizing: border-box; /* Ensure borders are included in the dimensions */
+          height: 450px;
+          padding: 10px;
+          margin-bottom: 0px;
+      }
+      #tablePlot {
+          width: 100%;
+          border: 2px solid black; /* Optional: to visualize the div */
+          box-sizing: border-box; /* Ensure borders are included in the dimensions */
+          height: 300px;
+          padding: 30px;
+      }
+  </style>
+      <div id='container'>
+        <div id='plots'>
+            <div id='barPlot'></div>
+            <div id='secPlot'></div>
+        </div>
+        <div id='tablePlot'>
+        </div>
+    </div>
+                          <script>
+          const data = [",
+    histogram_data_to_be_added,
+    "];
+          // Add event listener for unhover on bar plot
+          var json_array =",
+    json_array,
+    "
+          var annotated_table =",
+    annotated_json,
+    "
+          var kde =",
+    kde_json,
+    "
+          var trace = {
+              x: kde[0],
+              y: kde[1],
+              mode: 'lines',
+              name: 'Kde curve',
+              line: {shape: 'spline'},
+              type: 'scatter',
+              width: 0.3
+            };
+
+            const xValues = data.map(d => d.mz);
+            const yValues = data.map(d => d.mean);
+
+            // Create trace for the bar plot
+            var barTrace = {
+              x: xValues,
+              y: yValues,
+              type: 'bar',
+              width: 0.3,
+              name: 'Peak bins',
+            };
+
+            // Create trace for the dot plot
+
+
+            // Set layout for bar plot
+            var barLayout = {
+              hovermode: 'closest',
+              title: 'Bar Plot',
+              xaxis: {
+                title: 'm/z values'
+              },
+              yaxis: {
+                title: 'intensity'
+              },
+              plot_bgcolor: 'rgba(0,0,0,0)', // Transparent background for the plot area
+              paper_bgcolor: 'rgba(0,0,0,0)',
+            };
+
+            // Set layout for second plot
+
+            // Create bar plot
+            Plotly.newPlot('barPlot', [trace,barTrace], barLayout);
+
+            function findArrayByNumber(array, number) {
+              let searchString = 'mz-' + number;
+              for (let i = 0; i < array.length; i++) {
+                let element = array[i][0];
+                if (element === searchString) {
+                  return i;
+                }
+              }
+              return -1;
+            }
+            // Add event listener for hover on bar plot
+            document.getElementById('barPlot').on('plotly_click', function (data_event){
+              var pointNumber = data_event.points[0].pointNumber;
+              console.log(pointNumber)
+              var selected_mz = xValues[pointNumber]
+              Plotly.purge('secPlot');
+              displaydensity(pointNumber)
+              var table_index = findArrayByNumber(annotated_table.map(coord => coord[1]), selected_mz);
+              if(table_index != -1){
+                displayTable(table_index);
+              }else{
+                var table_update = [[selected_mz],['Not annotated by given adduct/db'],
+                                    ['Not annotated by given adduct/db'],
+                                    ['Not annotated by given adduct/db']]
+                var tableData = [
+                  {
+                    type: 'table',
+                    header: {
+                      values: ['mz', 'mz_name', 'annotated metabolites', 'entry of the metabolites'],
+                      align: 'center',
+                      line: {width: 1, color: 'black'},
+                      fill: {color: 'grey'},
+                      font: {family: 'Arial', size: 12, color: 'white'}
+                    },
+                    cells: {
+                      values: table_update,
+                      align: 'center',
+                      line: {color: 'black', width: 1},
+                      fill: {color: ['white', 'lightgrey']},
+                      font: {family: 'Arial', size: 11, color: ['black']}
+                    }
+                  }
+                ];
+                var layout_table = {
+                  title: 'Annotation table for m/z: ' + data[table_index].mz,
+                  autosize: true,
+                  plot_bgcolor: 'rgba(0,0,0,0)', // Transparent background for the plot area
+                  paper_bgcolor: 'rgba(0,0,0,0)',
+                };
+                Plotly.newPlot('tablePlot', tableData,layout_table);
+              }
+            });
+            // Get the density plot done
+            // If the element exists, hide the loading message
+            function displaydensity(index) {
+              var temp_x = json_array[index].map(coord => coord[0]);
+              var temp_y = json_array[index].map(coord => coord[1]);
+              var n = 30;
+              var shape = [n, 2];
+              var strides = [1, n];
+              var offset = 0;
+              var order = 'column-major';
+
+              var out = kde2d(temp_x, temp_y, {
+                'n': n,
+                'buffer': temp_x.concat(temp_y),
+                'order': 'column-major',
+                'offset': offset,
+                'strides': strides
+              });
+
+              let twoDArray = [];
+              for (let i = 0; i < out.z._buffer.length; i += n) {
+                twoDArray.push(out.z._buffer.slice(i, i + n));
+              }
+              var arr = twoDArray;
+              console.log(twoDArray)
+              var data_u = [{
+                z: twoDArray,
+                type: 'surface'
+              }];
+              var layout_U = {
+                title: 'kde2d plot for m/z: ' + data[index].mz,
+                autosize: true,
+                plot_bgcolor: 'rgba(0,0,0,0)', // Transparent background for the plot area
+                paper_bgcolor: 'rgba(0,0,0,0)',
+              };
+              //loadingMessageElement.innerText = '';
+              // Create dot plot
+              Plotly.newPlot('secPlot', data_u, layout_U);
+            }
+            displaydensity(0)
+
+
+
+            //table plot
+            function displayTable(index) {
+              var rowData = annotated_table[index];
+              var tableData = [
+                {
+                  type: 'table',
+                  header: {
+                    values: ['mz', 'mz_name', 'annotated metabolites', 'entry of the metabolites'],
+                    align: 'center',
+                    line: {width: 1, color: 'black'},
+                    fill: {color: 'grey'},
+                    font: {family: 'Arial', size: 12, color: 'white'}
+                  },
+                  cells: {
+                    values: rowData,
+                    align: 'center',
+                    line: {color: 'black', width: 1},
+                    fill: {color: ['white', 'lightgrey']},
+                    font: {family: 'Arial', size: 11, color: ['black']}
+                  }
+                }
+              ];
+              var layout_table = {
+                title: 'Annotation table for m/z: ' + data[index].mz,
+                autosize: true,
+                plot_bgcolor: 'rgba(0,0,0,0)', // Transparent background for the plot area
+                paper_bgcolor: 'rgba(0,0,0,0)',
+              };
+
+              Plotly.newPlot('tablePlot', tableData,layout_table);
+            }
+            displayTable(0);
+            </script>
+              </body>
+              </html>"
+  )
+  if (!file.exists(folder)) {
+    dir.create(paste0(file.path(folder), name))
+    writeLines(javascript, paste0(file.path(folder), "/mzs_density_map.html"))
+  } else{
+    writeLines(javascript, paste0(file.path(folder), "/mzs_density_map.html"))
+  }
+}
+
 
 
 ########################################################################################################################################################################################################################
