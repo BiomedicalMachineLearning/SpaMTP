@@ -163,6 +163,36 @@ plot_plus_minus <-function(object, mz_list, plusminus){
 
 
 
+#' Helper function for converting Seurat Class ggplots from spot to pixel layout
+#'
+#' @param plot ggplot object contating the doplot to be converted into pixel layout
+#'
+#' @return plot where spots are in pixel layout rather then spot
+#' @export
+#'
+#' @examples
+#' #pixelPlot(SpatialFeaturPlot(SpaMTP.obj, features = "nFeature_Spatial"))
+pixelPlot <- function(plot){
+
+  plots <- lapply(1:length(plot), function (i){
+    image_data <- plot[[i]]$data
+    data_col <- rlang::quo_text(plot[[i]]$mapping$fill)
+    image_metadata <- ggplot_build(plot[[i]])
+    size <- unique(image_metadata$data[[1]]$size)
+    image_data$fill <- image_metadata$data[[1]]$fill
+
+    custom_plot <- ggplot(image_data, aes(x = y, y = x)) +
+      geom_point(aes(color = !!rlang::sym(data_col)), shape = 15, size = size) +  # Customize point size and appearance  # Define size range
+      labs(title = plot[[i]]$labels$title, color = plot[[i]]$labels$title) & theme_void()  & scale_color_gradientn(colors = unique(image_data[order(image_data[[data_col]]),]$fill))
+
+  })
+
+  return(purrr::reduce(plots, `&`))
+}
+
+
+
+
 #' Visualise expression of m/z values in a spatial context
 #'      - This is for plotting Seurat Spatial Metabolomic data without an image(i.e. H&E image)
 #'      - This function inherits off Seurat::ImageFeaturePlot(). Look here for more detailed documentation about inputs.
@@ -196,6 +226,7 @@ plot_plus_minus <-function(object, mz_list, plusminus){
 #' @param coord.fixed Boolean value of it to plot cartesian coordinates with fixed aspect ratio (default = TURE).
 #' @param assay Character string indicating which Seurat object assay to pull data form (default = "Spatial").
 #' @param slot Character string indicating the assay slot to use to pull expression values form (default = "counts").
+#' @param plot.pixels Boolean indicating if the plot should display pixel square shapes, if false will plot with spots (deafult = FALSE).
 #' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
 #'
 #' @returns A ggplot showing the Spatial representation of expression data of specified m/z values
@@ -237,6 +268,7 @@ ImageMZPlot <- function(object,
                         coord.fixed = TRUE,
                         assay = "Spatial",
                         slot = "data",
+                        plot.pixel = FALSE,
                         verbose = TRUE
 ){
 
@@ -344,6 +376,9 @@ ImageMZPlot <- function(object,
     }
   }
 
+  if (plot.pixel){
+    plot <- pixelPlot(plot)
+  }
 
   return(plot)
 
@@ -386,6 +421,7 @@ ImageMZPlot <- function(object,
 #' @param slot Character string indicating the assay slot to use to pull expression values form (default = "counts").
 #' @param column.name Character string defining the column name where the annotations are stored in the slot meta.data (default = "all_IsomerNames").
 #' @param plot.exact Boolean value describing if to only plot exact matches to the metabolite search terms, else will plot all metabolites which contain serach word in name (default = TRUE).
+#' @param plot.pixels Boolean indicating if the plot should display pixel square shapes, if false will plot with spots (deafult = FALSE).
 #' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
 #'
 #' @returns A ggplot showing the Spatial representation of expression data of specified metabolites.
@@ -429,6 +465,7 @@ ImageMZAnnotationPlot <- function(object,
                                   slot = "data",
                                   column.name = "all_IsomerNames",
                                   plot.exact = TRUE,
+                                  plot.pixel = FALSE,
                                   verbose = TRUE
 
 ){
@@ -602,6 +639,10 @@ ImageMZAnnotationPlot <- function(object,
 
   }
 
+  if (plot.pixel){
+    plot <- pixelPlot(plot)
+  }
+
   return(plot)
 
 }
@@ -630,6 +671,7 @@ ImageMZAnnotationPlot <- function(object,
 #' @param stroke Numeric value describing the width of the border around the spot (default = 0.25).
 #' @param interactive Boolean value of if to launch an interactive SpatialDimPlot or SpatialFeaturePlot session, see Seurat::ISpatialDimPlot() or Seurat::ISpatialFeaturePlot() for more details (default = FALSE).
 #' @param information An optional dataframe or matrix of extra information to be displayed on hover (default = NULL).
+#' @param plot.pixels Boolean indicating if the plot should display pixel square shapes, if false will plot with spots (deafult = FALSE).
 #' @param verbose Boolean indicating whether to show the message. If TRUE the message will be show, else the message will be suppressed (default = TRUE).
 #'
 #' @returns A ggplot showing the Spatial representation of expression data of specified m/z values for Spatial data with H&E Image
