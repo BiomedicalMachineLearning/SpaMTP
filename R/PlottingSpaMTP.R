@@ -187,7 +187,7 @@ pixelPlot <- function(plot){
 
   })
 
-  return(purrr::reduce(plots, `&`))
+  return(purrr::reduce(plots, `+`))
 }
 
 
