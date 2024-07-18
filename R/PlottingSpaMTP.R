@@ -163,6 +163,25 @@ plot_plus_minus <-function(object, mz_list, plusminus){
 
 
 
+#' Helper function to determine if a column contains categorical or continuous Data
+#'
+#' @param col data.frame column containing data of interest.
+#'
+#' @return Character string defining the data type contained withing the column
+#'
+#' @examples
+#' #HELPER FUNCTION
+check_column_type <- function(col) {
+  if (is.factor(col) || is.character(col)) {
+    return("Categorical")
+  } else if (is.numeric(col)) {
+    return("Continuous")
+  } else {
+    return("Unknown")
+  }
+}
+
+
 #' Helper function for converting Seurat Class ggplots from spot to pixel layout
 #'
 #' @param plot ggplot object contating the doplot to be converted into pixel layout
@@ -175,15 +194,30 @@ plot_plus_minus <-function(object, mz_list, plusminus){
 pixelPlot <- function(plot){
 
   plots <- lapply(1:length(plot), function (i){
+
     image_data <- plot[[i]]$data
     data_col <- rlang::quo_text(plot[[i]]$mapping$fill)
     image_metadata <- ggplot_build(plot[[i]])
     size <- unique(image_metadata$data[[1]]$size)
     image_data$fill <- image_metadata$data[[1]]$fill
 
-    custom_plot <- ggplot(image_data, aes(x = y, y = x)) +
-      geom_point(aes(color = !!rlang::sym(data_col)), shape = 15, size = size) +  # Customize point size and appearance  # Define size range
-      labs(title = plot[[i]]$labels$title, color = plot[[i]]$labels$title) & theme_void()  & scale_color_gradientn(colors = unique(image_data[order(image_data[[data_col]]),]$fill))
+    if (check_column_type(image_data[[data_col]]) == "Categorical"){
+      palette <- unique(image_data$fill)
+      names(palette) <- unlist(unique(image_data[[data_col]]))
+
+      custom_plot <- ggplot(image_data, aes(x = y, y = x)) +
+        geom_point(aes(color = !!rlang::sym(data_col)), shape = 15, size = size) +  # Customize point size and appearance  # Define size range
+        labs(title = plot[[i]]$labels$title, color = plot[[i]]$labels$title) & theme_void() &
+        theme(plot.title = element_text(hjust = 0.5)) & scale_color_manual(values = palette)
+
+    } else {
+      custom_plot <- ggplot(image_data, aes(x = y, y = x)) +
+        geom_point(aes(color = !!rlang::sym(data_col)), shape = 15, size = size) +  # Customize point size and appearance  # Define size range
+        labs(title = plot[[i]]$labels$title, color = plot[[i]]$labels$title) & theme_void() &
+        theme(plot.title = element_text(hjust = 0.5)) & scale_color_gradientn(colors = unique(image_data[order(image_data[[data_col]]),]$fill))
+    }
+
+    custom_plot
 
   })
 
