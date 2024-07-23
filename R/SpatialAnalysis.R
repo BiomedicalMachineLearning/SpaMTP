@@ -64,7 +64,7 @@ FindCorrelatedFeatures <- function(data, mz = NULL, gene = NULL, ident = NULL, S
 
   if (!is.null(ident)){
     for (i in names(data_list)){
-      data_list[[i]] <- colocalized(object = data_cardinal, ref = data_list[[i]])
+      data_list[[i]] <- Cardinal::colocalized(object = data_cardinal, ref = data_list[[i]], n = length(rownames(data[[SM.assay]][SM.slot])))
     }
   } else {
     data_list[["1"]] <- suppressWarnings(Cardinal::colocalized(data_cardinal, mz=mz, n = length(rownames(data[[SM.assay]][SM.slot]))))
@@ -77,19 +77,19 @@ FindCorrelatedFeatures <- function(data, mz = NULL, gene = NULL, ident = NULL, S
       result$features <- c(rownames(met_counts),gene_mappings$gene)
       result$modality <- c(rep("metabolite", length(rownames(met_counts))), c(rep("gene", length(gene_mappings$gene))))
       result <- result[c("features", colnames(result)[!colnames(result) %in% c("mz", "features")])]
-      result <- result[order(-abs(result$correlation)), ]
-      result$ident <- i
-      result$rank <- c(1:length(result$ident))
       data_list[[i]] <- result
     }
 
-  } else {
+  }
 
-    for (i in names(data_list)){
+  for (i in names(data_list)){
 
-      data_list[[i]]$ident <- i
-      data_list[[i]]$rank <- c(1:length(data_list[[i]]$ident))
-    }
+    result <- data_list[[i]]
+    result <- result[order(-abs(result$correlation)), ]
+    result$ident <- i
+    result$rank <- c(1:length(result$ident))
+    data_list[[i]] <- result
+
   }
 
   results <- data.frame(do.call(rbind, data_list))
