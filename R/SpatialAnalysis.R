@@ -3,13 +3,14 @@
 #' Find top features and metabolites that are strongly correlated with a given feature
 #'
 #' @param data SpaMTP Seurat class object containing both Spatial Transcriptomic and Metabolic data assays.
-#' @param mz Numeric value specifying the m/z to find correlated features for. One of `mz` or `gene` must be provided, alternatives must be `NULL` (default = NULL).
-#' @param gene Character value specifying the gene to find correlated features for. One of `mz` or `gene` must be provided, alternatives must be `NULL` (default = NULL).
-#' @param SM.assay Character value specifying the name of the assay containing the spatial metabolomics (SM) data (default = "SPM").
-#' @param ST.assay Character value specifying the name of the assay containing the spatial transcriptomics (ST) data (Default = "SPT").
-#' @param SM.slot Character value specifying the slot of the SM assay to use (default = "counts").
-#' @param ST.slot Character value specifying the slot of the ST assay to use (default = "counts").
-#' @param nfeatures Integer value specifying the number of top correlated features to return (default = 10).
+#' @param mz Numeric string specifying the m/z to find correlated features for. One of `mz`, `gene` or `ident` must be provided, alternatives must be `NULL` (default = NULL).
+#' @param gene Character string specifying the gene to find correlated features for. One of `mz`, `gene` or `ident` must be provided, alternatives must be `NULL` (default = NULL).
+#' @param ident Character string defining the ident column in the data object's `@meta.data` slot to find correlated features for. One of `mz`, `gene` or `ident` must be provided, alternatives must be `NULL` (default = NULL).
+#' @param SM.assay Character string specifying the name of the assay containing the spatial metabolomics (SM) data (default = "SPM").
+#' @param ST.assay Character string specifying the name of the assay containing the spatial transcriptomics (ST) data. If NULL then only metabolites will be used (Default = NULL).
+#' @param SM.slot Character string specifying the slot of the SM assay to use (default = "counts").
+#' @param ST.slot Character string specifying the slot of the ST assay to use (default = "counts").
+#' @param nfeatures Integer specifying the number of top correlated features to return (default = 10).
 #'
 #' @return A data frame containing the top correlated features with columns for the feature names and their correlation values.
 #'
@@ -17,45 +18,97 @@
 #'
 #' @examples
 #' # result <- FindCorrelatedFeatures(data = SpaMTP, gene = "GeneX", nfeatures = 5)
-FindCorrelatedFeatures <- function(data, mz = NULL, gene = NULL, SM.assay = "SPM", ST.assay = "SPT", SM.slot = "counts", ST.slot = "counts", nfeatures = 10){
+FindCorrelatedFeatures <- function(data, mz = NULL, gene = NULL, ident = NULL, SM.assay = "SPM", ST.assay = NULL, SM.slot = "counts", ST.slot = "counts", nfeatures = 10){
+
+  data_list <- list()
   met_counts <- data[[SM.assay]][SM.slot]
-  tran_counts <- data[[ST.assay]][ST.slot]
 
-  gene_mappings <- data.frame(gene = rownames(tran_counts))
+  if (!is.null(ST.assay)){
+    tran_counts <- data[[ST.assay]][ST.slot]
 
-  rownames(tran_counts) <- unlist(lapply(1:length(rownames(tran_counts)), function (x) {
-    paste0("mz-",(round(as.numeric(gsub("mz-", "", rownames(met_counts)[length(rownames(met_counts))],))) + 100), x)
-  }))
+    gene_mappings <- data.frame(gene = rownames(tran_counts))
 
-  gene_mappings$mz <- rownames(tran_counts)
-  gene_mappings$raw_mz <- gsub("mz-", "", gene_mappings$mz)
+    rownames(tran_counts) <- unlist(lapply(1:length(rownames(tran_counts)), function (x) {
+      paste0("mz-",(round(as.numeric(gsub("mz-", "", rownames(met_counts)[length(rownames(met_counts))],))) + 100), x)
+    }))
 
-  data[["tmp"]] <- SeuratObject::CreateAssay5Object(counts = rbind(met_counts, tran_counts))
+    gene_mappings$mz <- rownames(tran_counts)
+    gene_mappings$raw_mz <- gsub("mz-", "", gene_mappings$mz)
 
-  if (is.null(mz) & ! is.null(gene)){
+    data[["tmp"]] <- SeuratObject::CreateAssay5Object(counts = rbind(met_counts, tran_counts))
+    data[["tmp"]][SM.slot] <- data[["tmp"]]["counts"]
+    SM.assay <- "tmp"
+  } else{
+    if (!is.null(ST.slot)){
+      warning("`ST.slot` is not set to NULL, but `ST.assay` is ... Gene's will not be included in the analysis. If genes are to be included, please set `ST.assay` != NULL -> using the appropriate assay")
+    }
+  }
+
+  if (is.null(mz) & ! is.null(gene) & is.null(gene)){  # for gene mapping
     idx <- which(gene_mappings$gene == gene)
     mz <- as.numeric(gene_mappings$raw_mz[idx])
 
-  } else if (!is.null(mz) & is.null(gene)){
+  } else if (!is.null(mz) & is.null(gene) & is.null(ident)){ # for mz mapping
     mz <- mz
+  } else if (!is.null(ident) & is.null(gene) & is.null(mz)){ # for ident mapping
+
+    for (i in unique(data@meta.data[[ident]])){
+      data_list[[i]] <- unlist(lapply(data@meta.data[[ident]], function(x) { ifelse(x == i, TRUE, FALSE)}))
+    }
+
   } else {
-    stop("Invalid input for 'mz = ' and 'gene = '... Only one inupt can be provided. Either mz or gene, alternative must be set to NULL! Please check documentation ...")
+    stop("Invalid input for 'mz = ', 'ident' = and 'gene = '... Only one inupt can be provided. Either mz, ident or gene, alternative must be set to NULL! Please check documentation ...")
   }
 
-  data_cardinal <- ConvertSeuratToCardinal(data = data, assay = "tmp", slot = "counts")
+  data_cardinal <- ConvertSeuratToCardinal(data = data, assay = SM.assay, slot = SM.slot)
 
-  result <- suppressWarnings(Cardinal::colocalized(data_cardinal, mz=mz, n = length(rownames(met_counts)) + length(rownames(tran_counts))))
-  result <- result[order(result$mz), ]
-  result$features <- c(rownames(met_counts),gene_mappings$gene)
-  result$modality <- c(rep("metabolite", length(rownames(met_counts))), c(rep("gene", n = length(gene_mappings$gene))))
-  result <- result[c("features", colnames(result)[!colnames(result) %in% c("mz", "features")])]
-  result <- result[order(-abs(result$correlation)), ]
+  if (!is.null(ident)){
+    for (i in names(data_list)){
+      data_list[[i]] <- colocalized(object = data_cardinal, ref = data_list[[i]])
+    }
+  } else {
+    data_list[["1"]] <- suppressWarnings(Cardinal::colocalized(data_cardinal, mz=mz, n = length(rownames(data[[SM.assay]][SM.slot]))))
+  }
+
+  if (!is.null(ST.assay)){
+    for (i in names(data_list)){
+
+      result <- data_list[[i]][order(result$mz), ]
+      result$features <- c(rownames(met_counts),gene_mappings$gene)
+      result$modality <- c(rep("metabolite", length(rownames(met_counts))), c(rep("gene", length(gene_mappings$gene))))
+      result <- result[c("features", colnames(result)[!colnames(result) %in% c("mz", "features")])]
+      result <- result[order(-abs(result$correlation)), ]
+      result$ident <- i
+      result$rank <- c(1:length(result$ident))
+      data_list[[i]] <- result
+    }
+
+  } else {
+
+    for (i in names(data_list)){
+
+      data_list[[i]]$ident <- i
+      data_list[[i]]$rank <- c(1:length(data_list[[i]]$ident))
+    }
+  }
+
+  results <- data.frame(do.call(rbind, data_list))
 
   if (!is.null(nfeatures)){
-    return(head(result, n = nfeatures))
-  } else{
-    return(result)
+    results <- data.frame(results %>%
+                            dplyr::group_by(ident) %>%
+                            dplyr::slice_head(n = nfeatures) %>%
+                            dplyr::ungroup())
+
   }
+
+
+  if ( length(data_list) == 1){
+    results$ident <- NULL
+  }
+
+
+  return(results)
 }
 
 

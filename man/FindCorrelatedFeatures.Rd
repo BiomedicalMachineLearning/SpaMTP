@@ -8,8 +8,9 @@ FindCorrelatedFeatures(
   data,
   mz = NULL,
   gene = NULL,
+  ident = NULL,
   SM.assay = "SPM",
-  ST.assay = "SPT",
+  ST.assay = NULL,
   SM.slot = "counts",
   ST.slot = "counts",
   nfeatures = 10
@@ -18,19 +19,21 @@ FindCorrelatedFeatures(
 \arguments{
 \item{data}{SpaMTP Seurat class object containing both Spatial Transcriptomic and Metabolic data assays.}
 
-\item{mz}{Numeric value specifying the m/z to find correlated features for. One of \code{mz} or \code{gene} must be provided, alternatives must be \code{NULL} (default = NULL).}
+\item{mz}{Numeric string specifying the m/z to find correlated features for. One of \code{mz}, \code{gene} or \code{ident} must be provided, alternatives must be \code{NULL} (default = NULL).}
 
-\item{gene}{Character value specifying the gene to find correlated features for. One of \code{mz} or \code{gene} must be provided, alternatives must be \code{NULL} (default = NULL).}
+\item{gene}{Character string specifying the gene to find correlated features for. One of \code{mz}, \code{gene} or \code{ident} must be provided, alternatives must be \code{NULL} (default = NULL).}
 
-\item{SM.assay}{Character value specifying the name of the assay containing the spatial metabolomics (SM) data (default = "SPM").}
+\item{ident}{Character string defining the ident column in the data object's \verb{@meta.data} slot to find correlated features for. One of \code{mz}, \code{gene} or \code{ident} must be provided, alternatives must be \code{NULL} (default = NULL).}
 
-\item{ST.assay}{Character value specifying the name of the assay containing the spatial transcriptomics (ST) data (Default = "SPT").}
+\item{SM.assay}{Character string specifying the name of the assay containing the spatial metabolomics (SM) data (default = "SPM").}
 
-\item{SM.slot}{Character value specifying the slot of the SM assay to use (default = "counts").}
+\item{ST.assay}{Character string specifying the name of the assay containing the spatial transcriptomics (ST) data. If NULL then only metabolites will be used (Default = NULL).}
 
-\item{ST.slot}{Character value specifying the slot of the ST assay to use (default = "counts").}
+\item{SM.slot}{Character string specifying the slot of the SM assay to use (default = "counts").}
 
-\item{nfeatures}{Integer value specifying the number of top correlated features to return (default = 10).}
+\item{ST.slot}{Character string specifying the slot of the ST assay to use (default = "counts").}
+
+\item{nfeatures}{Integer specifying the number of top correlated features to return (default = 10).}
 }
 \value{
 A data frame containing the top correlated features with columns for the feature names and their correlation values.
