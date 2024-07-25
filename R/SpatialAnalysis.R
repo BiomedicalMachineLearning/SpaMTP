@@ -211,7 +211,7 @@ MultiOmicIntegration <- function (multiomic.data, weight.list = NULL, reduction.
     names(x) <- names(mm.integration@misc$modality.weight@modality.weight.list[[reduction.list[[1]]]])
     mm.integration@misc$modality.weight@modality.weight.list[[reduction.list[[1]]]] <- x
 
-    x <- rep(weight.list[[1]], length(names(mm.integration@misc$modality.weight@modality.weight.list[[reduction.list[[2]]]]))) ## Setting the SPM weights
+    x <- rep(weight.list[[2]], length(names(mm.integration@misc$modality.weight@modality.weight.list[[reduction.list[[2]]]]))) ## Setting the SPM weights
     names(x) <- names(mm.integration@misc$modality.weight@modality.weight.list[[reduction.list[[2]]]])
     mm.integration@misc$modality.weight@modality.weight.list[[reduction.list[[2]]]] <- x
 
