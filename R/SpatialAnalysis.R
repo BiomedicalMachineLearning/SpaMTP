@@ -73,7 +73,7 @@ FindCorrelatedFeatures <- function(data, mz = NULL, gene = NULL, ident = NULL, S
   if (!is.null(ST.assay)){
     for (i in names(data_list)){
 
-      result <- data_list[[i]][order(result$mz), ]
+      result <- data_list[[i]][order(data_list[[i]]$mz), ]
       result$features <- c(rownames(met_counts),gene_mappings$gene)
       result$modality <- c(rep("metabolite", length(rownames(met_counts))), c(rep("gene", length(gene_mappings$gene))))
       result <- result[c("features", colnames(result)[!colnames(result) %in% c("mz", "features")])]
