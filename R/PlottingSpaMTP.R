@@ -1347,7 +1347,7 @@ CheckAlignment <- function(SM.data, ST.data, image.res = NULL, names = c("SM", "
 #' @param show.x.ticks A logical value specifying whether to show ticks on the x-axis (default = FALSE).
 #' @param show.y.ticks A logical value specifying whether to show ticks on the y-axis (default = FALSE).
 #' @param show.z.ticks A logical value specifying whether to show ticks on the z-axis (default = FALSE).
-#' @param show.image A logical value specifying whether to overlay an image on the plot (default = FALSE).
+#' @param show.image Character string specifying the image name to plot. If NULL then no image is plot (default = NULL).
 #' @param plot.height Numeric value defining the height of the returned plot (default = 800).
 #' @param plot.width Numeric value defining the width of the returned plot (default = 1500).
 #'
@@ -1373,7 +1373,7 @@ Plot3DFeature <- function(data,
                           show.x.ticks = FALSE,
                           show.y.ticks = FALSE,
                           show.z.ticks = FALSE,
-                          show.image = FALSE,
+                          show.image = NULL,
                           plot.height = 800,
                           plot.width = 1500
                           ){
@@ -1485,9 +1485,9 @@ Plot3DFeature <- function(data,
 
     )
 
-  if (show.image){
+  if (!is.null(show.image)){
 
-    color_matrix <- GetImage(data)$raster
+    color_matrix <- combined.data@images[[show.image]]@image
     row_indices <- rep(seq_len(nrow(color_matrix)), each = ncol(color_matrix))
     col_indices <- rep(seq_len(ncol(color_matrix)), times = nrow(color_matrix))
 
