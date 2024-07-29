@@ -69,5 +69,5 @@ A 3D Plotly plot
 Generates a 3D spatial feature plot from a SpaMTP object
 }
 \examples{
-# Plot3DFeature(data = my_data, features = c("gene1", "gene2"), assays = c("SPT", "SPM"))
+# Plot3DFeature(data = my_data, features = c("gene1", "gene2"), assays = c("SPT", "SPM"), show.image = "slice1")
 }

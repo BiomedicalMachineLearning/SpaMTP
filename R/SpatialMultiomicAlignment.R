@@ -411,7 +411,7 @@ MapSpatialOmics <- function(SM.data, ST.data, res_increase = NULL, annotations =
 #' @param msi.pixel.multiplier Numeric value defining a scale.factor to multiple each SM pixel coordinates by (default = 20).
 #' @param image.res Character string of the corresponding ST image scale factor to use (default = "lowres").
 #' @param continous_cols Vector of colours to use for plotting continuous data. If NULL, the colour map "Reds" will be used (default = NULL).
-#' @param catagorical_cols Vector of colours to use for plotting categorical data (default = "black").
+#' @param catagorical_cols Vector of colours to use for plotting categorical data (default = NULL).
 #' @param fov Character string matching the name of the SM FOV to use for plotting (default = "fov").
 #' @param image.slice Character string matching the ST image slice name to use for plotting (default = "slice1").
 #' @param shiny.host Character string of the shiny host network interface that the Shiny application will listen on when run (default = "0.0.0.0").
@@ -435,7 +435,7 @@ AlignSpatialOmics <- function (
     msi.pixel.multiplier = 20,
     image.res = "lowres",
     continous_cols = NULL,
-    catagorical_cols = "black",
+    catagorical_cols = NULL,
     fov = "fov",
     image.slice = "slice1",
     shiny.host = "0.0.0.0",
@@ -758,7 +758,7 @@ AlignSpatialOmics <- function (
       if (!is.null(catagorical_cols)){
         cat_pal <- catagorical_cols
       } else {
-        cat_pal <- RColorBrewer::brewer.pal("Paired", n = 10)
+        cat_pal <- c("black", RColorBrewer::brewer.pal("Paired", n = 10))
       }
 
 

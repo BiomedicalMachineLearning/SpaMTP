@@ -10,7 +10,7 @@ AlignSpatialOmics(
   msi.pixel.multiplier = 20,
   image.res = "lowres",
   continous_cols = NULL,
-  catagorical_cols = "black",
+  catagorical_cols = NULL,
   fov = "fov",
   image.slice = "slice1",
   shiny.host = "0.0.0.0",
@@ -29,7 +29,7 @@ AlignSpatialOmics(
 
 \item{continous_cols}{Vector of colours to use for plotting continuous data. If NULL, the colour map "Reds" will be used (default = NULL).}
 
-\item{catagorical_cols}{Vector of colours to use for plotting categorical data (default = "black").}
+\item{catagorical_cols}{Vector of colours to use for plotting categorical data (default = NULL).}
 
 \item{fov}{Character string matching the name of the SM FOV to use for plotting (default = "fov").}
 
