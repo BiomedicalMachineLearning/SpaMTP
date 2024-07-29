@@ -357,7 +357,8 @@ MapSpatialOmics <- function(SM.data, ST.data, res_increase = NULL, annotations =
   rownames(obs_x) <- rownames(seuratobj[[new_SpM.assay]]@cells)
   seuratobj@meta.data[colnames(obs_x)] <- obs_x
 
-
+  ## add additional visium meta.data
+  seuratobj@meta.data[colnames(obs_x)] <- ST.data@meta.data[colnames(ST.data@meta.data)][rownames(ST.data@meta.data) %in% rownames(seuratobj@meta.data),]
 
   vis_subset <- subset(ST.data, cells = rownames(seuratobj@meta.data))
   seuratobj <- subset(seuratobj, cells = rownames(vis_subset@meta.data))
