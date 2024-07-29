@@ -1350,6 +1350,7 @@ CheckAlignment <- function(SM.data, ST.data, image.res = NULL, names = c("SM", "
 #' @param show.image Character string specifying the image name to plot. If NULL then no image is plot (default = NULL).
 #' @param plot.height Numeric value defining the height of the returned plot (default = 800).
 #' @param plot.width Numeric value defining the width of the returned plot (default = 1500).
+#' @param image.sf Character string defining the image scalefactor to use (default = "lowres").
 #'
 #'
 #' @return A 3D Plotly plot
@@ -1358,7 +1359,7 @@ CheckAlignment <- function(SM.data, ST.data, image.res = NULL, names = c("SM", "
 #' @import plotly
 #'
 #' @examples
-#' # Plot3DFeature(data = my_data, features = c("gene1", "gene2"), assays = c("SPT", "SPM"))
+#' # Plot3DFeature(data = my_data, features = c("gene1", "gene2"), assays = c("SPT", "SPM"), show.image = "slice1")
 Plot3DFeature <- function(data,
                           features,
                           assays = c("SPT", "SPM"),
@@ -1375,7 +1376,8 @@ Plot3DFeature <- function(data,
                           show.z.ticks = FALSE,
                           show.image = NULL,
                           plot.height = 800,
-                          plot.width = 1500
+                          plot.width = 1500,
+                          image.sf = "lowres"
                           ){
 
   ## handeling of inncorect input legnths
@@ -1501,8 +1503,8 @@ Plot3DFeature <- function(data,
 
 
     plot <- plot %>% add_trace(df,
-                               x = df$row,
-                               y = df$col,
+                               x = df$row / data@images[[show.image]]@scale.factors[[image.sf]],
+                               y = df$col / data@images[[show.image]]@scale.factors[[image.sf]],
                                z = rep(0 - between.layer.height, times = dim(df)[1]),
                                type = "scatter3d",
                                mode = "markers",

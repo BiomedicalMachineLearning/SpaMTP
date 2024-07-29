@@ -19,9 +19,10 @@ Plot3DFeature(
   show.x.ticks = FALSE,
   show.y.ticks = FALSE,
   show.z.ticks = FALSE,
-  show.image = FALSE,
+  show.image = NULL,
   plot.height = 800,
-  plot.width = 1500
+  plot.width = 1500,
+  image.sf = "lowres"
 )
 }
 \arguments{
@@ -53,11 +54,13 @@ Plot3DFeature(
 
 \item{show.z.ticks}{A logical value specifying whether to show ticks on the z-axis (default = FALSE).}
 
-\item{show.image}{A logical value specifying whether to overlay an image on the plot (default = FALSE).}
+\item{show.image}{Character string specifying the image name to plot. If NULL then no image is plot (default = NULL).}
 
 \item{plot.height}{Numeric value defining the height of the returned plot (default = 800).}
 
 \item{plot.width}{Numeric value defining the width of the returned plot (default = 1500).}
+
+\item{image.sf}{Character string defining the image scalefactor to use (default = "lowres").}
 }
 \value{
 A 3D Plotly plot
