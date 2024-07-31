@@ -307,7 +307,7 @@ DEPsHeatmap <- function(edgeR_output,
         slice_head(n = n)
     }
     df <- do.call(rbind, list(grouped_pos,grouped_neg))
-    df <- df[order(df$cluster, desc(df$regulate)), ]
+    df <- df[order(df$cluster, dplyr::desc(df$regulate)), ]
 
   } else {
     if ( order.by != "logFC"){
