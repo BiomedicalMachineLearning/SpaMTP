@@ -1,7 +1,9 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# SpaMTP !UNDER DEVELOPMENT! <img src="man/figures/logo.png" align="right" height="100" alt="" />
+# SpaMTP IS IN AN UPDATED LOCATION! Please visit here:
+
+https://github.com/GenomicsMachineLearning/SpaMTP
 
 <!-- badges: start -->
 <br>
